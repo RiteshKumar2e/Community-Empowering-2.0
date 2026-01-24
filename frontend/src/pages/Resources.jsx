@@ -12,6 +12,16 @@ const Resources = () => {
     const [selectedCategory, setSelectedCategory] = useState('all')
     const [loading, setLoading] = useState(true)
     const [showAll, setShowAll] = useState(false)
+    const [selectedSubCategory, setSelectedSubCategory] = useState('all')
+
+    const subCategories = [
+        { value: 'all', label: 'All Education' },
+        { value: 'higher', label: 'Higher Education' },
+        { value: 'backward', label: 'Backward Classes' },
+        { value: 'research', label: 'Research Purposes' },
+        { value: 'scholarship', label: 'Scholarships' },
+        { value: 'age', label: 'Age Group Schemes' }
+    ]
 
     const categories = [
         { value: 'all', label: 'All Resources', icon: <Building size={18} /> },
@@ -30,6 +40,7 @@ const Resources = () => {
             title: "PM-YASASVI Scheme",
             description: "Pre-Matric and Post-Matric Scholarship for OBC, EBC, and DNT students. Financial assistance for education from Class 9 to Post-Graduation.",
             category: "education",
+            subCategory: "scholarship",
             eligibility: "OBC/EBC/DNT students, Family income < ₹2.5 lakh/year",
             link: "https://socialjustice.gov.in/schemes/pm-yasasvi",
             provider: "Ministry of Social Justice & Empowerment",
@@ -39,14 +50,79 @@ const Resources = () => {
             title: "National Scholarship Portal",
             description: "One-stop solution for various scholarships from Central and State Governments. Apply for Pre-Matric, Post-Matric, Merit-cum-Means scholarships.",
             category: "education",
+            subCategory: "scholarship",
             eligibility: "Students from Class 1 to Post-Graduation",
             link: "https://scholarships.gov.in/",
             provider: "Government of India"
         },
         {
+            title: "SWAYAM - NPTEL",
+            description: "Online courses and certification for Higher Education and Career Growth. Courses from IITs and IIMs available for free.",
+            category: "education",
+            subCategory: "higher",
+            eligibility: "All students and lifelong learners",
+            link: "https://swayam.gov.in/",
+            provider: "Ministry of Education"
+        },
+        {
+            title: "PMRF (Prime Minister's Research Fellowship)",
+            description: "Highest level of research fellowship for students in IITs, IISc, NITs for PhD programs in Science & Technology.",
+            category: "education",
+            subCategory: "research",
+            eligibility: "B.Tech/Masters graduates with high GATE/GPA",
+            link: "https://pmrf.in/",
+            provider: "Department of Higher Education"
+        },
+        {
+            title: "National Overseas Scholarship",
+            description: "Financial assistance to SC, ST, and Landless Labourers' children for pursuing Master's and PhD degrees in foreign universities.",
+            category: "education",
+            subCategory: "backward",
+            eligibility: "SC/ST students with < ₹6 lakh annual family income",
+            link: "https://nosmsje.gov.in/",
+            provider: "Ministry of Social Justice"
+        },
+        {
+            title: "HEFA - Higher Ed Financing",
+            description: "Loans for building world-class infrastructure in premium educational institutions in India.",
+            category: "education",
+            subCategory: "higher",
+            eligibility: "Educational Institutions (IITs, NITs, Central Universities)",
+            link: "https://hefa.co.in/",
+            provider: "HEFA / Canara Bank"
+        },
+        {
+            title: "INSPIRE Fellowship",
+            description: "Support for research in Basic and Applied Sciences for university toppers to pursue PhD.",
+            category: "education",
+            subCategory: "research",
+            eligibility: "University 1st rank holders in Science streams",
+            link: "https://online-inspire.gov.in/",
+            provider: "Department of Science & Technology"
+        },
+        {
+            title: "Pre-Matric Scholarship for ST",
+            description: "Financial support to ST students studying in classes 9 and 10 to reduce dropout rates.",
+            category: "education",
+            subCategory: "backward",
+            eligibility: "ST students, Family income < ₹2.5 lakh",
+            link: "https://tribal.nic.in/",
+            provider: "Ministry of Tribal Affairs"
+        },
+        {
+            title: "Ishan Uday Scholarship",
+            description: "Special scholarship for students from the North Eastern Region for general degree, technical and professional courses.",
+            category: "education",
+            subCategory: "scholarship",
+            eligibility: "Students from NER region only",
+            link: "https://www.ugc.ac.in/ishi_uday/",
+            provider: "University Grants Commission (UGC)"
+        },
+        {
             title: "Pradhan Mantri Kaushal Vikas Yojana (PMKVY)",
             description: "Skill development training program. Free training with certification and monetary rewards. Over 40 sectors covered.",
             category: "education",
+            subCategory: "higher",
             eligibility: "Youth aged 15-45 years",
             link: "https://www.pmkvyofficial.org/",
             provider: "Ministry of Skill Development"
@@ -284,6 +360,7 @@ const Resources = () => {
             title: "PM-Poshan (Mid Day Meal)",
             description: "Nutrition scheme for school children. Daily hot cooked meals for students in government and government-aided schools.",
             category: "education",
+            subCategory: "age",
             eligibility: "Children in Class 1 to 8",
             link: "https://pmposhan.education.gov.in/",
             provider: "Ministry of Education"
@@ -308,8 +385,27 @@ const Resources = () => {
             title: "Samagra Shiksha",
             description: "Integrated school education program. Holistic support from pre-school to senior secondary level for all students.",
             category: "education",
+            subCategory: "age",
             eligibility: "All school-going children and teachers",
             link: "https://samagra.education.gov.in/",
+            provider: "Ministry of Education"
+        },
+        {
+            title: "Balika Samridhi Yojana",
+            description: "Financial assistance for the birth and education of girls. Focuses on changing society's attitude towards girl children.",
+            category: "education",
+            subCategory: "age",
+            eligibility: "Girl children from BPL families",
+            link: "https://wcd.nic.in/",
+            provider: "Ministry of Women & Child Development"
+        },
+        {
+            title: "Kasturba Gandhi Balika Vidyalaya (KGBV)",
+            description: "Residential schools at upper primary level for girls belonging predominantly to SC, ST, OBC and minorities.",
+            category: "education",
+            subCategory: "age",
+            eligibility: "Girls from marginalized communities, ages 11-14+",
+            link: "https://samagra.education.gov.in/kgbv.html",
             provider: "Ministry of Education"
         },
         {
@@ -390,13 +486,18 @@ const Resources = () => {
 
     useEffect(() => {
         filterResources()
-    }, [searchQuery, selectedCategory, resources])
+    }, [searchQuery, selectedCategory, selectedSubCategory, resources])
 
     const filterResources = () => {
         let filtered = resources
 
         if (selectedCategory !== 'all') {
             filtered = filtered.filter(r => r.category === selectedCategory)
+
+            // Sub-category filter for Education
+            if (selectedCategory === 'education' && selectedSubCategory !== 'all') {
+                filtered = filtered.filter(r => r.subCategory === selectedSubCategory)
+            }
         }
 
         if (searchQuery) {
@@ -472,6 +573,7 @@ const Resources = () => {
                                 className={`filter-btn ${selectedCategory === category.value ? 'active' : ''}`}
                                 onClick={() => {
                                     setSelectedCategory(category.value)
+                                    setSelectedSubCategory('all')
                                     setShowAll(false)
                                 }}
                             >
@@ -480,6 +582,23 @@ const Resources = () => {
                             </button>
                         ))}
                     </div>
+
+                    {selectedCategory === 'education' && (
+                        <div className="education-sub-filters fade-in">
+                            {subCategories.map(sub => (
+                                <button
+                                    key={sub.value}
+                                    className={`sub-filter-btn ${selectedSubCategory === sub.value ? 'active' : ''}`}
+                                    onClick={() => {
+                                        setSelectedSubCategory(sub.value)
+                                        setShowAll(false)
+                                    }}
+                                >
+                                    {sub.label}
+                                </button>
+                            ))}
+                        </div>
+                    )}
                 </div>
 
                 {/* Resources Grid */}
