@@ -142,7 +142,7 @@ body.light-theme {
   --shadow-xl: 0 35px 70px rgba(0, 0, 0, 0.08);
   --shadow-glow: 0 0 30px rgba(99, 102, 241, 0.1);
 
-  --glass-blur: 16px;
+  --glass-blur: 8px;
 }
 
 /* Light Theme Button Overrides */
@@ -450,7 +450,7 @@ a:hover {
 .btn-ghost {
   background: rgba(255, 255, 255, 0.05);
   color: var(--text-primary);
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(4px);
 }
 
 .btn-ghost:hover {
@@ -489,7 +489,7 @@ a:hover {
 
 .card {
   background: var(--bg-card);
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(4px);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-xl);
   padding: var(--space-6);

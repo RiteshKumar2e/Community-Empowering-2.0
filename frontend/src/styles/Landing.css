@@ -73,6 +73,11 @@ button,
     overflow-x: hidden;
 }
 
+.landing section {
+    content-visibility: auto;
+    contain-intrinsic-size: 1000px;
+}
+
 /* Hero Section */
 .hero {
     min-height: 100vh;
@@ -112,7 +117,7 @@ button,
     font-size: 0.875rem;
     font-weight: 500;
     color: #a78bfa;
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(5px);
 }
 
 .hero-title {
@@ -312,7 +317,7 @@ body.light-theme .title-purple-light {
 .stat-card {
     padding: var(--space-4);
     background: var(--bg-card);
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(5px);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
     transition: all var(--transition-base);
@@ -465,7 +470,7 @@ body.light-theme .title-purple-light {
     text-align: center;
     padding: var(--space-8);
     background: var(--bg-card);
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(5px);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-xl);
     transition: all var(--transition-base);
@@ -518,7 +523,7 @@ body.light-theme .title-purple-light {
 .mission-card {
     padding: var(--space-8);
     background: var(--bg-card);
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(5px);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-xl);
     text-align: center;
@@ -598,7 +603,7 @@ body.light-theme .title-purple-light {
 .about-stats-card {
     padding: var(--space-8);
     background: var(--bg-card);
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(5px);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-2xl);
     box-shadow: var(--shadow-glow);
@@ -653,7 +658,7 @@ body.light-theme .title-purple-light {
 .goal-card {
     padding: var(--space-8);
     background: var(--bg-card);
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(5px);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-xl);
     text-align: center;
@@ -696,7 +701,7 @@ body.light-theme .title-purple-light {
 .team-card {
     padding: var(--space-8);
     background: var(--bg-card);
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(5px);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-xl);
     text-align: center;
@@ -738,7 +743,7 @@ body.light-theme .title-purple-light {
 .testimonial-card {
     padding: var(--space-8);
     background: var(--bg-card);
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(5px);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-xl);
     transition: all var(--transition-base);
@@ -1079,7 +1084,7 @@ body.light-theme .connect-title {
     transform: translateY(20px) scale(0.8);
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(5px);
 }
 
 .scroll-to-top.visible {

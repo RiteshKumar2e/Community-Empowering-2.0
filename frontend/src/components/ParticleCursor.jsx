@@ -5,14 +5,25 @@ const ParticleCursor = () => {
     const [isHovered, setIsHovered] = useState(false);
     const [isDarkMode, setIsDarkMode] = useState(true);
 
+    const [isMobile, setIsMobile] = useState(false);
     const mouseX = useMotionValue(-100);
     const mouseY = useMotionValue(-100);
 
-    const spring = { damping: 20, stiffness: 200, mass: 0.5 }; // Reduced stiffness for smoother performance
+    const spring = { damping: 20, stiffness: 200, mass: 0.5 };
     const x = useSpring(mouseX, spring);
     const y = useSpring(mouseY, spring);
 
     useEffect(() => {
+        const checkMobile = () => {
+            setIsMobile(window.innerWidth <= 768 || 'ontouchstart' in window);
+        };
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
+
+    useEffect(() => {
+        if (isMobile) return;
         const move = (e) => {
             mouseX.set(e.clientX);
             mouseY.set(e.clientY);
@@ -23,9 +34,11 @@ const ParticleCursor = () => {
         const over = (e) => {
             if (hoverTimeout) return;
             hoverTimeout = setTimeout(() => {
-                setIsHovered(!!e.target.closest('a, button, input, select, .clickable'));
+                const target = e.target;
+                if (!target) return;
+                setIsHovered(!!target.closest('a, button, input, select, .clickable, [role="button"]'));
                 hoverTimeout = null;
-            }, 50);
+            }, 100); // Increased from 50ms
         };
 
         const theme = () => setIsDarkMode(!document.body.classList.contains('light-theme'));
@@ -46,6 +59,8 @@ const ParticleCursor = () => {
 
     const color = isDarkMode ? '#00f2ff' : '#6366f1';
 
+    if (isMobile) return null;
+
     return (
         <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 99999 }}>
             {/* Dot */}
@@ -61,6 +76,7 @@ const ParticleCursor = () => {
                     x: '-50%',
                     y: '-50%',
                     boxShadow: `0 0 10px ${color}`,
+                    willChange: 'transform'
                 }}
                 animate={{ scale: isHovered ? 0 : 1 }}
             />
@@ -77,6 +93,7 @@ const ParticleCursor = () => {
                     borderRadius: '50%',
                     x: '-50%',
                     y: '-50%',
+                    willChange: 'transform'
                 }}
                 animate={{
                     scale: isHovered ? 1.5 : 1,

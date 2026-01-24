@@ -48,7 +48,7 @@ const ThreeBackground = () => {
 
         // 1. Starfield (Static distant stars) - OPTIMIZED
         const starsGeometry = new THREE.BufferGeometry()
-        const starsCount = 3000 // Reduced from 10000
+        const starsCount = 1500 // Further reduced from 3000
         const starsPos = new Float32Array(starsCount * 3)
         for (let i = 0; i < starsCount * 3; i++) {
             starsPos[i] = (Math.random() - 0.5) * 1000
@@ -66,7 +66,7 @@ const ThreeBackground = () => {
 
         // 2. Cosmic Dust / Nebula Particles - OPTIMIZED
         const nebulaGeometry = new THREE.BufferGeometry()
-        const nebulaCount = 1500 // Reduced from 4000
+        const nebulaCount = 800 // Further reduced from 1500
         const nebulaPos = new Float32Array(nebulaCount * 3)
         const nebulaColors = new Float32Array(nebulaCount * 3)
 
@@ -264,8 +264,8 @@ const ThreeBackground = () => {
                 const maxDist = 8
 
                 // Reduced sample size for better performance
-                for (let i = 0; i < 100; i += 3) { // Reduced from 150
-                    for (let j = i + 3; j < 200; j += 3) { // Reduced from 300
+                for (let i = 0; i < 60; i += 3) { // Reduced from 100
+                    for (let j = i + 3; j < 120; j += 3) { // Reduced from 200
                         const dx = positions[i] - positions[j]
                         const dy = positions[i + 1] - positions[j + 1]
                         const dz = positions[i + 2] - positions[j + 2]
