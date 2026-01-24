@@ -1,0 +1,27 @@
+/* Custom Particle Cursor Styles */
+
+* {
+    cursor: none !important;
+}
+
+body {
+    cursor: none !important;
+    background-color: #000;
+    /* Matching the dark aesthetic of the particle cursor */
+}
+
+/* Ensure interactive elements also hide the cursor */
+a,
+button,
+.clickable,
+input,
+textarea,
+select {
+    cursor: none !important;
+}
+
+/* Container for our particle canvas is handled in the component, 
+   but we can add some global styles if needed */
+canvas {
+    pointer-events: none;
+}
