@@ -11,7 +11,9 @@ const AIAssistant = () => {
     const [messages, setMessages] = useState([
         {
             role: 'assistant',
-            content: `Hello ${user?.name}! I'm your AI assistant. I can help you with government schemes, education resources, and local opportunities. How can I assist you today?`,
+            content: language === 'hi'
+                ? `नमस्ते ${user?.name}! मैं आपका AI सहायक हूँ। मैं सरकारी योजनाओं, बाज़ार पहुँच और सामुदायिक संसाधनों में आपकी मदद कर सकता हूँ। मैं आज आपकी क्या सहायता कर सकता हूँ?`
+                : `Hello ${user?.name}! I'm your AI assistant. I can help you with government schemes, market access, and community resources. How can I assist you today?`,
             timestamp: new Date()
         }
     ])
@@ -126,11 +128,16 @@ const AIAssistant = () => {
         }
     }
 
-    const suggestions = [
+    const suggestions = language === 'hi' ? [
+        'मुझे किसानों के लिए सरकारी योजनाओं के बारे में बताएं',
+        'मैं अपने स्थानीय उत्पादों को कहां बेच सकता हूं?',
+        'मुझे बाज़ार मूल्य निर्धारण की जानकारी चाहिए',
+        'मेरे क्षेत्र में सहायता के लिए कौन से संसाधन उपलब्ध हैं?'
+    ] : [
         'Tell me about government schemes for farmers',
-        'What education programs are available?',
-        'How can I find local job opportunities?',
-        'Explain digital literacy resources'
+        'Where can I sell my local products?',
+        'I need market pricing information',
+        'What resources are available for help in my area?'
     ]
 
     return (
@@ -145,7 +152,7 @@ const AIAssistant = () => {
                             </div>
                             <div>
                                 <h1>AI Assistant</h1>
-                                <p>Ask me anything about schemes, education, and resources</p>
+                                <p>{language === 'hi' ? 'मुझसे योजनाओं, बाज़ार और संसाधनों के बारे में कुछ भी पूछें' : 'Ask me anything about schemes, markets, and resources'}</p>
                             </div>
                         </div>
                         <div className="language-indicator">
