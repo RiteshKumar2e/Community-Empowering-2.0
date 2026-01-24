@@ -129,7 +129,7 @@ const Navbar = () => {
                                     <>
                                         <Link to="/profile" className="btn btn-ghost btn-sm">
                                             <User size={18} />
-                                            {user?.name}
+                                            My Profile
                                         </Link>
                                         <button onClick={logout} className="btn btn-outline btn-sm">
                                             <LogOut size={18} />
