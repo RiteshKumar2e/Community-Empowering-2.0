@@ -11,8 +11,8 @@
 </p>
 
 <p align="center">
-  <a href="https://community-empower.vercel.app"><img src="https://img.shields.io/badge/🌐_Live_Demo-Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Live Demo"/></a>
-  <a href="https://community-empower.vercel.app/docs"><img src="https://img.shields.io/badge/📚_Documentation-Swagger-85EA2D?style=for-the-badge" alt="Documentation"/></a>
+  <a href="https://community-empowering-2-0.vercel.app/"><img src="https://img.shields.io/badge/🌐_Live_Demo-Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Live Demo"/></a>
+  <a href="https://community-empowering-2-0.vercel.app/docs"><img src="https://img.shields.io/badge/📚_Documentation-Swagger-85EA2D?style=for-the-badge" alt="Documentation"/></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/📄_License-MIT-yellow?style=for-the-badge" alt="License"/></a>
 </p>
 
@@ -1226,15 +1226,15 @@ Built with ❤️ for communities across India
 
 - 📧 **Email:** support@communityai.in
 - 🐛 **Issues:** [GitHub Issues](https://github.com/RiteshKumar2e/Community-Empowering/issues)
-- 📖 **Documentation:** [Live Docs](https://community-empower.vercel.app/docs)
+- 📖 **Documentation:** [Live Docs](https://community-empowering-2-0.vercel.app/docs)
 - 💬 **Discussions:** [GitHub Discussions](https://github.com/RiteshKumar2e/Community-Empowering/discussions)
 
 ### **Links**
 
-- 🌐 **Live Demo:** https://community-empower.vercel.app
-- 📚 **Documentation:** https://community-empower.vercel.app/docs
+- 🌐 **Live Demo:** https://community-empowering-2-0.vercel.app/
+- 📚 **Documentation:** https://community-empowering-2-0.vercel.app/docs
 - 💻 **GitHub:** https://github.com/RiteshKumar2e/Community-Empowering
-- 🎨 **Frontend:** https://community-empower.vercel.app
+- 🎨 **Frontend:** https://community-empowering-2-0.vercel.app/
 
 ---
 
