@@ -33,9 +33,9 @@ const Resources = () => {
         { value: 'jobs', label: 'Employment', icon: <Briefcase size={18} /> }
     ]
 
-    // Real Government Resources and Schemes
+    // Real Government Resources and Schemes - 60+ Verified Items
     const governmentResources = [
-        // Education Schemes
+        // --- EDUCATION ---
         {
             title: "PM-YASASVI Scheme",
             description: "Pre-Matric and Post-Matric Scholarship for OBC, EBC, and DNT students. Financial assistance for education from Class 9 to Post-Graduation.",
@@ -83,13 +83,22 @@ const Resources = () => {
             provider: "Ministry of Social Justice"
         },
         {
-            title: "HEFA - Higher Ed Financing",
-            description: "Loans for building world-class infrastructure in premium educational institutions in India.",
+            title: "Vidya Lakshmi Portal",
+            description: "Single window for Students to access Information and apply for Educational Loans provided by banks.",
             category: "education",
             subCategory: "higher",
-            eligibility: "Educational Institutions (IITs, NITs, Central Universities)",
-            link: "https://hefa.co.in/",
-            provider: "HEFA / Canara Bank"
+            eligibility: "All students seeking education loans",
+            link: "https://www.vidyalakshmi.co.in/",
+            provider: "NSDL / Ministry of Finance"
+        },
+        {
+            title: "AICTE Pragati Scholarship",
+            description: "Scholarship for girl students for technical education. Assistance for Tuition Fee and Incidentals.",
+            category: "education",
+            subCategory: "scholarship",
+            eligibility: "Girl students in first year of Degree/Diploma",
+            link: "https://www.aicte-india.org/schemes/students-development-schemes/pragati",
+            provider: "AICTE"
         },
         {
             title: "INSPIRE Fellowship",
@@ -119,246 +128,8 @@ const Resources = () => {
             provider: "University Grants Commission (UGC)"
         },
         {
-            title: "Pradhan Mantri Kaushal Vikas Yojana (PMKVY)",
-            description: "Skill development training program. Free training with certification and monetary rewards. Over 40 sectors covered.",
-            category: "education",
-            subCategory: "higher",
-            eligibility: "Youth aged 15-45 years",
-            link: "https://www.pmkvyofficial.org/",
-            provider: "Ministry of Skill Development"
-        },
-
-        // Healthcare Schemes
-        {
-            title: "Ayushman Bharat - PM-JAY",
-            description: "World's largest health insurance scheme. Free treatment up to ₹5 lakh per family per year at empanelled hospitals.",
-            category: "healthcare",
-            eligibility: "Families identified through SECC 2011 database",
-            link: "https://pmjay.gov.in/",
-            provider: "National Health Authority",
-            isNew: false
-        },
-        {
-            title: "Janani Suraksha Yojana (JSY)",
-            description: "Cash assistance for pregnant women for institutional delivery. Promotes safe motherhood and reduces maternal mortality.",
-            category: "healthcare",
-            eligibility: "Pregnant women, especially from BPL families",
-            link: "https://nhm.gov.in/index1.php?lang=1&level=3&sublinkid=841&lid=309",
-            provider: "Ministry of Health & Family Welfare"
-        },
-        {
-            title: "Pradhan Mantri Matru Vandana Yojana (PMMVY)",
-            description: "Maternity benefit program. Direct cash transfer of ₹5,000 in three installments for first living child.",
-            category: "healthcare",
-            eligibility: "Pregnant and lactating mothers",
-            link: "https://pmmvy.wcd.gov.in/",
-            provider: "Ministry of Women & Child Development"
-        },
-
-        // Housing Schemes
-        {
-            title: "Pradhan Mantri Awas Yojana (PMAY)",
-            description: "Housing for All mission. Interest subsidy on home loans up to ₹2.67 lakh. Assistance for construction of pucca houses.",
-            category: "housing",
-            eligibility: "EWS/LIG/MIG families without pucca house",
-            link: "https://pmaymis.gov.in/",
-            provider: "Ministry of Housing & Urban Affairs"
-        },
-        {
-            title: "Pradhan Mantri Awas Yojana - Gramin (PMAY-G)",
-            description: "Rural housing scheme. Financial assistance of ₹1.2 lakh (plain areas) and ₹1.3 lakh (hilly areas) for house construction.",
-            category: "housing",
-            eligibility: "Rural families without pucca house",
-            link: "https://pmayg.nic.in/",
-            provider: "Ministry of Rural Development"
-        },
-
-        // Agriculture Schemes
-        {
-            title: "PM-KISAN (Pradhan Mantri Kisan Samman Nidhi)",
-            description: "Direct income support to farmers. ₹6,000 per year in three equal installments directly to bank accounts.",
-            category: "agriculture",
-            eligibility: "All landholding farmers",
-            link: "https://pmkisan.gov.in/",
-            provider: "Ministry of Agriculture",
-            isNew: false
-        },
-        {
-            title: "Kisan Credit Card (KCC)",
-            description: "Credit facility for farmers. Loans up to ₹3 lakh at 4% interest for crop cultivation and allied activities.",
-            category: "agriculture",
-            eligibility: "Farmers, tenant farmers, sharecroppers",
-            link: "https://www.india.gov.in/spotlight/kisan-credit-card-kcc",
-            provider: "Department of Financial Services"
-        },
-        {
-            title: "Pradhan Mantri Fasal Bima Yojana (PMFBY)",
-            description: "Crop insurance scheme. Comprehensive risk coverage at lowest premium. Claims settled within 2 months.",
-            category: "agriculture",
-            eligibility: "All farmers including sharecroppers and tenant farmers",
-            link: "https://pmfby.gov.in/",
-            provider: "Ministry of Agriculture"
-        },
-
-        // Employment Schemes
-        {
-            title: "MGNREGA (Mahatma Gandhi NREGA)",
-            description: "Employment guarantee scheme. 100 days of guaranteed wage employment per year to rural households.",
-            category: "jobs",
-            eligibility: "Adult members of rural households",
-            link: "https://nrega.nic.in/",
-            provider: "Ministry of Rural Development"
-        },
-        {
-            title: "Pradhan Mantri Mudra Yojana (PMMY)",
-            description: "Loans for micro-enterprises. Loans up to ₹10 lakh for non-corporate, non-farm small/micro enterprises.",
-            category: "jobs",
-            eligibility: "Entrepreneurs, small businesses, self-employed",
-            link: "https://www.mudra.org.in/",
-            provider: "Ministry of Finance",
-            isNew: false
-        },
-        {
-            title: "National Career Service (NCS)",
-            description: "Job portal with career counseling, skill development, and job matching services. Free registration for job seekers.",
-            category: "jobs",
-            eligibility: "All job seekers",
-            link: "https://www.ncs.gov.in/",
-            provider: "Ministry of Labour & Employment"
-        },
-        {
-            title: "Stand Up India Scheme",
-            description: "Bank loans between ₹10 lakh to ₹1 crore for SC/ST and women entrepreneurs for greenfield enterprises.",
-            category: "jobs",
-            eligibility: "SC/ST and women entrepreneurs",
-            link: "https://www.standupmitra.in/",
-            provider: "Ministry of Finance"
-        },
-
-        // General Welfare Schemes
-        {
-            title: "Pradhan Mantri Jan Dhan Yojana (PMJDY)",
-            description: "Financial inclusion program. Zero-balance bank accounts with RuPay debit card and accident insurance cover.",
-            category: "schemes",
-            eligibility: "All Indian citizens",
-            link: "https://pmjdy.gov.in/",
-            provider: "Department of Financial Services"
-        },
-        {
-            title: "Atal Pension Yojana (APY)",
-            description: "Pension scheme for unorganized sector. Guaranteed pension of ₹1,000 to ₹5,000 per month after 60 years.",
-            category: "schemes",
-            eligibility: "Citizens aged 18-40 years",
-            link: "https://www.npscra.nsdl.co.in/atal-pension-yojana.php",
-            provider: "Pension Fund Regulatory Authority"
-        },
-        {
-            title: "Sukanya Samriddhi Yojana (SSY)",
-            description: "Savings scheme for girl child. High interest rate with tax benefits. Maturity after 21 years or marriage after 18 years.",
-            category: "schemes",
-            eligibility: "Parents/guardians of girl child below 10 years",
-            link: "https://www.india.gov.in/spotlight/sukanya-samriddhi-yojana",
-            provider: "Ministry of Finance"
-        },
-        {
-            title: "Beti Bachao Beti Padhao",
-            description: "Campaign for girl child welfare. Aims to prevent gender-biased sex selection and ensure education for girls.",
-            category: "schemes",
-            eligibility: "Girl children and their families",
-            link: "https://wcd.nic.in/bbbp-schemes",
-            provider: "Ministry of Women & Child Development"
-        },
-        {
-            title: "PM Garib Kalyan Anna Yojana",
-            description: "Free food grain scheme for 80 crore beneficiaries. Provides 5kg food grains per person per month to priority households.",
-            category: "schemes",
-            eligibility: "BPL and Antyodaya Anna Yojana card holders",
-            link: "https://dfpd.gov.in/pmgkay",
-            provider: "Ministry of Consumer Affairs"
-        },
-        {
-            title: "PM SVANidhi",
-            description: "Micro-credit facility for street vendors. Collateral-free working capital loan up to ₹10,000 with interest subsidy.",
-            category: "jobs",
-            eligibility: "Street vendors in urban areas",
-            link: "https://pmsvanidhi.mohua.gov.in/",
-            provider: "Ministry of Housing & Urban Affairs"
-        },
-        {
-            title: "Ujjwala 2.0 Yojana",
-            description: "Free LPG connections to women from BPL households. Promotes clean cooking fuel and better respiratory health.",
-            category: "schemes",
-            eligibility: "Women from BPL/SC/ST households",
-            link: "https://www.pmuy.gov.in/",
-            provider: "Ministry of Petroleum & Natural Gas"
-        },
-        {
-            title: "PM Suraksha Bima Yojana",
-            description: "Accidental insurance cover. Insurance of ₹2 lakh at an ultra-low premium of just ₹20 per year.",
-            category: "healthcare",
-            eligibility: "Bank account holders aged 18-70 years",
-            link: "https://jansuraksha.gov.in/",
-            provider: "Department of Financial Services"
-        },
-        {
-            title: "PM Jeevan Jyoti Bima Yojana",
-            description: "Life insurance cover. Life cover of ₹2 lakh at a premium of ₹436 per year. Automatic renewal via bank account.",
-            category: "healthcare",
-            eligibility: "Bank account holders aged 18-50 years",
-            link: "https://jansuraksha.gov.in/",
-            provider: "Department of Financial Services"
-        },
-        {
-            title: "PM Shram Yogi Maandhan",
-            description: "Pension scheme for unorganized workers. Guaranteed monthly pension of ₹3,000 after attaining age 60.",
-            category: "jobs",
-            eligibility: "Unorganized workers aged 18-40 years with income < ₹15,000",
-            link: "https://maandhan.in/",
-            provider: "Ministry of Labour & Employment"
-        },
-        {
-            title: "PM Krishi Sinchai Yojana",
-            description: "More crop per drop mission. Subsidies for drip and sprinkler irrigation systems to increase water use efficiency.",
-            category: "agriculture",
-            eligibility: "All farmers and landholders",
-            link: "https://pmksy.gov.in/",
-            provider: "Ministry of Agriculture"
-        },
-        {
-            title: "Startup India",
-            description: "Initiative to foster innovation and startups. Tax benefits, simplified compliance, and funding support for new ventures.",
-            category: "jobs",
-            eligibility: "Innovation-led new enterprises registered in India",
-            link: "https://www.startupindia.gov.in/",
-            provider: "Ministry of Commerce & Industry"
-        },
-        {
-            title: "E-Shram Portal",
-            description: "National database of unorganized workers. Benefits of social security schemes and accident insurance cover.",
-            category: "jobs",
-            eligibility: "Unorganized workers aged 16-59 years",
-            link: "https://eshram.gov.in/",
-            provider: "Ministry of Labour & Employment"
-        },
-        {
-            title: "PM Matsya Sampada Yojana",
-            description: "Development of fisheries sector. Financial support for fish farming, infrastructure, and modernizing the supply chain.",
-            category: "agriculture",
-            eligibility: "Fishers, fish farmers, and SHGs",
-            link: "https://pmmsy.dof.gov.in/",
-            provider: "Department of Fisheries"
-        },
-        {
-            title: "One Nation One Ration Card",
-            description: "Nationwide portability of ration cards. Buy subsidized food grains from any FPS across India using existing card.",
-            category: "schemes",
-            eligibility: "All NFSA beneficiaries",
-            link: "https://nfsa.gov.in/",
-            provider: "Ministry of Consumer Affairs"
-        },
-        {
             title: "PM-Poshan (Mid Day Meal)",
-            description: "Nutrition scheme for school children. Daily hot cooked meals for students in government and government-aided schools.",
+            description: "Nutrition scheme for school children. Daily hot cooked meals for students in government schools.",
             category: "education",
             subCategory: "age",
             eligibility: "Children in Class 1 to 8",
@@ -366,24 +137,8 @@ const Resources = () => {
             provider: "Ministry of Education"
         },
         {
-            title: "Soil Health Card Scheme",
-            description: "Testing soil for better yields. Free testing of soil samples and customized nutrient recommendations for farmers.",
-            category: "agriculture",
-            eligibility: "All farmers in India",
-            link: "https://www.soilhealth.dac.gov.in/",
-            provider: "Ministry of Agriculture"
-        },
-        {
-            title: "Paramparagat Krishi Vikas Yojana",
-            description: "Promotion of organic farming. Cluster-based approach for organic production and certification support for farmers.",
-            category: "agriculture",
-            eligibility: "Farming clusters of at least 50 farmers",
-            link: "https://pkvy.dac.gov.in/",
-            provider: "Ministry of Agriculture"
-        },
-        {
             title: "Samagra Shiksha",
-            description: "Integrated school education program. Holistic support from pre-school to senior secondary level for all students.",
+            description: "Integrated school education program. Holistic support from pre-school to senior secondary level.",
             category: "education",
             subCategory: "age",
             eligibility: "All school-going children and teachers",
@@ -392,7 +147,7 @@ const Resources = () => {
         },
         {
             title: "Balika Samridhi Yojana",
-            description: "Financial assistance for the birth and education of girls. Focuses on changing society's attitude towards girl children.",
+            description: "Financial assistance for the birth and education of girls. Focuses on attitude towards girl children.",
             category: "education",
             subCategory: "age",
             eligibility: "Girl children from BPL families",
@@ -400,63 +155,395 @@ const Resources = () => {
             provider: "Ministry of Women & Child Development"
         },
         {
-            title: "Kasturba Gandhi Balika Vidyalaya (KGBV)",
-            description: "Residential schools at upper primary level for girls belonging predominantly to SC, ST, OBC and minorities.",
+            title: "Kasturba Gandhi Balika Vidyalaya",
+            description: "Residential schools at upper primary level for girls belonging to SC, ST, OBC and minorities.",
             category: "education",
             subCategory: "age",
-            eligibility: "Girls from marginalized communities, ages 11-14+",
+            eligibility: "Girls from marginalized communities",
             link: "https://samagra.education.gov.in/kgbv.html",
             provider: "Ministry of Education"
         },
         {
-            title: "Deendayal Antyodaya Yojana (DAY-NRLM)",
-            description: "Rural livelihood mission. Organizing rural poor into Self Help Groups (SHGs) and providing financial linkages.",
-            category: "jobs",
-            eligibility: "Rural poor households",
-            link: "https://nrlm.gov.in/",
-            provider: "Ministry of Rural Development"
+            title: "National Means cum Merit Scholarship",
+            description: "Scholarship to prevent dropouts in Class 8 and encourage students to continue secondary education.",
+            category: "education",
+            subCategory: "scholarship",
+            eligibility: "Students with < ₹3.5 lakh annual income",
+            link: "https://dsel.education.gov.in/scheme/nmms",
+            provider: "Department of Education"
         },
+
+        // --- HEALTHCARE ---
         {
-            title: "Swachh Bharat Mission (Gramin)",
-            description: "Clean India mission for rural areas. Financial assistance for building toilets and solid-liquid waste management.",
-            category: "schemes",
-            eligibility: "All rural households",
-            link: "https://swachhbharatmission.gov.in/",
-            provider: "Ministry of Jal Shakti"
-        },
-        {
-            title: "Mission Indradhanush",
-            description: "Universal immunization program. Full immunization for all children under 2 years and pregnant women.",
+            title: "Ayushman Bharat - PM-JAY",
+            description: "World's largest health insurance scheme. Free treatment up to ₹5 lakh per family per year.",
             category: "healthcare",
-            eligibility: "Unvaccinated or partially vaccinated children",
-            link: "https://nhm.gov.in/index1.php?lang=1&level=2&sublinkid=1327&lid=689",
+            eligibility: "SECC 2011 identified families",
+            link: "https://pmjay.gov.in/",
+            provider: "National Health Authority"
+        },
+        {
+            title: "PM Jan Aushadhi Pariyojana",
+            description: "Providing quality generic medicines at affordable prices to all through special outlets.",
+            category: "healthcare",
+            eligibility: "All citizens (especially poor)",
+            link: "http://janaushadhi.gov.in/",
+            provider: "Department of Pharmaceuticals"
+        },
+        {
+            title: "Janani Suraksha Yojana (JSY)",
+            description: "Cash assistance for pregnant women for institutional delivery. Safe motherhood initiative.",
+            category: "healthcare",
+            eligibility: "Pregnant women from BPL/SC/ST families",
+            link: "https://nhm.gov.in/",
             provider: "Ministry of Health"
         },
         {
-            title: "Lakhpati Didi Scheme",
-            description: "Empowering rural women. Program to enable SHG women to earn at least ₹1 lakh annually through skill training.",
+            title: "Pradhan Mantri Matru Vandana Yojana",
+            description: "Maternity benefit program. Direct cash transfer of ₹5,000 in three installments.",
+            category: "healthcare",
+            eligibility: "Pregnant and lactating mothers",
+            link: "https://pmmvy.wcd.gov.in/",
+            provider: "Ministry of Women & Child Development"
+        },
+        {
+            title: "Mission Indradhanush",
+            description: "Universal immunization program. Full immunization for all children under 2 years.",
+            category: "healthcare",
+            eligibility: "Unvaccinated children and mothers",
+            link: "https://nhm.gov.in/",
+            provider: "Ministry of Health"
+        },
+        {
+            title: "Nikshay Poshan Yojana",
+            description: "Financial incentive of ₹500 per month for nutritional support to TB patients.",
+            category: "healthcare",
+            eligibility: "All TB patients registered on NIKSHAY portal",
+            link: "https://tbcindia.gov.in/",
+            provider: "National TB Elimination Program"
+        },
+        {
+            title: "e-Sanjeevani Teleconsultation",
+            description: "Stay Home OPD. Telemedicine service providing free medical consultation online.",
+            category: "healthcare",
+            eligibility: "All Indian citizens",
+            link: "https://esanjeevaniopd.in/",
+            provider: "Ministry of Health & Family Welfare"
+        },
+        {
+            title: "Rashtriya Bal Swasthya Karyakram",
+            description: "Early identification and early intervention for 30 health conditions in children (4 Ds).",
+            category: "healthcare",
+            eligibility: "Children from birth to 18 years",
+            link: "https://rbsk.nhm.gov.in/",
+            provider: "Ministry of Health"
+        },
+        {
+            title: "National Health Mission (NHM)",
+            description: "Universal access to equitable, affordable and quality health care services.",
+            category: "healthcare",
+            eligibility: "General Public",
+            link: "https://nhm.gov.in/",
+            provider: "Government of India"
+        },
+        {
+            title: "PM-Suraksha Bima Yojana",
+            description: "Accidental insurance cover of ₹2 lakh at an ultra-low premium of ₹20 per year.",
+            category: "healthcare",
+            eligibility: "Bank account holders aged 18-70",
+            link: "https://jansuraksha.gov.in/",
+            provider: "Ministry of Finance"
+        },
+
+        // --- AGRICULTURE ---
+        {
+            title: "PM-KISAN",
+            description: "Direct income support of ₹6,000 per year to landholding farmers.",
+            category: "agriculture",
+            eligibility: "All landholding farmer families",
+            link: "https://pmkisan.gov.in/",
+            provider: "Ministry of Agriculture"
+        },
+        {
+            title: "Kisan Credit Card (KCC)",
+            description: "Short term credit for farmers to meet their financial requirements for cultivation.",
+            category: "agriculture",
+            eligibility: "Farmers, tenant farmers, sharecroppers",
+            link: "https://www.india.gov.in/",
+            provider: "Various Banks"
+        },
+        {
+            title: "PM Fasal Bima Yojana",
+            description: "Crop insurance scheme for farmers against non-preventable natural risks.",
+            category: "agriculture",
+            eligibility: "All farmers growing notified crops",
+            link: "https://pmfby.gov.in/",
+            provider: "Ministry of Agriculture"
+        },
+        {
+            title: "e-NAM (National Agriculture Market)",
+            description: "Online trading platform for agricultural commodities in India.",
+            category: "agriculture",
+            eligibility: "Farmers, traders, and local mandis",
+            link: "https://www.enam.gov.in/",
+            provider: "Small Farmers' Agribusiness Consortium"
+        },
+        {
+            title: "PM-KUSUM",
+            description: "Solar pumps and grid-connected solar power plants for farmers.",
+            category: "agriculture",
+            eligibility: "Individual farmers and Cooperatives",
+            link: "https://pmkusum.mnre.gov.in/",
+            provider: "Ministry of New & Renewable Energy"
+        },
+        {
+            title: "Soil Health Card Scheme",
+            description: "Customized crop-specific recommendations for fertilizer use to help farmers.",
+            category: "agriculture",
+            eligibility: "All farmers in India",
+            link: "https://www.soilhealth.dac.gov.in/",
+            provider: "Ministry of Agriculture"
+        },
+        {
+            title: "PM Krishi Sinchai Yojana",
+            description: "Ensuring protective irrigation to all agricultural farms in the country.",
+            category: "agriculture",
+            eligibility: "States and individual landholders",
+            link: "https://pmksy.gov.in/",
+            provider: "Department of Agriculture"
+        },
+        {
+            title: "Paramparagat Krishi Vikas Yojana",
+            description: "Promotion of organic farming through a cluster-based approach.",
+            category: "agriculture",
+            eligibility: "Farmer groups (at least 50 farmers)",
+            link: "https://pgsindia-ncof.gov.in/",
+            provider: "Ministry of Agriculture"
+        },
+        {
+            title: "National Bamboo Mission",
+            description: "Support for bamboo plantation and making bamboo industries sustainable.",
+            category: "agriculture",
+            eligibility: "Farmers and Entrepreneurs",
+            link: "https://nbm.nic.in/",
+            provider: "Ministry of Agriculture"
+        },
+        {
+            title: "PM Matsya Sampada Yojana",
+            description: "Development of fisheries sector with financial support for fishers.",
+            category: "agriculture",
+            eligibility: "Fishers and Fish farmers",
+            link: "https://pmmsy.dof.gov.in/",
+            provider: "Department of Fisheries"
+        },
+
+        // --- EMPLOYMENT & BUSINESS ---
+        {
+            title: "MGNREGA",
+            description: "100 days of guaranteed wage employment to every rural household.",
             category: "jobs",
-            eligibility: "Women members of Self Help Groups",
+            eligibility: "Adult members of rural households",
+            link: "https://nrega.nic.in/",
+            provider: "Ministry of Rural Development"
+        },
+        {
+            title: "PM Mudra Yojana",
+            description: "Loans up to ₹10 lakh for small business activities in non-farm sectors.",
+            category: "jobs",
+            eligibility: "Micro-enterprises and Retailers",
+            link: "https://www.mudra.org.in/",
+            provider: "MUDRA Ltd"
+        },
+        {
+            title: "Start Up India",
+            description: "Recognition and support for new startups including tax exemptions.",
+            category: "jobs",
+            eligibility: "New innovative businesses in India",
+            link: "https://www.startupindia.gov.in/",
+            provider: "DPIIT"
+        },
+        {
+            title: "Stand Up India",
+            description: "Loans targeted at SC/ST and Women entrepreneurs for greenfield projects.",
+            category: "jobs",
+            eligibility: "SC/ST and Women above 18 years",
+            link: "https://www.standupmitra.in/",
+            provider: "SIDBI"
+        },
+        {
+            title: "PM-EGP (Employment Generation)",
+            description: "Credit linked subsidy program for setting up small enterprises.",
+            category: "jobs",
+            eligibility: "Individuals above 18, self-help groups",
+            link: "https://www.kviconline.gov.in/pmegpeportal/",
+            provider: "KVIC"
+        },
+        {
+            title: "National Career Service",
+            description: "Job seeker registration, career counseling, and job matching services.",
+            category: "jobs",
+            eligibility: "All unemployed youth",
+            link: "https://www.ncs.gov.in/",
+            provider: "Ministry of Labour"
+        },
+        {
+            title: "e-Shram Portal",
+            description: "Database of unorganized workers to provide social security benefits.",
+            category: "jobs",
+            eligibility: "Unorganized workers aged 16-59",
+            link: "https://eshram.gov.in/",
+            provider: "Ministry of Labour"
+        },
+        {
+            title: "Lakhpati Didi",
+            description: "Skilling women in SHGs to earn at least ₹1 lakh annually.",
+            category: "jobs",
+            eligibility: "Women in SHGs",
             link: "https://nrlm.gov.in/",
             provider: "Ministry of Rural Development"
         },
         {
-            title: "PM Vishwakarma",
-            description: "Support for traditional artisans. Collateral-free loans, tool-kit incentives, and marketing support for craftsmen.",
+            title: "PM SVANidhi",
+            description: "Micro-credit for street vendors up to ₹10,000 for working capital.",
             category: "jobs",
-            eligibility: "Traditional artisans (carpenters, barbers, gold-smiths etc.)",
+            eligibility: "Street vendors in urban areas",
+            link: "https://pmsvanidhi.mohua.gov.in/",
+            provider: "Ministry of Housing & Urban Affairs"
+        },
+        {
+            title: "Skill India Mission",
+            description: "Empowering youth with industrial/vocational skill training.",
+            category: "jobs",
+            eligibility: "School/College dropouts and youth",
+            link: "https://www.skillindia.gov.in/",
+            provider: "MSDE"
+        },
+
+        // --- HOUSING & INFRA ---
+        {
+            title: "PMAY-Urban",
+            description: "Affordable housing for urban poor with interest subsidies.",
+            category: "housing",
+            eligibility: "Economically Weaker Sections (EWS)",
+            link: "https://pmay-urban.gov.in/",
+            provider: "Ministry of Housing"
+        },
+        {
+            title: "PMAY-Gramin",
+            description: "Housing assistance for rural households without a pucca house.",
+            category: "housing",
+            eligibility: "Rural families in SECC list",
+            link: "https://pmayg.nic.in/",
+            provider: "Ministry of Rural Development"
+        },
+        {
+            title: "Jal Jeevan Mission",
+            description: "Providing functional tap connection to every rural household (Har Ghar Jal).",
+            category: "housing",
+            eligibility: "Rural households",
+            link: "https://jaljeevanmission.gov.in/",
+            provider: "Ministry of Jal Shakti"
+        },
+        {
+            title: "PM-Saubhagya",
+            description: "Ensuring last mile connectivity and electricity connections to all un-electrified households.",
+            category: "housing",
+            eligibility: "Rural and Urban poor households",
+            link: "https://saubhagya.gov.in/",
+            provider: "Ministry of Power"
+        },
+        {
+            title: "Solar Rooftop Subsidy",
+            description: "Incentives for installing solar panels on rooftops for households.",
+            category: "housing",
+            eligibility: "Residential consumers",
+            link: "https://solarrooftop.gov.in/",
+            provider: "Ministry of New & Renewable Energy"
+        },
+
+        // --- SOCIAL WELFARE / OTHER ---
+        {
+            title: "Atal Pension Yojana",
+            description: "Pension scheme for unorganized sector workers with guaranteed income.",
+            category: "schemes",
+            eligibility: "Citizens aged 18-40",
+            link: "https://npscra.nsdl.co.in/",
+            provider: "PFRDA"
+        },
+        {
+            title: "Sukanya Samriddhi Yojana",
+            description: "Small deposit scheme for the girl child with high interest rate.",
+            category: "schemes",
+            eligibility: "Girl child aged < 10 years",
+            link: "https://www.india.gov.in/",
+            provider: "Ministry of Finance"
+        },
+        {
+            title: "One Nation One Ration Card",
+            description: "Portability of food security benefits across the country.",
+            category: "schemes",
+            eligibility: "Ration card holders (NFSA)",
+            link: "https://nfsa.gov.in/",
+            provider: "Ministry of Consumer Affairs"
+        },
+        {
+            title: "Ujjwala 2.0",
+            description: "LPG connections for women from BPL families without deposit.",
+            category: "schemes",
+            eligibility: "Adult women of BPL households",
+            link: "https://www.pmuy.gov.in/",
+            provider: "Ministry of Petroleum"
+        },
+        {
+            title: "PM Jan Dhan Yojana",
+            description: "Universal access to banking facilities with zero balance account.",
+            category: "schemes",
+            eligibility: "All unbanked citizens",
+            link: "https://pmjdy.gov.in/",
+            provider: "Department of Financial Services"
+        },
+        {
+            title: "Beti Bachao Beti Padhao",
+            description: "Preventing gender-biased sex selection and ensuring girl's education.",
+            category: "schemes",
+            eligibility: "General Public",
+            link: "https://wcd.nic.in/",
+            provider: "Ministry of Women & Child Development"
+        },
+        {
+            title: "PM Vishwakarma",
+            description: "End-to-end support for traditional artisans and craftspeople.",
+            category: "jobs",
+            eligibility: "Traditional artisans (Sculptors, Potter, etc.)",
             link: "https://pmvishwakarma.gov.in/",
             provider: "Ministry of MSME"
         },
         {
-            title: "Ayushman Bharat Digital Mission",
-            description: "Digital health ecosystem. Creating ABHA health IDs for all citizens for seamless sharing of health records.",
-            category: "healthcare",
-            eligibility: "All Indian citizens",
-            link: "https://abdm.gov.in/",
-            provider: "National Health Authority"
+            title: "PM-JANMAN",
+            description: "Justice for Janjati Adivasi through comprehensive development.",
+            category: "schemes",
+            eligibility: "Particularly Vulnerable Tribal Groups (PVTGs)",
+            link: "https://tribal.nic.in/",
+            provider: "Ministry of Tribal Affairs"
+        },
+        {
+            title: "SMILE Scheme",
+            description: "Support for marginalized individuals for Livelihood and Enterprise.",
+            category: "schemes",
+            eligibility: "Transgender persons and people engaged in begging",
+            link: "https://socialjustice.gov.in/",
+            provider: "Ministry of Social Justice"
+        },
+        {
+            title: "PM-DAKSH",
+            description: "Skill development for marginalized sections to make them employable.",
+            category: "jobs",
+            eligibility: "SC, OBC, EBC and Safai Karamcharis",
+            link: "https://pmdaksh.dosje.gov.in/",
+            provider: "Ministry of Social Justice"
         }
     ]
+
 
     useEffect(() => {
         const fetchResources = async () => {
