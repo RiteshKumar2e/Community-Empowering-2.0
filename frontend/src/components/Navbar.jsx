@@ -55,7 +55,7 @@ const Navbar = () => {
 
                 {/* Desktop Navigation */}
                 <div className="navbar-links hide-mobile">
-                    {isAuthenticated ? (
+                    {isAuthenticated && location.pathname !== '/' ? (
                         <>
                             <Link
                                 to="/dashboard"
@@ -121,14 +121,22 @@ const Navbar = () => {
                     <div className="hide-mobile user-menu-container">
                         {isAuthenticated ? (
                             <div className="user-menu">
-                                <Link to="/profile" className="btn btn-ghost btn-sm">
-                                    <User size={18} />
-                                    {user?.name}
-                                </Link>
-                                <button onClick={logout} className="btn btn-outline btn-sm">
-                                    <LogOut size={18} />
-                                    Logout
-                                </button>
+                                {location.pathname === '/' ? (
+                                    <Link to="/dashboard" className="btn btn-primary btn-sm">
+                                        Dashboard
+                                    </Link>
+                                ) : (
+                                    <>
+                                        <Link to="/profile" className="btn btn-ghost btn-sm">
+                                            <User size={18} />
+                                            {user?.name}
+                                        </Link>
+                                        <button onClick={logout} className="btn btn-outline btn-sm">
+                                            <LogOut size={18} />
+                                            Logout
+                                        </button>
+                                    </>
+                                )}
                             </div>
                         ) : (
                             <>
@@ -168,7 +176,7 @@ const Navbar = () => {
                     </div>
 
                     <div className="mobile-menu-content">
-                        {isAuthenticated ? (
+                        {isAuthenticated && location.pathname !== '/' ? (
                             <>
                                 <div className="mobile-user-info">
                                     <div className="user-avatar-large">
@@ -190,24 +198,38 @@ const Navbar = () => {
                             </>
                         ) : (
                             <>
-                                <div className="mobile-auth-actions">
-                                    <Link to="/login" className="mobile-auth-btn btn-signin-mobile" onClick={() => setMobileMenuOpen(false)}>
-                                        Sign In
-                                    </Link>
-                                    <Link to="/admin-login" className="mobile-auth-btn btn-admin-mobile" onClick={() => setMobileMenuOpen(false)}>
-                                        Admin Login
-                                    </Link>
-                                </div>
-
+                                {isAuthenticated && (
+                                    <div className="mobile-user-mini-info">
+                                        <Link to="/dashboard" className="mobile-link dashboard-primary-link" onClick={() => setMobileMenuOpen(false)}>
+                                            Go to Dashboard
+                                        </Link>
+                                    </div>
+                                )}
                                 <div className="mobile-nav-links">
                                     <button onClick={() => scrollToSection('home')} className="mobile-link">Home</button>
                                     <button onClick={() => scrollToSection('mission')} className="mobile-link">Mission</button>
                                     <button onClick={() => scrollToSection('about')} className="mobile-link">About</button>
                                     <button onClick={() => scrollToSection('goals')} className="mobile-link">Goals</button>
-                                    <button onClick={() => scrollToSection('team')} className="mobile-link">Team</button>
                                     <button onClick={() => scrollToSection('testimonials')} className="mobile-link">Testimonials</button>
                                     <button onClick={() => scrollToSection('contact')} className="mobile-link">Contact</button>
                                 </div>
+                                {!isAuthenticated ? (
+                                    <div className="mobile-auth-actions">
+                                        <Link to="/login" className="mobile-auth-btn btn-signin-mobile" onClick={() => setMobileMenuOpen(false)}>
+                                            Sign In
+                                        </Link>
+                                        <Link to="/admin-login" className="mobile-auth-btn btn-admin-mobile" onClick={() => setMobileMenuOpen(false)}>
+                                            Admin Login
+                                        </Link>
+                                    </div>
+                                ) : (
+                                    <div className="mobile-auth-actions">
+                                        <Link to="/profile" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>My Profile</Link>
+                                        <button onClick={() => { logout(); setMobileMenuOpen(false); }} className="mobile-link logout-link">
+                                            <LogOut size={20} /> Logout
+                                        </button>
+                                    </div>
+                                )}
                             </>
                         )}
                     </div>

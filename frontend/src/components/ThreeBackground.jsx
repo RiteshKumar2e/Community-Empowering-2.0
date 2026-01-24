@@ -74,14 +74,15 @@ const ThreeBackground = () => {
             new THREE.Color(0x6366f1), // Indigo
             new THREE.Color(0x8b5cf6), // Purple
             new THREE.Color(0xd946ef), // Fuchsia
+            new THREE.Color(0xec4899), // Pink
             new THREE.Color(0x0ea5e9)  // Sky
         ]
 
         const lightPalette = [
             new THREE.Color(0x6366f1), // Professional Indigo
             new THREE.Color(0x4f46e5), // Deep Indigo
-            new THREE.Color(0x0ea5e9), // Ocean Blue
-            new THREE.Color(0x64748b)  // Slate
+            new THREE.Color(0x06b6d4), // Cyan
+            new THREE.Color(0x3b82f6)  // Blue
         ]
 
         const updateNebulaColors = () => {
@@ -93,18 +94,18 @@ const ThreeBackground = () => {
                 nebulaColors[i * 3 + 2] = color.b
             }
             nebulaGeometry.attributes.color.needsUpdate = true
-            nebulaMaterial.opacity = isLight ? 0.6 : 0.4
+            nebulaMaterial.opacity = isLight ? 0.6 : 0.5
             nebulaMaterial.blending = isLight ? THREE.NormalBlending : THREE.AdditiveBlending
         }
 
         for (let i = 0; i < nebulaCount * 3; i += 3) {
             const angle = Math.random() * Math.PI * 2
-            const radius = 20 + Math.random() * 40
+            const radius = 15 + Math.random() * 50 // Wider spread
             const spin = radius * 0.2
 
-            nebulaPos[i] = Math.cos(angle + spin) * radius + (Math.random() - 0.5) * 10
-            nebulaPos[i + 1] = (Math.random() - 0.5) * 30
-            nebulaPos[i + 2] = Math.sin(angle + spin) * radius + (Math.random() - 0.5) * 10
+            nebulaPos[i] = Math.cos(angle + spin) * radius + (Math.random() - 0.5) * 15
+            nebulaPos[i + 1] = (Math.random() - 0.5) * 40 // More vertical spread
+            nebulaPos[i + 2] = Math.sin(angle + spin) * radius + (Math.random() - 0.5) * 15
         }
 
         nebulaGeometry.setAttribute('position', new THREE.BufferAttribute(nebulaPos, 3))
@@ -290,8 +291,11 @@ const ThreeBackground = () => {
             targetX += (mouseX - targetX) * 0.05
             targetY += (mouseY - targetY) * 0.05
 
-            camera.position.x += (targetX * 2 - camera.position.x) * 0.05
-            camera.position.y += (-targetY * 2 - camera.position.y) * 0.05
+            // Smooth camera movement with subtle zoom
+            camera.position.x += (targetX * 2 - camera.position.x) * 0.02
+            camera.position.y += (-targetY * 2 - camera.position.y) * 0.02
+            camera.position.z = 10 + Math.sin(time * 0.5) * 0.5 // Subtle breathing effect
+
             camera.lookAt(scene.position)
 
             renderer.render(scene, camera)
