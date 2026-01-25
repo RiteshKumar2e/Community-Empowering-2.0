@@ -1,15 +1,29 @@
 import os
 from typing import Optional, Dict, List
 from groq import Groq
+import google.generativeai as genai
 from app.core.config import settings
 
 class AIService:
-    """AI Service for chat and recommendations using Groq API"""
+    """AI Service with cascading fallback: Groq → Gemini"""
     
     def __init__(self):
+        # Initialize Groq
         self.groq_client = None
         if settings.GROQ_API_KEY:
-            self.groq_client = Groq(api_key=settings.GROQ_API_KEY)
+            try:
+                self.groq_client = Groq(api_key=settings.GROQ_API_KEY)
+            except Exception as e:
+                print(f"Failed to initialize Groq: {e}")
+        
+        # Initialize Gemini
+        self.gemini_available = False
+        if settings.GEMINI_API_KEY:
+            try:
+                genai.configure(api_key=settings.GEMINI_API_KEY)
+                self.gemini_available = True
+            except Exception as e:
+                print(f"Failed to initialize Gemini: {e}")
         
         # High-performance Groq Models (Top 40)
         self.groq_models = [
@@ -27,6 +41,20 @@ class AIService:
             "deepseek-coder-33b-instruct", "deepseek-llm-67b-chat", "phosphor-llama-3-8b",
             "llama-3-groq-8b-tool-use-preview", "llama-3-groq-70b-tool-use-preview",
             "hermes-3-llama-3.1-8b", "hermes-3-llama-3.1-70b"
+        ]
+        
+        # Gemini Models (10 models)
+        self.gemini_models = [
+            "gemini-2.0-flash-exp",
+            "gemini-2.5-pro",
+            "gemini-2.5-flash",
+            "gemini-2.5-flash-8b",
+            "gemini-2.0-pro",
+            "gemini-pro",
+            "gemini-pro-vision",
+            "gemini-ultra",
+            "gemini-1.5-pro-latest",
+            "gemini-1.5-flash-latest"
         ]
         
         # System prompts for different languages
@@ -50,6 +78,40 @@ class AIService:
             मित्रवत, जानकारीपूर्ण और संक्षिप्त रहें।"""
         }
     
+    async def _try_groq(self, message: str, system_prompt: str, model: str) -> Optional[str]:
+        """Try to get response from Groq"""
+        if not self.groq_client:
+            return None
+        
+        try:
+            chat_completion = self.groq_client.chat.completions.create(
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": message}
+                ],
+                model=model,
+                temperature=0.7,
+                max_tokens=1024
+            )
+            return chat_completion.choices[0].message.content
+        except Exception as e:
+            print(f"Groq error with model {model}: {e}")
+            return None
+    
+    async def _try_gemini(self, message: str, system_prompt: str, model: str) -> Optional[str]:
+        """Try to get response from Gemini"""
+        if not self.gemini_available:
+            return None
+        
+        try:
+            gemini_model = genai.GenerativeModel(model)
+            full_prompt = f"{system_prompt}\n\nUser: {message}\nAssistant:"
+            response = gemini_model.generate_content(full_prompt)
+            return response.text
+        except Exception as e:
+            print(f"Gemini error with model {model}: {e}")
+            return None
+    
     async def get_chat_response(
         self, 
         message: str, 
@@ -57,41 +119,49 @@ class AIService:
         context: Optional[Dict] = None,
         model: Optional[str] = None
     ) -> str:
-        """Get AI chat response from Groq"""
+        """Get AI chat response with cascading fallback: Groq → Gemini"""
         
-        if not self.groq_client:
-            return "Error: AI Service (Groq) is not configured. Please add GROQ_API_KEY to environment variables."
+        # Prepare system prompt
+        system_prompt = self.system_prompts.get(language, self.system_prompts["en"])
         
-        try:
-            # Prepare system prompt
-            system_prompt = self.system_prompts.get(language, self.system_prompts["en"])
-            
-            # Add context if provided
-            if context:
-                community_type = context.get("communityType", "general")
-                location = context.get("location", "")
-                system_prompt += f"\n\nUser context: Community type: {community_type}, Location: {location}"
-            
-            # Use requested model or default to the most versatile one
-            selected_model = model if model in self.groq_models else "llama-3.1-70b-versatile"
-            
-            # Call Groq API
-            chat_completion = self.groq_client.chat.completions.create(
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": message}
-                ],
-                model=selected_model,
-                temperature=0.7,
-                max_tokens=1024
+        # Add context if provided
+        if context:
+            community_type = context.get("communityType", "general")
+            location = context.get("location", "")
+            system_prompt += f"\n\nUser context: Community type: {community_type}, Location: {location}"
+        
+        # Phase 1: Try Groq (Primary)
+        print("Attempting Groq API...")
+        for groq_model in self.groq_models:
+            response = await self._try_groq(message, system_prompt, groq_model)
+            if response:
+                print(f"✓ Success with Groq model: {groq_model}")
+                return response
+        
+        print("⚠ All Groq models failed, falling back to Gemini...")
+        
+        # Phase 2: Try Gemini (Secondary Fallback)
+        for gemini_model in self.gemini_models:
+            response = await self._try_gemini(message, system_prompt, gemini_model)
+            if response:
+                print(f"✓ Success with Gemini model: {gemini_model}")
+                return response
+        
+        # All providers failed
+        error_msg = (
+            "I apologize, but I'm currently experiencing technical difficulties. "
+            "Both Groq and Gemini services are temporarily unavailable. "
+            "Please try again in a few moments."
+        )
+        
+        if language == "hi":
+            error_msg = (
+                "मुझे खेद है, लेकिन मैं वर्तमान में तकनीकी कठिनाइयों का सामना कर रहा हूं। "
+                "दोनों Groq और Gemini सेवाएं अस्थायी रूप से अनुपलब्ध हैं। "
+                "कृपया कुछ समय बाद पुनः प्रयास करें।"
             )
-            
-            return chat_completion.choices[0].message.content
-            
-        except Exception as e:
-            print(f"Error calling Groq API: {e}")
-            return f"Error: Failed to get response from Groq AI. Details: {str(e)}"
-
+        
+        return error_msg
     
     async def get_recommendations(self, user_profile: Dict) -> List[Dict]:
         """Get personalized recommendations based on user profile"""
