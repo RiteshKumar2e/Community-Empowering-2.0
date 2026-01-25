@@ -38,6 +38,7 @@ class Settings(BaseSettings):
     # AI API Keys
     GROQ_API_KEY: str = ""
     GEMINI_API_KEY: str = ""
+    GOOGLE_CLIENT_ID: str = "951248037202-st6tgbo07tjljditc95n7kuvgqr7a7mg.apps.googleusercontent.com"
     
     # File Upload
     MAX_UPLOAD_SIZE: int = 10 * 1024 * 1024  # 10MB

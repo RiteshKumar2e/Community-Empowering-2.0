@@ -5,6 +5,7 @@ from pydantic import BaseModel, EmailStr
 from typing import Optional
 from google.oauth2 import id_token
 from google.auth.transport import requests
+from app.core.config import settings
 from app.core.database import get_db
 from app.core.security import verify_password, get_password_hash, create_access_token
 from app.models.models import User
@@ -126,12 +127,11 @@ class GoogleLogin(BaseModel):
 async def google_login(google_data: GoogleLogin, db: Session = Depends(get_db)):
     """Login or register user with Google OAuth"""
     try:
-        # Verify the Google token
-        # The token verification will work without specifying client_id
-        # as the token itself contains the client_id and Google verifies it
+        # Verify the Google token with audience check
         idinfo = id_token.verify_oauth2_token(
             google_data.credential, 
-            requests.Request()
+            requests.Request(),
+            audience=settings.GOOGLE_CLIENT_ID
         )
         
         # Get user info from Google token
