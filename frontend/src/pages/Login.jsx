@@ -41,12 +41,16 @@ const Login = () => {
 
     const handleGoogleSuccess = async (credentialResponse) => {
         setError('')
-        // Don't set loading to true here - let the redirect happen naturally
-        // This makes the process feel faster
-        const result = await googleLogin(credentialResponse.credential)
-
-        if (!result.success) {
-            setError(result.error)
+        setLoading(true)
+        try {
+            const result = await googleLogin(credentialResponse.credential)
+            if (!result.success) {
+                setError(result.error)
+                setLoading(false)
+            }
+        } catch (err) {
+            setError('An error occurred during Google login.')
+            setLoading(false)
         }
     }
 

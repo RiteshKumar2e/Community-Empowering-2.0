@@ -14,6 +14,9 @@ import os
 router = APIRouter()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/auth/login")
 
+# Reuse the request object for better performance (caches Google's certificates)
+google_request = requests.Request()
+
 class UserRegister(BaseModel):
     name: str
     email: EmailStr
@@ -127,10 +130,10 @@ class GoogleLogin(BaseModel):
 async def google_login(google_data: GoogleLogin, db: Session = Depends(get_db)):
     """Login or register user with Google OAuth"""
     try:
-        # Verify the Google token with audience check
+        # Verify the Google token with audience check using reused request object
         idinfo = id_token.verify_oauth2_token(
             google_data.credential, 
-            requests.Request(),
+            google_request,
             audience=settings.GOOGLE_CLIENT_ID
         )
         
@@ -147,16 +150,18 @@ async def google_login(google_data: GoogleLogin, db: Session = Depends(get_db)):
             )
         
         # Check if user exists
+        import time
+        start_time = time.time()
         user = db.query(User).filter(User.email == email).first()
         
         if not user:
             # Create new user with Google account
-            print(f"Creating new user for: {email}")  # Debug log
+            print(f"Creating new user for: {email}")
             user = User(
                 name=name,
                 email=email,
-                phone="",  # Google doesn't provide phone by default
-                password_hash=get_password_hash(os.urandom(32).hex()),  # Random password for OAuth users
+                phone="", 
+                password_hash=get_password_hash(os.urandom(32).hex()), 
                 location="",
                 language="en",
                 community_type="general"
@@ -164,7 +169,9 @@ async def google_login(google_data: GoogleLogin, db: Session = Depends(get_db)):
             db.add(user)
             db.commit()
             db.refresh(user)
-        
+            print(f"User creation took {time.time() - start_time:.2f}s")
+        else:
+            print(f"User lookup took {time.time() - start_time:.2f}s")
         if not user.is_active:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
