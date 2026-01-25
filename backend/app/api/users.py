@@ -98,37 +98,50 @@ async def update_user_info(
     db: Session = Depends(get_db)
 ):
     """Update current user information"""
-    if user_data.name is not None:
-        current_user.name = user_data.name
-    if user_data.email is not None:
-        # Check if email is already taken
-        if user_data.email != current_user.email:
-            existing_user = db.query(User).filter(User.email == user_data.email).first()
-            if existing_user:
-                raise HTTPException(status_code=400, detail="Email already registered")
-            current_user.email = user_data.email
-    if user_data.phone is not None:
-        current_user.phone = user_data.phone
-    if user_data.location is not None:
-        current_user.location = user_data.location
-    if user_data.language is not None:
-        current_user.language = user_data.language
-    if user_data.communityType is not None:
-        current_user.community_type = user_data.communityType
+    try:
+        if user_data.name is not None:
+            current_user.name = user_data.name
+            
+        if user_data.email is not None:
+            # Check if email is already taken
+            if user_data.email != current_user.email:
+                existing_user = db.query(User).filter(User.email == user_data.email).first()
+                if existing_user:
+                    raise HTTPException(status_code=400, detail="Email already registered")
+                current_user.email = user_data.email
+                
+        if user_data.phone is not None:
+            current_user.phone = user_data.phone
+            
+        if user_data.location is not None:
+            current_user.location = user_data.location
+            
+        if user_data.language is not None:
+            current_user.language = user_data.language
+            
+        if user_data.communityType is not None:
+            current_user.community_type = user_data.communityType
+            
+        db.commit()
+        db.refresh(current_user)
         
-    db.commit()
-    db.refresh(current_user)
-    
-    return {
-        "id": current_user.id,
-        "name": current_user.name,
-        "email": current_user.email,
-        "phone": current_user.phone,
-        "location": current_user.location,
-        "language": current_user.language,
-        "communityType": current_user.community_type,
-        "profileImage": current_user.profile_image
-    }
+        return {
+            "id": current_user.id,
+            "name": current_user.name,
+            "email": current_user.email,
+            "phone": current_user.phone,
+            "location": current_user.location,
+            "language": current_user.language,
+            "communityType": current_user.community_type,
+            "profileImage": current_user.profile_image
+        }
+    except HTTPException:
+        db.rollback()
+        raise
+    except Exception as e:
+        db.rollback()
+        print(f"Error updating profile: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to update profile: {str(e)}")
 
 @router.post("/me/photo")
 async def upload_profile_photo(

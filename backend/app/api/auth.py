@@ -37,6 +37,7 @@ class UserResponse(BaseModel):
     location: str
     language: str
     communityType: str
+    profileImage: Optional[str] = None
     
     class Config:
         from_attributes = True
@@ -79,7 +80,8 @@ async def register(user_data: UserRegister, db: Session = Depends(get_db)):
             "phone": new_user.phone,
             "location": new_user.location,
             "language": new_user.language,
-            "communityType": new_user.community_type
+            "communityType": new_user.community_type,
+            "profileImage": new_user.profile_image
         }
     }
 
@@ -111,7 +113,8 @@ async def login(user_data: UserLogin, db: Session = Depends(get_db)):
             "phone": user.phone,
             "location": user.location,
             "language": user.language,
-            "communityType": user.community_type
+            "communityType": user.community_type,
+            "profileImage": user.profile_image
         }
     }
 
@@ -181,7 +184,8 @@ async def google_login(google_data: GoogleLogin, db: Session = Depends(get_db)):
                 "phone": user.phone,
                 "location": user.location,
                 "language": user.language,
-                "communityType": user.community_type
+                "communityType": user.community_type,
+                "profileImage": user.profile_image
             }
         }
     except ValueError as e:
