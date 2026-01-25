@@ -1,15 +1,16 @@
 {
     "rewrites": [
         {
+            "source": "/api/(.*)",
+            "destination": "https://community-empowering-2-0.onrender.com/api/$1"
+        },
+        {
+            "source": "/(.*)",
+            "destination": "/frontend/dist/$1"
+        },
+        {
             "source": "/(.*)",
             "destination": "/frontend/dist/index.html"
-        }
-    ],
-    "redirects": [
-        {
-            "source": "/",
-            "destination": "/frontend",
-            "permanent": true
         }
     ]
 }

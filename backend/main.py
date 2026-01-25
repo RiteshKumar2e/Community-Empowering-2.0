@@ -40,6 +40,11 @@ app.include_router(learning.router, prefix="/api/learning", tags=["Learning"])
 app.include_router(admin.router, prefix="/api/admin", tags=["Admin"])
 app.include_router(agent.router, prefix="/api/agent", tags=["Agent"])
 
+@app.get("/favicon.ico", include_in_schema=False)
+async def favicon():
+    from fastapi.responses import Response
+    return Response(status_code=204)
+
 @app.get("/")
 async def root():
     return {
