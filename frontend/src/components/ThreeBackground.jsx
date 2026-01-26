@@ -8,15 +8,9 @@ const ThreeBackground = () => {
     useEffect(() => {
         if (!containerRef.current) return
 
-        // Scene setup
         const scene = new THREE.Scene()
-        const camera = new THREE.PerspectiveCamera(
-            75,
-            window.innerWidth / window.innerHeight,
-            0.1,
-            2000
-        )
-        camera.position.z = 10
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
+        camera.position.z = 100
 
         const renderer = new THREE.WebGLRenderer({
             alpha: true,
@@ -24,286 +18,163 @@ const ThreeBackground = () => {
             powerPreference: "high-performance"
         })
         renderer.setSize(window.innerWidth, window.innerHeight)
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.2)) // Lowered from 2 for better performance
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.2))
         containerRef.current.appendChild(renderer.domElement)
 
-        // Theme detection
         const getIsLight = () => document.body.classList.contains('light-theme')
         let isLight = getIsLight()
 
-        // Depth perception
-        const updateFogAndLights = () => {
-            const fogColor = isLight ? 0xf8fafc : 0x050510
-            scene.fog = new THREE.FogExp2(fogColor, 0.001)
-
-            if (ambientLight) {
-                ambientLight.intensity = isLight ? 1.5 : 0.5
-                ambientLight.color.setHex(isLight ? 0xffffff : 0x404040)
-            }
-            if (pointLight) {
-                pointLight.intensity = isLight ? 3 : 2
-                pointLight.color.setHex(isLight ? 0x6366f1 : 0x6366f1)
-            }
+        // 1. Distant Background Stars (Static)
+        const bgStarsCount = 2000
+        const bgStarsPos = new Float32Array(bgStarsCount * 3)
+        for (let i = 0; i < bgStarsCount * 3; i++) {
+            bgStarsPos[i] = (Math.random() - 0.5) * 500
         }
-
-        // 1. Starfield (Static distant stars) - OPTIMIZED
-        const starsGeometry = new THREE.BufferGeometry()
-        const starsCount = 800 // Reduced from 1500
-        const starsPos = new Float32Array(starsCount * 3)
-        for (let i = 0; i < starsCount * 3; i++) {
-            starsPos[i] = (Math.random() - 0.5) * 1000
-        }
-        starsGeometry.setAttribute('position', new THREE.BufferAttribute(starsPos, 3))
-        const starsMaterial = new THREE.PointsMaterial({
-            size: 0.8, // Slightly larger to compensate
+        const bgStarsGeom = new THREE.BufferGeometry()
+        bgStarsGeom.setAttribute('position', new THREE.BufferAttribute(bgStarsPos, 3))
+        const bgStarsMat = new THREE.PointsMaterial({
+            size: 0.3,
             color: isLight ? 0x6366f1 : 0xffffff,
             transparent: true,
-            opacity: isLight ? 0.3 : 0.6, // Increased opacity
-            sizeAttenuation: true
+            opacity: 0.2
         })
-        const starField = new THREE.Points(starsGeometry, starsMaterial)
-        scene.add(starField)
+        const bgStars = new THREE.Points(bgStarsGeom, bgStarsMat)
+        scene.add(bgStars)
 
-        // 2. Cosmic Dust / Nebula Particles - OPTIMIZED
-        const nebulaGeometry = new THREE.BufferGeometry()
-        const nebulaCount = 400 // Reduced from 800
-        const nebulaPos = new Float32Array(nebulaCount * 3)
-        const nebulaColors = new Float32Array(nebulaCount * 3)
+        // 2. Cosmic Flow (The "Main" Effect)
+        const flowCount = 1500
+        const flowPos = new Float32Array(flowCount * 3)
+        const flowColors = new Float32Array(flowCount * 3)
+        const flowSpeeds = new Float32Array(flowCount)
+        const flowAngles = new Float32Array(flowCount)
 
-        const darkPalette = [
-            new THREE.Color(0x6366f1), // Indigo
-            new THREE.Color(0x8b5cf6), // Purple
-            new THREE.Color(0xd946ef), // Fuchsia
-            new THREE.Color(0xec4899), // Pink
-            new THREE.Color(0x0ea5e9)  // Sky
+        const palette = [
+            new THREE.Color(0x6366f1),
+            new THREE.Color(0xa78bfa),
+            new THREE.Color(0xec4899),
+            new THREE.Color(0x0ea5e9)
         ]
 
-        const lightPalette = [
-            new THREE.Color(0x6366f1), // Professional Indigo
-            new THREE.Color(0x4f46e5), // Deep Indigo
-            new THREE.Color(0x06b6d4), // Cyan
-            new THREE.Color(0x3b82f6)  // Blue
-        ]
+        for (let i = 0; i < flowCount; i++) {
+            const i3 = i * 3
+            flowPos[i3] = (Math.random() - 0.5) * 200
+            flowPos[i3 + 1] = (Math.random() - 0.5) * 200
+            flowPos[i3 + 2] = (Math.random() - 0.5) * 100
 
-        const updateNebulaColors = () => {
-            const palette = isLight ? lightPalette : darkPalette
-            for (let i = 0; i < nebulaCount; i++) {
-                const color = palette[Math.floor(Math.random() * palette.length)]
-                nebulaColors[i * 3] = color.r
-                nebulaColors[i * 3 + 1] = color.g
-                nebulaColors[i * 3 + 2] = color.b
-            }
-            nebulaGeometry.attributes.color.needsUpdate = true
-            nebulaMaterial.opacity = isLight ? 0.6 : 0.5
-            nebulaMaterial.blending = isLight ? THREE.NormalBlending : THREE.AdditiveBlending
+            const color = palette[Math.floor(Math.random() * palette.length)]
+            flowColors[i3] = color.r
+            flowColors[i3 + 1] = color.g
+            flowColors[i3 + 2] = color.b
+
+            flowSpeeds[i] = Math.random() * 0.05 + 0.01
+            flowAngles[i] = Math.random() * Math.PI * 2
         }
 
-        for (let i = 0; i < nebulaCount * 3; i += 3) {
-            const angle = Math.random() * Math.PI * 2
-            const radius = 15 + Math.random() * 50 // Wider spread
-            const spin = radius * 0.2
+        const flowGeom = new THREE.BufferGeometry()
+        flowGeom.setAttribute('position', new THREE.BufferAttribute(flowPos, 3))
+        flowGeom.setAttribute('color', new THREE.BufferAttribute(flowColors, 3))
 
-            nebulaPos[i] = Math.cos(angle + spin) * radius + (Math.random() - 0.5) * 15
-            nebulaPos[i + 1] = (Math.random() - 0.5) * 40 // More vertical spread
-            nebulaPos[i + 2] = Math.sin(angle + spin) * radius + (Math.random() - 0.5) * 15
-        }
-
-        nebulaGeometry.setAttribute('position', new THREE.BufferAttribute(nebulaPos, 3))
-        nebulaGeometry.setAttribute('color', new THREE.BufferAttribute(nebulaColors, 3))
-
-        const nebulaMaterial = new THREE.PointsMaterial({
-            size: 0.15,
+        const flowMat = new THREE.PointsMaterial({
+            size: 0.6,
             vertexColors: true,
             transparent: true,
-            opacity: 0.4,
-            blending: THREE.AdditiveBlending,
-            sizeAttenuation: true
-        })
-        const nebula = new THREE.Points(nebulaGeometry, nebulaMaterial)
-        scene.add(nebula)
-        updateNebulaColors()
-
-        // 3. Floating Geometric Structures - OPTIMIZED
-        const structures = []
-        const structureMaterial = new THREE.MeshPhongMaterial({
-            color: 0x8b5cf6,
-            wireframe: true,
-            transparent: true,
-            opacity: 0.1,
-            shininess: 100
+            opacity: 0.6,
+            blending: THREE.AdditiveBlending
         })
 
-        for (let i = 0; i < 3; i++) { // Reduced from 5 to 3
-            const geometry = i % 2 === 0 ?
-                new THREE.IcosahedronGeometry(Math.random() * 2 + 1, 0) :
-                new THREE.TorusGeometry(Math.random() * 3 + 2, 0.02, 16, 100)
+        const flowParticles = new THREE.Points(flowGeom, flowMat)
+        scene.add(flowParticles)
 
-            const mesh = new THREE.Mesh(geometry, structureMaterial)
-            mesh.position.set(
-                (Math.random() - 0.5) * 60,
-                (Math.random() - 0.5) * 40,
-                (Math.random() - 0.5) * 30 - 20
-            )
-            mesh.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, 0)
-
-            structures.push({
-                mesh: mesh,
-                rotSpeed: (Math.random() - 0.5) * 0.005
+        // 3. Floating Light Prisms
+        const createPrism = () => {
+            const geom = new THREE.OctahedronGeometry(Math.random() * 4 + 2, 0)
+            const mat = new THREE.MeshPhongMaterial({
+                color: isLight ? 0x6366f1 : 0x8b5cf6,
+                wireframe: true,
+                transparent: true,
+                opacity: 0.1,
+                shininess: 100
             })
-            scene.add(mesh)
+            const mesh = new THREE.Mesh(geom, mat)
+            mesh.position.set((Math.random() - 0.5) * 150, (Math.random() - 0.5) * 100, -50)
+            return { mesh, rotSpeed: (Math.random() - 0.5) * 0.01 }
         }
+        const prisms = [createPrism(), createPrism(), createPrism(), createPrism()]
+        prisms.forEach(p => scene.add(p.mesh))
 
         // Lighting
-        const ambientLight = new THREE.AmbientLight(0x404040)
-        scene.add(ambientLight)
-        const pointLight = new THREE.PointLight(0x6366f1, 2, 100)
-        pointLight.position.set(10, 10, 10)
-        scene.add(pointLight)
+        const light = new THREE.PointLight(0xffffff, 2)
+        light.position.set(50, 50, 50)
+        scene.add(light)
+        scene.add(new THREE.AmbientLight(0xffffff, 0.5))
 
-        // 4. Neural Network Lines (Light Theme Specific)
-        const lineMaterial = new THREE.LineBasicMaterial({
-            color: 0x6366f1,
-            transparent: true,
-            opacity: 0,
-            blending: THREE.NormalBlending
-        })
-        const lineGeometry = new THREE.BufferGeometry()
-        const linePositions = new Float32Array(500 * 3)
-        lineGeometry.setAttribute('position', new THREE.BufferAttribute(linePositions, 3))
-        const networkLines = new THREE.LineSegments(lineGeometry, lineMaterial)
-        scene.add(networkLines)
-
-        // 5. Floating Glass Planes (Advanced Light Theme) - OPTIMIZED
-        const planes = []
-        const planeMaterial = new THREE.MeshPhysicalMaterial({
-            color: 0xffffff,
-            transparent: true,
-            opacity: 0,
-            roughness: 0.1,
-            metalness: 0.1,
-            transmission: 0.5,
-            thickness: 0.5,
-            ior: 1.5
-        })
-        for (let i = 0; i < 3; i++) { // Reduced from 6 to 3
-            const geom = new THREE.PlaneGeometry(10, 10)
-            const mesh = new THREE.Mesh(geom, planeMaterial)
-            mesh.position.set(
-                (Math.random() - 0.5) * 60,
-                (Math.random() - 0.5) * 40,
-                (Math.random() - 0.5) * 20 - 15
-            )
-            mesh.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, 0)
-            const speed = (Math.random() - 0.5) * 0.002
-            planes.push({ mesh, speed })
-            scene.add(mesh)
+        // Mouse follow
+        let mouseX = 0, mouseY = 0
+        const handleMove = (e) => {
+            mouseX = (e.clientX / window.innerWidth - 0.5) * 2
+            mouseY = (e.clientY / window.innerHeight - 0.5) * 2
         }
+        window.addEventListener('mousemove', handleMove)
 
-        updateFogAndLights()
-
-        // Observer for theme changes
-        const observer = new MutationObserver(() => {
-            const currentlyLight = getIsLight()
-            if (currentlyLight !== isLight) {
-                isLight = currentlyLight
-                updateFogAndLights()
-                updateNebulaColors()
-                starsMaterial.color.setHex(isLight ? 0x6366f1 : 0xffffff)
-                starsMaterial.opacity = isLight ? 0.2 : 0.5
-                structureMaterial.opacity = isLight ? 0.2 : 0.1
-                structureMaterial.color.setHex(isLight ? 0x4f46e5 : 0x8b5cf6)
-                planeMaterial.opacity = isLight ? 0.05 : 0
-            }
-        })
-        observer.observe(document.body, { attributes: true, attributeFilter: ['class'] })
-
-        // Mouse interaction
-        let mouseX = 0
-        let mouseY = 0
-        let targetX = 0
-        let targetY = 0
-
-        const handleMouseMove = (event) => {
-            mouseX = (event.clientX / window.innerWidth) * 2 - 1
-            mouseY = -(event.clientY / window.innerHeight) * 2 + 1
-        }
-        window.addEventListener('mousemove', handleMouseMove)
-
-        // Animation loop - OPTIMIZED
         let time = 0
-        let frameCount = 0 // For throttling expensive operations
-        let animationId
+        let ani
         const animate = () => {
-            animationId = requestAnimationFrame(animate)
-            time += 0.001
-            frameCount++
+            ani = requestAnimationFrame(animate)
+            time += 0.01
 
-            starField.rotation.y += 0.0001
-            nebula.rotation.y += 0.0003
-            nebula.rotation.z += 0.0001
+            // Dynamic Flow Animation
+            const pos = flowGeom.attributes.position.array
+            for (let i = 0; i < flowCount; i++) {
+                const i3 = i * 3
+                // Horizontal drift with wavy vertical move
+                pos[i3] += flowSpeeds[i]
+                pos[i3 + 1] += Math.sin(time + flowAngles[i]) * 0.05
 
-            structures.forEach(s => {
-                s.mesh.rotation.x += s.rotSpeed
-                s.mesh.rotation.y += s.rotSpeed
-                s.mesh.position.y += Math.sin(time * 5 + s.mesh.position.x) * 0.005
+                // Reset if off-screen (Loop effect)
+                if (pos[i3] > 150) pos[i3] = -150
+            }
+            flowGeom.attributes.position.needsUpdate = true
+
+            // Prisms
+            prisms.forEach(p => {
+                p.mesh.rotation.x += p.rotSpeed
+                p.mesh.rotation.y += p.rotSpeed
+                p.mesh.position.y += Math.sin(time * 0.5 + p.mesh.position.x) * 0.02
             })
 
-            // Advanced Planes Animation
-            if (isLight) {
-                planes.forEach(p => {
-                    p.mesh.rotation.x += p.speed
-                    p.mesh.rotation.y += p.speed
-                    p.mesh.position.z += Math.sin(time * 2) * 0.01
-                })
-            }
-
-            // Network Lines Logic (Light Mode) - THROTTLED for performance
-            // Only update every 3 frames to reduce CPU load
-            if (isLight && frameCount % 3 === 0) {
-                const positions = nebulaGeometry.attributes.position.array
-                let lineIdx = 0
-                const maxDistSq = 64 // 8 * 8
-
-                // Reduced sample size for better performance
-                for (let i = 0; i < 60; i += 3) {
-                    for (let j = i + 3; j < 120; j += 3) {
-                        const dx = positions[i] - positions[j]
-                        const dy = positions[i + 1] - positions[j + 1]
-                        const dz = positions[i + 2] - positions[j + 2]
-                        const distSq = dx * dx + dy * dy + dz * dz
-
-                        if (distSq < maxDistSq && lineIdx < 500) {
-                            linePositions[lineIdx++] = positions[i]
-                            linePositions[lineIdx++] = positions[i + 1]
-                            linePositions[lineIdx++] = positions[i + 2]
-                            linePositions[lineIdx++] = positions[j]
-                            linePositions[lineIdx++] = positions[j + 1]
-                            linePositions[lineIdx++] = positions[j + 2]
-                        }
-                    }
-                }
-                lineGeometry.attributes.position.needsUpdate = true
-                lineMaterial.opacity = 0.15
-            } else if (!isLight) {
-                lineMaterial.opacity = 0
-            }
-
-            targetX += (mouseX - targetX) * 0.05
-            targetY += (mouseY - targetY) * 0.05
-
-            // Smooth camera movement with subtle zoom
-            camera.position.x += (targetX * 2 - camera.position.x) * 0.02
-            camera.position.y += (-targetY * 2 - camera.position.y) * 0.02
-            camera.position.z = 10 + Math.sin(time * 0.5) * 0.5 // Subtle breathing effect
-
-            camera.lookAt(scene.position)
+            // Camera Smoothing
+            camera.position.x += (mouseX * 15 - camera.position.x) * 0.02
+            camera.position.y += (-mouseY * 15 - camera.position.y) * 0.02
+            camera.lookAt(0, 0, 0)
 
             renderer.render(scene, camera)
         }
-
         animate()
 
-        // Resize handler
+        // Theme sync
+        const updateThemeStyles = () => {
+            const currentLight = getIsLight();
+            isLight = currentLight;
+
+            // Adjust Background Stars
+            bgStarsMat.color.setHex(isLight ? 0x4f46e5 : 0xffffff);
+            bgStarsMat.opacity = isLight ? 0.4 : 0.2;
+
+            // Adjust Flow Particles
+            flowMat.blending = isLight ? THREE.NormalBlending : THREE.AdditiveBlending;
+            flowMat.opacity = isLight ? 0.8 : 0.6;
+
+            // Adjust Prisms
+            prisms.forEach(p => {
+                p.mesh.material.color.setHex(isLight ? 0x4f46e5 : 0x8b5cf6);
+                p.mesh.material.opacity = isLight ? 0.15 : 0.1;
+            });
+        };
+
+        const observer = new MutationObserver(updateThemeStyles);
+        observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+        updateThemeStyles(); // Initial call
+
         const handleResize = () => {
             camera.aspect = window.innerWidth / window.innerHeight
             camera.updateProjectionMatrix()
@@ -311,17 +182,14 @@ const ThreeBackground = () => {
         }
         window.addEventListener('resize', handleResize)
 
-        // Cleanup
         return () => {
-            window.removeEventListener('mousemove', handleMouseMove)
+            window.removeEventListener('mousemove', handleMove)
             window.removeEventListener('resize', handleResize)
-            cancelAnimationFrame(animationId)
+            cancelAnimationFrame(ani)
             observer.disconnect()
-            if (containerRef.current) {
-                containerRef.current.removeChild(renderer.domElement)
-            }
-            scene.clear()
             renderer.dispose()
+            scene.clear()
+            containerRef.current?.removeChild(renderer.domElement)
         }
     }, [])
 
