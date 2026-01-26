@@ -4,8 +4,8 @@
     left: 0;
     right: 0;
     z-index: 1000;
-    background: var(--bg-primary);
-    backdrop-filter: blur(20px);
+    background: rgba(10, 10, 15, 0.4);
+    backdrop-filter: blur(20px) saturate(180%);
     border-bottom: 1px solid var(--divider-color);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;

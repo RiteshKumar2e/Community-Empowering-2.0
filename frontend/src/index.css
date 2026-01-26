@@ -55,10 +55,10 @@
   --neutral-950: #030712;
 
   /* Background Colors */
-  --bg-primary: #0a0a0f;
-  --bg-secondary: #13131a;
-  --bg-tertiary: #1a1a24;
-  --bg-card: rgba(26, 26, 36, 0.8);
+  --bg-primary: rgba(10, 10, 15, 0.7);
+  --bg-secondary: rgba(19, 19, 26, 0.6);
+  --bg-tertiary: rgba(26, 26, 36, 0.5);
+  --bg-card: rgba(26, 26, 36, 0.4);
   --bg-hover: rgba(99, 102, 241, 0.1);
 
   /* Text Colors */
