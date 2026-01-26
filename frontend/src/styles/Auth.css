@@ -173,23 +173,24 @@
 }
 
 
-/* Google Login Button Wrapper - Rock solid centering */
+/* Google Login Button Wrapper - Full Width Fix */
 .google-login-wrapper {
-    display: grid !important;
-    place-items: center !important;
     width: 100% !important;
-    margin: var(--space-6) 0 !important;
-    min-height: 44px;
+    display: flex !important;
+    justify-content: center !important;
+    margin: var(--space-2) 0 !important;
 }
 
-/* Target all direct children divs created by Google library */
 .google-login-wrapper>div {
-    display: block !important;
-    margin: 0 auto !important;
+    width: 100% !important;
+    max-width: 400px !important;
+    /* Cap it for larger screens */
+    display: flex !important;
+    justify-content: center !important;
 }
 
 .google-login-wrapper iframe {
-    display: block !important;
+    width: 100% !important;
     margin: 0 auto !important;
 }
 
