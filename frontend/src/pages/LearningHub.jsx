@@ -6,6 +6,7 @@ import '../styles/LearningHub.css'
 const LearningHub = () => {
     const [platforms, setPlatforms] = useState([])
     const [selectedCategory, setSelectedCategory] = useState('all')
+    const [selectedSubCategory, setSelectedSubCategory] = useState('all')
     const [showAll, setShowAll] = useState(false)
     const [loading, setLoading] = useState(true)
 
@@ -44,6 +45,15 @@ const LearningHub = () => {
         { value: 'school', label: 'School (K-12)', icon: <BookOpen size={18} /> },
         { value: 'health', label: 'Health & Wellness', icon: <Heart size={18} /> },
         { value: 'internship', label: 'Real-time Internships', icon: <Briefcase size={18} /> }
+    ]
+
+    const internshipSubCategories = [
+        { value: 'all', label: 'All Internships' },
+        { value: 'govt', label: 'Govt & PSUs' },
+        { value: 'tech', label: 'Technology / IT' },
+        { value: 'finance', label: 'Banking & Finance' },
+        { value: 'social', label: 'NGO & Social Impact' },
+        { value: 'platforms', label: 'Top Platforms' }
     ]
 
     // Real Government and Curated Free Learning Platforms - 60+ Items
@@ -604,11 +614,11 @@ const LearningHub = () => {
             isOfficial: false
         },
 
-        // --- REAL-TIME ONGOING INTERNSHIPS (50+ Items) ---
         {
             title: "Internshala",
             description: "India's largest internship platform. 10,000+ new verified internships in Tech, Design, Marketing, and more.",
             category: "internship",
+            subCategory: "platforms",
             provider: "Internshala",
             duration: "1-6 Months",
             students: "5M+",
@@ -621,6 +631,7 @@ const LearningHub = () => {
             title: "LinkedIn Internships",
             description: "Real-time global and local internship listings. Filter by top companies and location.",
             category: "internship",
+            subCategory: "platforms",
             provider: "LinkedIn",
             duration: "Flexible",
             students: "Global",
@@ -633,6 +644,7 @@ const LearningHub = () => {
             title: "NATS (National Apprenticeship)",
             description: "Official Govt portal for Engineering and Diploma graduates to find 1-year paid apprenticeship in top PSUs.",
             category: "internship",
+            subCategory: "govt",
             provider: "Ministry of Education",
             duration: "1 Year",
             students: "1M+",
@@ -645,6 +657,7 @@ const LearningHub = () => {
             title: "Startup India Internships",
             description: "Work with high-growth startups in India. Direct access to early-stage company opportunities.",
             category: "internship",
+            subCategory: "platforms",
             provider: "Startup India",
             duration: "2-6 Months",
             students: "500K+",
@@ -657,6 +670,7 @@ const LearningHub = () => {
             title: "NITI Aayog Internship",
             description: "Prestigious internship for students to understand policy making and governance at the highest level.",
             category: "internship",
+            subCategory: "govt",
             provider: "NITI Aayog",
             duration: "6-12 Weeks",
             students: "10K+",
@@ -669,6 +683,7 @@ const LearningHub = () => {
             title: "RBI Internship Scheme",
             description: "Summer and regular internships with the Reserve Bank of India for economics and finance students.",
             category: "internship",
+            subCategory: "govt",
             provider: "RBI",
             duration: "3 Months",
             students: "5K+",
@@ -681,6 +696,7 @@ const LearningHub = () => {
             title: "ISRO Internship",
             description: "Opportunities for students to work on space technology projects and research.",
             category: "internship",
+            subCategory: "govt",
             provider: "ISRO",
             duration: "Flexible",
             students: "2K+",
@@ -693,6 +709,7 @@ const LearningHub = () => {
             title: "Google STEP Internship",
             description: "Student Training in Engineering Program for 1st and 2nd year CS students.",
             category: "internship",
+            subCategory: "tech",
             provider: "Google",
             duration: "10-12 Weeks",
             students: "Global",
@@ -705,6 +722,7 @@ const LearningHub = () => {
             title: "Microsoft Explore Program",
             description: "12-week internship for freshman and sophomore students to explore software engineering.",
             category: "internship",
+            subCategory: "tech",
             provider: "Microsoft",
             duration: "12 Weeks",
             students: "Global",
@@ -717,6 +735,7 @@ const LearningHub = () => {
             title: "Teach For India",
             description: "Volunteer or intern with the movement to end educational inequity in India.",
             category: "internship",
+            subCategory: "social",
             provider: "Teach For India",
             duration: "2-6 Months",
             students: "20K+",
@@ -729,6 +748,7 @@ const LearningHub = () => {
             title: "IAS Research Fellowship",
             description: "Prestigious fellowship to work with academy fellows at top research labs in India.",
             category: "internship",
+            subCategory: "govt",
             provider: "Indian Academy of Sciences",
             duration: "8 Weeks",
             students: "2K+",
@@ -741,6 +761,7 @@ const LearningHub = () => {
             title: "NHRC Internship",
             description: "Human rights education and research internships with the National Human Rights Commission.",
             category: "internship",
+            subCategory: "govt",
             provider: "NHRC",
             duration: "1 Month",
             students: "1K+",
@@ -753,6 +774,7 @@ const LearningHub = () => {
             title: "DRDO Internships",
             description: "Training and project work at various DRDO laboratories across India.",
             category: "internship",
+            subCategory: "govt",
             provider: "DRDO",
             duration: "Variable",
             students: "5K+",
@@ -765,6 +787,7 @@ const LearningHub = () => {
             title: "CCI Internship Program",
             description: "Legal and Economics internships with the Competition Commission of India.",
             category: "internship",
+            subCategory: "govt",
             provider: "CCI India",
             duration: "1 Month",
             students: "500+",
@@ -777,6 +800,7 @@ const LearningHub = () => {
             title: "UNICEF India",
             description: "Work with the United Nations for children's rights and well-being in India.",
             category: "internship",
+            subCategory: "social",
             provider: "UNICEF",
             duration: "2-6 Months",
             students: "Global",
@@ -789,6 +813,7 @@ const LearningHub = () => {
             title: "WWF India Internship",
             description: "Conservation and environment-focused internships across various departments.",
             category: "internship",
+            subCategory: "social",
             provider: "WWF India",
             duration: "2-6 Months",
             students: "1K+",
@@ -801,6 +826,7 @@ const LearningHub = () => {
             title: "Infosys InStep",
             description: "Global internship program for students to work on real-world IT projects.",
             category: "internship",
+            subCategory: "tech",
             provider: "Infosys",
             duration: "8-24 Weeks",
             students: "2K+",
@@ -813,6 +839,7 @@ const LearningHub = () => {
             title: "TCS Internship",
             description: "Opportunities for students to work with TCS on cutting-edge IT projects.",
             category: "internship",
+            subCategory: "tech",
             provider: "TCS",
             duration: "6-12 Weeks",
             students: "5K+",
@@ -825,6 +852,7 @@ const LearningHub = () => {
             title: "Reliance Internships",
             description: "Work with India's largest private sector company across diverse business units.",
             category: "internship",
+            subCategory: "corporate",
             provider: "Reliance",
             duration: "8 Weeks",
             students: "3K+",
@@ -837,6 +865,7 @@ const LearningHub = () => {
             title: "Goldman Sachs Analyst",
             description: "Intensive summer program for students interested in finance and technology.",
             category: "internship",
+            subCategory: "finance",
             provider: "Goldman Sachs",
             duration: "8-10 Weeks",
             students: "Global",
@@ -849,6 +878,7 @@ const LearningHub = () => {
             title: "Standard Chartered",
             description: "Find your path in banking with internships across high-performing teams.",
             category: "internship",
+            subCategory: "finance",
             provider: "StanChart",
             duration: "10 Weeks",
             students: "Global",
@@ -861,6 +891,7 @@ const LearningHub = () => {
             title: "Indeed Internship Hub",
             description: "Aggregated live internship listings from thousands of companies in India.",
             category: "internship",
+            subCategory: "platforms",
             provider: "Indeed",
             duration: "Flexible",
             students: "Global",
@@ -873,6 +904,7 @@ const LearningHub = () => {
             title: "TIFR Research Program",
             description: "Visiting Student Research Programme (VSRP) at Tata Institute of Fundamental Research.",
             category: "internship",
+            subCategory: "govt",
             provider: "TIFR",
             duration: "2 Months",
             students: "500+",
@@ -885,6 +917,7 @@ const LearningHub = () => {
             title: "NAPS Apprenticeship",
             description: "Official National Apprenticeship Promotion Scheme for industrial training.",
             category: "internship",
+            subCategory: "govt",
             provider: "Govt of India",
             duration: "1 Year",
             students: "2M+",
@@ -897,6 +930,7 @@ const LearningHub = () => {
             title: "MEA Internship",
             description: "Internship with the Ministry of External Affairs for exposure to foreign policy.",
             category: "internship",
+            subCategory: "govt",
             provider: "MEA Govt",
             duration: "3 Months",
             students: "200+",
@@ -909,6 +943,7 @@ const LearningHub = () => {
             title: "Digital India Hub",
             description: "Software Technology Parks of India (STPI) internships for tech students.",
             category: "internship",
+            subCategory: "govt",
             provider: "MeitY",
             duration: "3 Months",
             students: "1K+",
@@ -921,6 +956,7 @@ const LearningHub = () => {
             title: "NABARD Rural Program",
             description: "Summer internships focusing on rural development and agri-banking.",
             category: "internship",
+            subCategory: "finance",
             provider: "NABARD bank",
             duration: "3 Months",
             students: "300+",
@@ -933,6 +969,7 @@ const LearningHub = () => {
             title: "SIDBI Internship",
             description: "Opportunities with the Small Industries Development Bank of India.",
             category: "internship",
+            subCategory: "finance",
             provider: "SIDBI",
             duration: "3 Months",
             students: "200+",
@@ -945,6 +982,7 @@ const LearningHub = () => {
             title: "IOCL Training",
             description: "Summer training and projects at Indian Oil Corporation units.",
             category: "internship",
+            subCategory: "govt",
             provider: "Indian Oil",
             duration: "1-2 Months",
             students: "3K+",
@@ -957,6 +995,7 @@ const LearningHub = () => {
             title: "ONGC Summer Training",
             description: "Professional training for tech students in the energy and oil sector.",
             category: "internship",
+            subCategory: "govt",
             provider: "ONGC India",
             duration: "2 Months",
             students: "2K+",
@@ -969,6 +1008,7 @@ const LearningHub = () => {
             title: "GAIL Training Hub",
             description: "Summer training opportunities in natural gas and petrochemicals.",
             category: "internship",
+            subCategory: "govt",
             provider: "GAIL India",
             duration: "Variable",
             students: "1K+",
@@ -981,6 +1021,7 @@ const LearningHub = () => {
             title: "BPCL Industrial Training",
             description: "Opportunities for students to work on live industrial projects.",
             category: "internship",
+            subCategory: "govt",
             provider: "BPCL",
             duration: "2 Months",
             students: "1K+",
@@ -993,6 +1034,7 @@ const LearningHub = () => {
             title: "NTPC Energy Interns",
             description: "Power sector internships at National Thermal Power Corporation units.",
             category: "internship",
+            subCategory: "govt",
             provider: "NTPC India",
             duration: "2 Months",
             students: "2K+",
@@ -1005,6 +1047,7 @@ const LearningHub = () => {
             title: "Coal India Training",
             description: "Mining and management internships with the global coal giant.",
             category: "internship",
+            subCategory: "govt",
             provider: "Coal India",
             duration: "Variable",
             students: "2K+",
@@ -1017,6 +1060,7 @@ const LearningHub = () => {
             title: "BHEL Technical",
             description: "Industrial training at Bharat Heavy Electricals Limited units.",
             category: "internship",
+            subCategory: "govt",
             provider: "BHEL",
             duration: "Variable",
             students: "2K+",
@@ -1029,6 +1073,7 @@ const LearningHub = () => {
             title: "SAIL Vocational",
             description: "Vocational training at Steel Authority of India limited plants.",
             category: "internship",
+            subCategory: "govt",
             provider: "SAIL India",
             duration: "Variable",
             students: "3K+",
@@ -1041,6 +1086,7 @@ const LearningHub = () => {
             title: "HPCL Summer Analyst",
             description: "Projects in refining, marketing and corporate functions.",
             category: "internship",
+            subCategory: "govt",
             provider: "HPCL India",
             duration: "2 Months",
             students: "1.5K+",
@@ -1053,6 +1099,7 @@ const LearningHub = () => {
             title: "HAL Aerospace",
             description: "Aviation and aerospace training at Hindustan Aeronautics Limited.",
             category: "internship",
+            subCategory: "govt",
             provider: "HAL",
             duration: "Variable",
             students: "1K+",
@@ -1065,6 +1112,7 @@ const LearningHub = () => {
             title: "AAI Aviation Training",
             description: "Airports Authority of India internships for aviation students.",
             category: "internship",
+            subCategory: "govt",
             provider: "AAI Govt",
             duration: "Variable",
             students: "1K+",
@@ -1077,6 +1125,7 @@ const LearningHub = () => {
             title: "CRY Social Impact",
             description: "Internships in Child Rights and advocacy for social change.",
             category: "internship",
+            subCategory: "social",
             provider: "CRY India",
             duration: "2 Months",
             students: "5K+",
@@ -1089,6 +1138,7 @@ const LearningHub = () => {
             title: "Goonj Rural Dev",
             description: "Grassroots development internships with the award-winning NGO.",
             category: "internship",
+            subCategory: "social",
             provider: "Goonj",
             duration: "1 Month",
             students: "2000+",
@@ -1101,6 +1151,7 @@ const LearningHub = () => {
             title: "HDFC Bank Intern",
             description: "Summer internships for finance and management students.",
             category: "internship",
+            subCategory: "finance",
             provider: "HDFC Bank",
             duration: "2 Months",
             students: "2K+",
@@ -1113,6 +1164,7 @@ const LearningHub = () => {
             title: "ICICI Bank Program",
             description: "Summer internship in banking and digital finance roles.",
             category: "internship",
+            subCategory: "finance",
             provider: "ICICI Bank",
             duration: "8-10 Weeks",
             students: "2K+",
@@ -1125,6 +1177,7 @@ const LearningHub = () => {
             title: "Tata Motors Tech",
             description: "Engineering and R&D internships in the automotive sector.",
             category: "internship",
+            subCategory: "corporate",
             provider: "Tata Motors",
             duration: "2 Months",
             students: "1.5K+",
@@ -1137,6 +1190,7 @@ const LearningHub = () => {
             title: "Mahindra & Mahindra",
             description: "Work with one of India's top groups in manufacturing and farm tech.",
             category: "internship",
+            subCategory: "corporate",
             provider: "Mahindra",
             duration: "2 Months",
             students: "1K+",
@@ -1149,6 +1203,7 @@ const LearningHub = () => {
             title: "L&T ECC Training",
             description: "Civil and Electrical engineering on-site and office training.",
             category: "internship",
+            subCategory: "corporate",
             provider: "L&T",
             duration: "2 Months",
             students: "2K+",
@@ -1161,6 +1216,7 @@ const LearningHub = () => {
             title: "Standard Chartered Hub",
             description: "Technology and Operations internships at international global hubs.",
             category: "internship",
+            subCategory: "finance",
             provider: "StanChart Hub",
             duration: "10 Weeks",
             students: "Global",
@@ -1173,6 +1229,7 @@ const LearningHub = () => {
             title: "UNDP India",
             description: "Internship opportunities with United Nations Development Programme.",
             category: "internship",
+            subCategory: "social",
             provider: "UNDP India",
             duration: "3-6 Months",
             students: "Global",
@@ -1185,6 +1242,7 @@ const LearningHub = () => {
             title: "JNCASR Summer Fellow",
             description: "Fellowships in science and engineering at Jawaharlal Nehru Centre.",
             category: "internship",
+            subCategory: "govt",
             provider: "JNCASR",
             duration: "2 Months",
             students: "300+",
@@ -1197,6 +1255,7 @@ const LearningHub = () => {
             title: "Wipro Star Program",
             description: "IT and consulting internships for graduates in top tech projects.",
             category: "internship",
+            subCategory: "tech",
             provider: "Wipro",
             duration: "6 Months",
             students: "5K+",
@@ -1376,9 +1435,14 @@ const LearningHub = () => {
     ]
 
 
-    const filteredPlatforms = selectedCategory === 'all'
-        ? platforms
-        : platforms.filter(p => p.category === selectedCategory)
+    const filteredPlatforms = platforms.filter(p => {
+        if (selectedCategory === 'all') return true;
+        if (p.category !== selectedCategory) return false;
+        if (selectedCategory === 'internship' && selectedSubCategory !== 'all') {
+            return p.subCategory === selectedSubCategory;
+        }
+        return true;
+    })
 
     // Show only 4 platforms initially, then all on "View More"
     const displayedPlatforms = showAll ? filteredPlatforms : filteredPlatforms.slice(0, 4)
@@ -1438,6 +1502,24 @@ const LearningHub = () => {
                         </button>
                     ))}
                 </div>
+
+                {/* Internship Sub-Categories */}
+                {selectedCategory === 'internship' && (
+                    <div className="sub-category-filters">
+                        {internshipSubCategories.map(sub => (
+                            <button
+                                key={sub.value}
+                                className={`sub-filter-btn ${selectedSubCategory === sub.value ? 'active' : ''}`}
+                                onClick={() => {
+                                    setSelectedSubCategory(sub.value)
+                                    setShowAll(false)
+                                }}
+                            >
+                                {sub.label}
+                            </button>
+                        ))}
+                    </div>
+                )}
 
                 {/* Learning Platforms Grid */}
                 <div className="platforms-grid">
@@ -1503,8 +1585,17 @@ const LearningHub = () => {
                                     rel="noopener noreferrer"
                                     className="btn btn-primary btn-sm"
                                 >
-                                    <Play size={16} />
-                                    Start Learning
+                                    {platform.category === 'internship' ? (
+                                        <>
+                                            <Briefcase size={16} />
+                                            Show Internship
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Play size={16} />
+                                            Start Learning
+                                        </>
+                                    )}
                                     <ExternalLink size={14} />
                                 </a>
                             </div>
