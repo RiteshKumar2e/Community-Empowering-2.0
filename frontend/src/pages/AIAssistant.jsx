@@ -2,6 +2,8 @@ import { useState, useRef, useEffect } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { useLanguage } from '../contexts/LanguageContext'
 import { Send, Mic, MicOff, Loader, Bot, User as UserIcon } from 'lucide-react'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import api from '../services/api'
 import '../styles/AIAssistant.css'
 
@@ -12,8 +14,8 @@ const AIAssistant = () => {
         {
             role: 'assistant',
             content: language === 'hi'
-                ? `नमस्ते ${user?.name}! मैं आपका AI सहायक हूँ। मैं सरकारी योजनाओं, बाज़ार पहुँच और सामुदायिक संसाधनों में आपकी मदद कर सकता हूँ। मैं आज आपकी क्या सहायता कर सकता हूँ?`
-                : `Hello ${user?.name}! I'm your AI assistant. I can help you with government schemes, market access, and community resources. How can I assist you today?`,
+                ? `नमस्ते ${user?.name || 'दोस्त'}! मैं आपका AI सहायक हूँ। मैं सरकारी योजनाओं, बाज़ार पहुँच और सामुदायिक संसाधनों में आपकी मदद कर सकता हूँ। मैं आज आपकी क्या सहायता कर सकता हूँ?\n\n(Hello! I'm your AI assistant. I can help with schemes, markets, and resources. How can I help today?)`
+                : `Hello ${user?.name || 'friend'}! I'm your AI assistant. I can help you with government schemes, market access, and community resources. How can I assist you today?\n\n(नमस्ते! मैं आपका AI सहायक हूँ। मैं सरकारी योजनाओं, बाज़ार पहुँच और संसाधनों में आपकी मदद कर सकता हूँ।)`,
             timestamp: new Date()
         }
     ])
@@ -81,7 +83,7 @@ const AIAssistant = () => {
 
             const assistantMessage = {
                 role: 'assistant',
-                content: response.data.message,
+                content: response.data.message.replaceAll('*', ''),
                 timestamp: new Date()
             }
 
@@ -89,7 +91,9 @@ const AIAssistant = () => {
 
             // Text-to-speech for response
             if ('speechSynthesis' in window) {
-                const utterance = new SpeechSynthesisUtterance(response.data.message)
+                // Remove markdown for speech synthesis
+                const cleanText = response.data.message.replace(/[#*`]/g, '')
+                const utterance = new SpeechSynthesisUtterance(cleanText)
                 utterance.lang = language === 'hi' ? 'hi-IN' : 'en-US'
                 window.speechSynthesis.speak(utterance)
             }
@@ -177,13 +181,18 @@ const AIAssistant = () => {
                                     )}
                                 </div>
                                 <div className="message-content">
-                                    <p>{message.content}</p>
+                                    <div className="markdown-content">
+                                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                            {message.content}
+                                        </ReactMarkdown>
+                                    </div>
                                     <span className="message-time">
                                         {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                     </span>
                                 </div>
                             </div>
                         ))}
+
 
                         {loading && (
                             <div className="message assistant-message">

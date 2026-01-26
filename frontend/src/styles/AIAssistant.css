@@ -167,6 +167,50 @@
     text-align: left;
 }
 
+/* Markdown Content Styles */
+.markdown-content {
+    word-break: break-word;
+}
+
+.markdown-content p {
+    margin-bottom: var(--space-2);
+}
+
+.markdown-content p:last-child {
+    margin-bottom: 0;
+}
+
+.markdown-content ul,
+.markdown-content ol {
+    margin-bottom: var(--space-3);
+    padding-left: var(--space-5);
+}
+
+.markdown-content li {
+    margin-bottom: var(--space-1);
+}
+
+.markdown-content strong {
+    font-weight: 600;
+    color: inherit;
+}
+
+.assistant-message .markdown-content strong {
+    color: var(--primary-300);
+}
+
+body.light-theme .assistant-message .markdown-content strong {
+    color: var(--primary-700);
+}
+
+.markdown-content code {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 2px 4px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.9em;
+}
+
 /* Suggestions */
 .suggestions {
     padding: 0 var(--space-6) var(--space-4);
