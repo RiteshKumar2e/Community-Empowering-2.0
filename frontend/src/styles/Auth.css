@@ -175,42 +175,22 @@
 
 /* Google Login Button Wrapper */
 .google-login-wrapper {
-    display: block !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
     width: 100% !important;
-    margin: 0 !important;
+    margin: var(--space-4) 0 !important;
     padding: 0 !important;
-    text-align: center !important;
 }
 
 .google-login-wrapper>div {
-    width: 100% !important;
-    max-width: 100% !important;
-    margin: 0 auto !important;
-    display: block !important;
-}
-
-.google-login-wrapper>div>div {
-    width: 100% !important;
-    max-width: 100% !important;
-    margin: 0 auto !important;
     display: flex !important;
     justify-content: center !important;
+    width: auto !important;
+    margin: 0 auto !important;
 }
 
 .google-login-wrapper iframe {
-    max-width: 100% !important;
-    margin: 0 auto !important;
-    display: block !important;
-    /* Kept from original, as it's not explicitly removed by the instruction */
-}
-
-/* Target the actual Google button container */
-.google-login-wrapper [data-client-id] {
-    margin: 0 auto !important;
-    display: block !important;
-}
-
-.google-login-wrapper div[role="button"] {
     margin: 0 auto !important;
 }
 
