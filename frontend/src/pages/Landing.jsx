@@ -484,7 +484,7 @@ const Landing = () => {
                                 <a href="https://www.linkedin.com/in/ritesh-kumar-b3a654253" target="_blank" rel="noopener noreferrer" className="social-icon-link">
                                     <Linkedin size={24} />
                                 </a>
-                                <a href="riteshkumar90359@gmail.com" className="social-icon-link">
+                                <a href="mailto:riteshkumar90359@gmail.com" className="social-icon-link">
                                     <Mail size={24} />
                                 </a>
                             </div>
@@ -492,10 +492,9 @@ const Landing = () => {
 
                         <div className="footer-column">
                             <h5>Ecosystem</h5>
-                            <Link to="/dashboard">Neural Grid</Link>
-                            <Link to="/learning">The Team</Link>
-                            <Link to="/assistant">Assistant</Link>
-                            <Link to="/resources">Resources</Link>
+                            <button onClick={() => scrollToSection('about')} className="footer-scroll-link">About</button>
+                            <button onClick={() => scrollToSection('team')} className="footer-scroll-link">The Team</button>
+                            <button onClick={() => scrollToSection('goals')} className="footer-scroll-link">Goals</button>
                         </div>
 
                         <div className="footer-column">

@@ -92,6 +92,7 @@ const Navbar = () => {
                             <button onClick={() => scrollToSection('mission')} className="nav-link">Mission</button>
                             <button onClick={() => scrollToSection('about')} className="nav-link">About</button>
                             <button onClick={() => scrollToSection('goals')} className="nav-link">Goals</button>
+                            <button onClick={() => scrollToSection('team')} className="nav-link">Team</button>
                             <button onClick={() => scrollToSection('testimonials')} className="nav-link">Testimonials</button>
                             <button onClick={() => scrollToSection('contact')} className="nav-link">Contact</button>
                         </>
