@@ -21,12 +21,29 @@ import NotFound from './pages/NotFound'
 // Google OAuth Client ID - Replace with your actual client ID
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "951248037202-st6tgbo07tjljditc95n7kuvgqr7a7mg.apps.googleusercontent.com"
 
+
+// Component to handle redirect on refresh
+const RefreshHandler = () => {
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    useEffect(() => {
+        // If the page is refreshed and we're not on the landing page, redirect to home
+        if (location.pathname !== '/') {
+            navigate('/');
+        }
+    }, []); // Empty dependency array ensures this runs only once on mount (refresh)
+
+    return null;
+};
+
 function App() {
     return (
         <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
             <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
                 <AuthProvider>
                     <LanguageProvider>
+                        <RefreshHandler />
                         <div className="app">
                             <ParticleCursor />
                             <Navbar />
