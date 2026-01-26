@@ -17,6 +17,12 @@ class User(Base):
     profile_image = Column(String)
     is_admin = Column(Boolean, default=False)
     is_active = Column(Boolean, default=True)
+    
+    # OTP fields for Google OAuth verification
+    google_otp = Column(String, nullable=True)
+    google_otp_expiry = Column(DateTime(timezone=True), nullable=True)
+    google_email_verified = Column(Boolean, default=False)
+    
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     

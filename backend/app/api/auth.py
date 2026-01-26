@@ -3,12 +3,14 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, EmailStr
 from typing import Optional
+from datetime import datetime, timezone
 from google.oauth2 import id_token
 from google.auth.transport import requests
 from app.core.config import settings
 from app.core.database import get_db
 from app.core.security import verify_password, get_password_hash, create_access_token
 from app.models.models import User
+from app.services.email_service import email_service
 import os
 
 router = APIRouter()
@@ -46,6 +48,14 @@ class UserResponse(BaseModel):
     
     class Config:
         from_attributes = True
+
+class GoogleLogin(BaseModel):
+    credential: str
+
+class GoogleOTPVerify(BaseModel):
+    email: EmailStr
+    otp: str
+
 
 @router.post("/register", response_model=dict)
 async def register(user_data: UserRegister, db: Session = Depends(get_db)):
@@ -123,12 +133,12 @@ async def login(user_data: UserLogin, db: Session = Depends(get_db)):
         }
     }
 
-class GoogleLogin(BaseModel):
-    credential: str
-
 @router.post("/google-login", response_model=dict)
 async def google_login(google_data: GoogleLogin, db: Session = Depends(get_db)):
-    """Login or register user with Google OAuth"""
+    """
+    Step 1: Verify Google token and send OTP to user's email
+    Returns: Success message indicating OTP has been sent
+    """
     try:
         # Verify the Google token with audience check using reused request object
         idinfo = id_token.verify_oauth2_token(
@@ -140,8 +150,9 @@ async def google_login(google_data: GoogleLogin, db: Session = Depends(get_db)):
         # Get user info from Google token
         email = idinfo.get('email')
         name = idinfo.get('name', '')
+        picture = idinfo.get('picture', '')
         
-        print(f"Google login attempt for email: {email}")  # Debug log
+        print(f"✅ Google token verified for email: {email}")
         
         if not email:
             raise HTTPException(
@@ -149,14 +160,12 @@ async def google_login(google_data: GoogleLogin, db: Session = Depends(get_db)):
                 detail="Email not provided by Google"
             )
         
-        # Check if user exists
-        import time
-        start_time = time.time()
+        # Check if user exists, if not create a temporary user record
         user = db.query(User).filter(User.email == email).first()
         
         if not user:
-            # Create new user with Google account
-            print(f"Creating new user for: {email}")
+            # Create new user with Google account (not yet verified)
+            print(f"📝 Creating new user for: {email}")
             user = User(
                 name=name,
                 email=email,
@@ -164,14 +173,105 @@ async def google_login(google_data: GoogleLogin, db: Session = Depends(get_db)):
                 password_hash=get_password_hash(os.urandom(32).hex()), 
                 location="",
                 language="en",
-                community_type="general"
+                community_type="general",
+                profile_image=picture,
+                google_email_verified=False  # Not verified yet
             )
             db.add(user)
             db.commit()
             db.refresh(user)
-            print(f"User creation took {time.time() - start_time:.2f}s")
-        else:
-            print(f"User lookup took {time.time() - start_time:.2f}s")
+        
+        # Generate OTP
+        otp = email_service.generate_otp()
+        otp_expiry = email_service.get_otp_expiry()
+        
+        # Store OTP in database
+        user.google_otp = otp
+        user.google_otp_expiry = otp_expiry
+        db.commit()
+        
+        # Send OTP email (non-blocking)
+        email_service.send_otp(email, otp)
+        
+        print(f"📧 OTP sent to {email} (expires in 10 minutes)")
+        
+        return {
+            "success": True,
+            "message": "OTP sent to your email. Please verify to complete sign-in.",
+            "email": email,
+            "requires_otp": True
+        }
+        
+    except ValueError as e:
+        print(f"❌ Google token verification failed: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=f"Invalid Google token: {str(e)}"
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Google authentication error: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Google authentication failed: {str(e)}"
+        )
+
+
+@router.post("/verify-google-otp", response_model=dict)
+async def verify_google_otp(otp_data: GoogleOTPVerify, db: Session = Depends(get_db)):
+    """
+    Step 2: Verify OTP and complete Google login
+    Returns: Access token and user data
+    """
+    try:
+        # Find user by email
+        user = db.query(User).filter(User.email == otp_data.email).first()
+        
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User not found. Please initiate Google login first."
+            )
+        
+        # Check if OTP exists
+        if not user.google_otp:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="No OTP found. Please request a new OTP."
+            )
+        
+        # Check if OTP has expired
+        if user.google_otp_expiry < datetime.now(timezone.utc):
+            # Clear expired OTP
+            user.google_otp = None
+            user.google_otp_expiry = None
+            db.commit()
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="OTP has expired. Please request a new one."
+            )
+        
+        # Verify OTP
+        if user.google_otp != otp_data.otp:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid OTP. Please check and try again."
+            )
+        
+        # OTP verified successfully
+        print(f"✅ OTP verified for {user.email}")
+        
+        # Mark email as verified and clear OTP
+        user.google_email_verified = True
+        user.google_otp = None
+        user.google_otp_expiry = None
+        db.commit()
+        db.refresh(user)
+        
+        # Check if user is active
         if not user.is_active:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -181,7 +281,7 @@ async def google_login(google_data: GoogleLogin, db: Session = Depends(get_db)):
         # Create access token
         access_token = create_access_token(data={"sub": user.email})
         
-        print(f"Google login successful for: {email}")  # Debug log
+        print(f"🎉 Google login successful for: {user.email}")
         
         return {
             "token": access_token,
@@ -196,23 +296,68 @@ async def google_login(google_data: GoogleLogin, db: Session = Depends(get_db)):
                 "profileImage": user.profile_image
             }
         }
-    except ValueError as e:
-        # Invalid token
-        print(f"Google token verification failed: {str(e)}")  # Debug log
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"Invalid Google token: {str(e)}"
-        )
+        
     except HTTPException:
-        # Re-raise HTTP exceptions
         raise
     except Exception as e:
-        # Catch all other errors
-        print(f"Google authentication error: {str(e)}")  # Debug log
+        print(f"❌ OTP verification error: {str(e)}")
         import traceback
-        traceback.print_exc()  # Print full traceback for debugging
+        traceback.print_exc()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Google authentication failed: {str(e)}"
+            detail=f"OTP verification failed: {str(e)}"
         )
+
+
+@router.post("/resend-google-otp", response_model=dict)
+async def resend_google_otp(email_data: dict, db: Session = Depends(get_db)):
+    """
+    Resend OTP for Google login
+    """
+    try:
+        email = email_data.get("email")
+        
+        if not email:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Email is required"
+            )
+        
+        # Find user
+        user = db.query(User).filter(User.email == email).first()
+        
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User not found"
+            )
+        
+        # Generate new OTP
+        otp = email_service.generate_otp()
+        otp_expiry = email_service.get_otp_expiry()
+        
+        # Update OTP in database
+        user.google_otp = otp
+        user.google_otp_expiry = otp_expiry
+        db.commit()
+        
+        # Send OTP email
+        email_service.send_otp(email, otp)
+        
+        print(f"🔄 OTP resent to {email}")
+        
+        return {
+            "success": True,
+            "message": "New OTP sent to your email"
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Resend OTP error: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to resend OTP: {str(e)}"
+        )
+
 
