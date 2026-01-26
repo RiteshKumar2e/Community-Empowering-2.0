@@ -173,25 +173,29 @@
 }
 
 
-/* Google Login Button Wrapper - Static Grid Lock */
+/* Google Login Button Wrapper - Dynamic Force Center */
 .google-login-wrapper {
-    display: grid !important;
-    place-items: center !important;
     width: 100% !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
     margin: var(--space-6) 0 !important;
-    min-height: 44px;
+    min-height: 48px;
     padding: 0 !important;
 }
 
-/* Force the library container to stay in the center with a fixed footprint */
-.google-login-wrapper>div {
+/* Force centering on all dynamic nested elements */
+.google-login-wrapper>div,
+.google-login-wrapper div,
+.google-login-wrapper iframe {
     margin: 0 auto !important;
-    width: 300px !important;
-    display: block !important;
+    display: flex !important;
+    justify-content: center !important;
+    width: auto !important;
+    max-width: 100% !important;
 }
 
-.google-login-wrapper iframe {
-    display: block !important;
+.google-login-wrapper [data-client-id] {
     margin: 0 auto !important;
 }
 
@@ -253,6 +257,7 @@
    RESPONSIVE DESIGN (TABLET & MOBILE)
    =================================== */
 
+
 @media (max-width: 1024px) {
     .auth-container {
         grid-template-columns: 1fr;
@@ -273,6 +278,7 @@
 @media (max-width: 768px) {
     .auth-page {
         padding: var(--space-8) var(--space-4);
+        min-height: 100svh;
     }
 
     .auth-card {
@@ -299,61 +305,11 @@
     .auth-card {
         padding: var(--space-6) var(--space-4);
         border-radius: var(--radius-xl);
-        background: rgba(255, 255, 255, 0.03);
-        /* Slightly more visible on small screens */
     }
 
     .form-row {
         grid-template-columns: 1fr;
         gap: var(--space-3);
-    }
-
-    .auth-header {
-        margin-bottom: var(--space-6);
-    }
-
-    .auth-header h1 {
-        font-size: 1.5rem;
-    }
-
-    .form-input {
-        padding: 0.85rem 1rem;
-        font-size: 1rem;
-    }
-
-    .btn-lg {
-        padding: 0.85rem;
-        font-size: 1rem;
-    }
-
-    /* Ensure Google Login button fits */
-    .google-login-wrapper {
-        width: 100% !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        display: block !important;
-        text-align: center !important;
-    }
-
-    .google-login-wrapper>div {
-        width: 100% !important;
-        max-width: 100% !important;
-        margin: 0 auto !important;
-        display: block !important;
-        transform: scale(1) !important;
-        transform-origin: center !important;
-    }
-
-    .google-login-wrapper>div>div {
-        width: 100% !important;
-        margin: 0 auto !important;
-        display: flex !important;
-        justify-content: center !important;
-    }
-
-    .google-login-wrapper iframe {
-        width: 100% !important;
-        max-width: 100% !important;
     }
 }
 

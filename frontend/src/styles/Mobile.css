@@ -513,8 +513,8 @@
 
     /* Auth Pages Mobile Optimization */
     .auth-page {
-        padding: 90px var(--space-4) var(--space-8) !important;
-        min-height: 100vh !important;
+        padding: 90px var(--space-4) var(--space-8);
+        min-height: 100svh;
     }
 
     .auth-container {
@@ -523,64 +523,41 @@
     }
 
     .auth-card {
-        padding: var(--space-6) var(--space-4) !important;
-        margin: 0 !important;
+        padding: var(--space-6) var(--space-4);
+        margin: 0;
     }
 
     .auth-header {
-        margin-bottom: var(--space-6) !important;
+        margin-bottom: var(--space-6);
     }
 
-    .auth-header h1 {
-        font-size: 1.6rem !important;
-    }
-
-    .auth-header .logo-icon {
-        font-size: 2.25rem !important;
-        margin-bottom: var(--space-3) !important;
-    }
-
-    .auth-form {
-        gap: var(--space-4) !important;
-    }
-
-    .form-group {
-        gap: var(--space-2) !important;
-    }
-
-    .form-input,
-    .form-select {
-        padding: 0.85rem 1rem !important;
-        font-size: 1rem !important;
-    }
 
     .google-login-wrapper {
-        display: grid !important;
-        place-items: center !important;
         width: 100% !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
         margin: var(--space-6) 0 !important;
-        min-height: 44px;
+        min-height: 48px;
         padding: 0 !important;
     }
 
-    .google-login-wrapper>div {
-        margin: 0 auto !important;
-        width: 300px !important;
-        display: block !important;
-    }
-
+    .google-login-wrapper>div,
+    .google-login-wrapper div,
     .google-login-wrapper iframe {
-        display: block !important;
         margin: 0 auto !important;
+        display: flex !important;
+        justify-content: center !important;
+        width: auto !important;
+        max-width: 100% !important;
     }
-
 
     .auth-footer {
-        margin-top: var(--space-6) !important;
-        padding-top: var(--space-5) !important;
+        margin-top: var(--space-6);
+        padding-top: var(--space-5);
     }
 
     .auth-footer p {
-        font-size: 0.9rem !important;
+        font-size: 0.9rem;
     }
 }

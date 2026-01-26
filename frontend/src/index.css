@@ -213,12 +213,15 @@ body {
   color: var(--text-primary);
   line-height: 1.6;
   overflow-x: hidden;
-  min-height: 100vh;
+  min-height: 100svh;
+  overscroll-behavior-y: none;
 }
 
 #root {
-  min-height: 100vh;
+  min-height: 100svh;
   position: relative;
+  display: flex;
+  flex-direction: column;
 }
 
 /* ===================================
@@ -282,6 +285,7 @@ a:hover {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 var(--space-6);
+  transition: padding var(--transition-base), max-width var(--transition-base);
 }
 
 .container-wide {
