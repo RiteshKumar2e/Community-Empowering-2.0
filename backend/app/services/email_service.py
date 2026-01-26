@@ -3,7 +3,7 @@ import threading
 import traceback
 import requests
 import secrets
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from dotenv import load_dotenv
 
 load_dotenv()
