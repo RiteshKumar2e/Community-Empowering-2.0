@@ -73,7 +73,8 @@ const Login = () => {
 
     return (
         <div className="auth-page">
-            <div className="auth-container">
+            <div className="auth-container centered-container">
+
                 <div className="auth-card">
                     <div className="auth-header">
                         <div className="logo-icon">🌟</div>
@@ -168,33 +169,6 @@ const Login = () => {
                             </Link>
                         </p>
                     </div>
-                </div>
-
-                <div className="auth-features">
-                    <h3>Why Join Community AI?</h3>
-                    <ul>
-                        <li>
-                            <span className="feature-icon">🎯</span>
-                            <div>
-                                <strong>Access Government Schemes</strong>
-                                <p>Get personalized recommendations for schemes and benefits</p>
-                            </div>
-                        </li>
-                        <li>
-                            <span className="feature-icon">📚</span>
-                            <div>
-                                <strong>Learn & Grow</strong>
-                                <p>Access educational resources and skill development courses</p>
-                            </div>
-                        </li>
-                        <li>
-                            <span className="feature-icon">🗣️</span>
-                            <div>
-                                <strong>Your Language</strong>
-                                <p>Interact in your preferred local language with voice support</p>
-                            </div>
-                        </li>
-                    </ul>
                 </div>
             </div>
             <OTPModal

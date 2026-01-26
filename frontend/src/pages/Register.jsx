@@ -59,6 +59,33 @@ const Register = () => {
     return (
         <div className="auth-page">
             <div className="auth-container">
+                <div className="auth-features">
+                    <h3>Why Join Community AI?</h3>
+                    <div className="feature-list">
+                        <div className="feature-item">
+                            <div className="feature-icon-wrapper">🎯</div>
+                            <div className="feature-content">
+                                <strong>Access Government Schemes</strong>
+                                <p>Get personalized recommendations for schemes and benefits</p>
+                            </div>
+                        </div>
+                        <div className="feature-item">
+                            <div className="feature-icon-wrapper">📚</div>
+                            <div className="feature-content">
+                                <strong>Learn & Grow</strong>
+                                <p>Access educational resources and skill development courses</p>
+                            </div>
+                        </div>
+                        <div className="feature-item">
+                            <div className="feature-icon-wrapper">🗣️</div>
+                            <div className="feature-content">
+                                <strong>Your Language</strong>
+                                <p>Interact in your preferred local language with voice support</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div className="auth-card">
                     <div className="auth-header">
                         <div className="logo-icon">🌟</div>
@@ -122,7 +149,7 @@ const Register = () => {
                                 value={formData.phone}
                                 onChange={handleChange}
                                 className="form-input"
-                                placeholder="+91 1234567890"
+                                placeholder="Enter your phone number"
                                 autoComplete="tel"
                                 required
                             />
