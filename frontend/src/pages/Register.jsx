@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { useLanguage } from '../contexts/LanguageContext'
@@ -8,6 +8,10 @@ import '../styles/Auth.css'
 const Register = () => {
     const { register } = useAuth()
     const { t } = useLanguage()
+
+    useEffect(() => {
+        window.scrollTo(0, 0)
+    }, [])
     const [formData, setFormData] = useState({
         name: '',
         email: '',
