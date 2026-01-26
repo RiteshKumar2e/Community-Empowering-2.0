@@ -533,23 +533,24 @@
 
 
     .google-login-wrapper {
-        width: 100% !important;
-        display: flex !important;
+        display: grid !important;
+        place-items: center !important;
         justify-content: center !important;
-        align-items: center !important;
+        width: 100% !important;
         margin: var(--space-6) 0 !important;
         min-height: 48px;
         padding: 0 !important;
     }
 
-    .google-login-wrapper>div,
-    .google-login-wrapper div,
-    .google-login-wrapper iframe {
+    .google-login-wrapper>div {
+        display: block !important;
+        width: 320px !important;
         margin: 0 auto !important;
-        display: flex !important;
-        justify-content: center !important;
-        width: auto !important;
-        max-width: 100% !important;
+    }
+
+    .google-login-wrapper iframe {
+        display: block !important;
+        margin: 0 auto !important;
     }
 
     .auth-footer {
