@@ -556,21 +556,18 @@
 
     .google-login-wrapper {
         width: 100% !important;
-        display: flex !important;
-        justify-content: center !important;
-        align-items: center !important;
-        margin: var(--space-4) 0 !important;
-        padding: 0 !important;
+        display: block !important;
+        text-align: center !important;
+        margin: var(--space-6) auto !important;
+        min-height: 44px;
+        /* Default height for Google button */
     }
 
-    .google-login-wrapper>div {
-        display: flex !important;
-        justify-content: center !important;
+    .google-login-wrapper>div,
+    .google-login-wrapper iframe,
+    .google-login-wrapper [role="button"] {
         margin: 0 auto !important;
-    }
-
-    .google-login-wrapper iframe {
-        margin: 0 auto !important;
+        display: inline-block !important;
     }
 
     /* Force Google button to be full width on mobile */
