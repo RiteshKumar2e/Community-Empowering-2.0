@@ -7,6 +7,7 @@ const LearningHub = () => {
     const [platforms, setPlatforms] = useState([])
     const [selectedCategory, setSelectedCategory] = useState('all')
     const [selectedSubCategory, setSelectedSubCategory] = useState('all')
+    const [selectedSkillSubCategory, setSelectedSkillSubCategory] = useState('all')
     const [showAll, setShowAll] = useState(false)
     const [loading, setLoading] = useState(true)
 
@@ -44,6 +45,7 @@ const LearningHub = () => {
         { value: 'startup', label: 'Entrepreneurship', icon: <Award size={18} /> },
         { value: 'school', label: 'School (K-12)', icon: <BookOpen size={18} /> },
         { value: 'health', label: 'Health & Wellness', icon: <Heart size={18} /> },
+        { value: 'skills', label: 'Skill Development', icon: <Award size={18} /> },
         { value: 'internship', label: 'Real-time Internships', icon: <Briefcase size={18} /> }
     ]
 
@@ -54,6 +56,16 @@ const LearningHub = () => {
         { value: 'finance', label: 'Banking & Finance' },
         { value: 'social', label: 'NGO & Social Impact' },
         { value: 'platforms', label: 'Top Platforms' }
+    ]
+
+    const skillSubCategories = [
+        { value: 'all', label: 'All Skills' },
+        { value: 'cloud', label: 'Cloud & Infra' },
+        { value: 'data', label: 'Data & AI' },
+        { value: 'dev', label: 'Software Dev' },
+        { value: 'security', label: 'Cybersecurity' },
+        { value: 'design', label: 'Design & Creative' },
+        { value: 'business', label: 'Marketing & Biz' }
     ]
 
     // Real Government and Curated Free Learning Platforms - 60+ Items
@@ -1420,6 +1432,779 @@ const LearningHub = () => {
             features: ["Grant focused", "Syllabus", "Direct help"],
             isOfficial: true
         },
+        // --- SKILL DEVELOPMENT (100 Items Categorized) ---
+
+        // Cloud & Infra
+        {
+            title: "Google Cloud Skills Boost",
+            description: "Master Cloud architecture, Data Analytics, and Gen AI with hands-on labs.",
+            category: "skills", subCategory: "cloud",
+            provider: "Google Cloud", duration: "Self-paced", students: "Global", level: "Intermediate",
+            link: "https://www.cloudskillsboost.google/",
+            features: ["Cloud Labs", "Cert Prep", "Official Badges"], isOfficial: false
+        },
+        {
+            title: "AWS Educate",
+            description: "Free cloud computing training, labs, and job board for students.",
+            category: "skills", subCategory: "cloud",
+            provider: "Amazon", duration: "Modular", students: "1M+", level: "Beginner",
+            link: "https://aws.amazon.com/education/awseducate/",
+            features: ["No-cost Labs", "Job Portal", "Cloud Path"], isOfficial: false
+        },
+        {
+            title: "Microsoft Learn Azure",
+            description: "Official interactive modules for Azure and Cloud Development.",
+            category: "skills", subCategory: "cloud",
+            provider: "Microsoft", duration: "Variable", students: "Millions", level: "All Levels",
+            link: "https://learn.microsoft.com/azure",
+            features: ["Free Sandbox", "Global Creds", "Tech Career"], isOfficial: false
+        },
+        {
+            title: "Oracle Cloud Infrastructure",
+            description: "Official training for OCI including Architect and Operations certs.",
+            category: "skills", subCategory: "cloud",
+            provider: "Oracle", duration: "40 hours+", students: "500K+", level: "Advanced",
+            link: "https://education.oracle.com/learning-explorer",
+            features: ["Exam Prep", "Free Training", "Official Cert"], isOfficial: false
+        },
+        {
+            title: "Linux Foundation Training",
+            description: "Professional training in Linux, Kubernetes, and Node.js.",
+            category: "skills", subCategory: "cloud",
+            provider: "Linux Foundation", duration: "Modular", students: "2M+", level: "System Admin",
+            link: "https://training.linuxfoundation.org/",
+            features: ["Open Source", "Industry Standard"], isOfficial: false
+        },
+        {
+            title: "VMware Customer Connect",
+            description: "Virtualization training covering vSphere, NSX, and Cloud Foundation.",
+            category: "skills", subCategory: "cloud",
+            provider: "VMware", duration: "Modular", students: "800K+", level: "IT Admin",
+            link: "https://customerconnect.vmware.com/learning",
+            features: ["Virtualization", "IT Infra", "Workshops"], isOfficial: false
+        },
+        {
+            title: "Red Hat Training",
+            description: "Enterprise Linux, OpenShift, and Automation training leader.",
+            category: "skills", subCategory: "cloud",
+            provider: "Red Hat", duration: "Variable", students: "1M+", level: "Enterprise Tech",
+            link: "https://www.redhat.com/en/services/training",
+            features: ["RHEL Mastery", "DevOps Skills"], isOfficial: false
+        },
+        {
+            title: "DigitalOcean Community",
+            description: "Comprehensive tutorials and labs for server management and cloud apps.",
+            category: "skills", subCategory: "cloud",
+            provider: "DigitalOcean", duration: "Self-paced", students: "5M+", level: "Beginner",
+            link: "https://www.digitalocean.com/community",
+            features: ["Droplets", "Linux Config", "Free Guides"], isOfficial: false
+        },
+        {
+            title: "HashiCorp Learn",
+            description: "Master Infrastructure as Code (IaC) with Terraform, Vault, and Consul.",
+            category: "skills", subCategory: "cloud",
+            provider: "HashiCorp", duration: "Modular", students: "500K+", level: "Intermediate",
+            link: "https://learn.hashicorp.com/",
+            features: ["Terraform", "Security", "DevOps"], isOfficial: false
+        },
+        {
+            title: "Docker Training",
+            description: "Official guide to containerization, images, and Docker Compose.",
+            category: "skills", subCategory: "cloud",
+            provider: "Docker", duration: "Variable", students: "2M+", level: "Intermediate",
+            link: "https://docs.docker.com/get-started/",
+            features: ["Containers", "Images", "Registry"], isOfficial: false
+        },
+        {
+            title: "Cloudflare Workers",
+            description: "Learn to build and deploy serverless functions at the edge.",
+            category: "skills", subCategory: "cloud",
+            provider: "Cloudflare", duration: "Project based", students: "300K+", level: "Advanced",
+            link: "https://developers.cloudflare.com/workers/get-started/guide/",
+            features: ["Wasm", "Edge JS", "Serverless"], isOfficial: false
+        },
+        {
+            title: "Netlify Learn",
+            description: "Master modern web deployment and serverless functions.",
+            category: "skills", subCategory: "cloud",
+            provider: "Netlify", duration: "Flex", students: "1M+", level: "Beginner",
+            link: "https://www.netlify.com/blog/tags/tutorial/",
+            features: ["JAMstack", "Functions", "Forms"], isOfficial: false
+        },
+        {
+            title: "Vercel Guides",
+            description: "Deployment and optimization guides for Next.js and frontend frameworks.",
+            category: "skills", subCategory: "cloud",
+            provider: "Vercel", duration: "Modular", students: "1M+", level: "Intermediate",
+            link: "https://vercel.com/guides",
+            features: ["Next.js", "Edge Config", "Deployment"], isOfficial: false
+        },
+        {
+            title: "K8s.io Learning",
+            description: "Official documentation and tutorials for Kubernetes orchestration.",
+            category: "skills", subCategory: "cloud",
+            provider: "Kubernetes", duration: "Self-paced", students: "5M+", level: "Advanced",
+            link: "https://kubernetes.io/docs/tutorials/",
+            features: ["Orchestration", "Kubectl", "Pods"], isOfficial: false
+        },
+        {
+            title: "Cloudinary Academy",
+            description: "Optimize digital media and images using Cloudinary's powerful API.",
+            category: "skills", subCategory: "cloud",
+            provider: "Cloudinary", duration: "Modular", students: "100K+", level: "All Levels",
+            link: "https://training.cloudinary.com/",
+            features: ["Media Mgmt", "API Video", "SEO Images"], isOfficial: false
+        },
+
+        // Data & AI
+        {
+            title: "MongoDB University",
+            description: "Master NoSQL databases and MongoDB with official courses.",
+            category: "skills", subCategory: "data",
+            provider: "MongoDB", duration: "Flex", students: "1.5M+", level: "Developer",
+            link: "https://university.mongodb.com/",
+            features: ["Database Skills", "Free Courses"], isOfficial: false
+        },
+        {
+            title: "Redis University",
+            description: "Expert-led courses for Redis data structures and applications.",
+            category: "skills", subCategory: "data",
+            provider: "Redis", duration: "5 weeks", students: "100K+", level: "Developer",
+            link: "https://university.redis.com/",
+            features: ["NoSQL Mastery", "Memory Cache"], isOfficial: false
+        },
+        {
+            title: "Databricks Academy",
+            description: "Training in Data Engineering and Machine Learning using Apache Spark.",
+            category: "skills", subCategory: "data",
+            provider: "Databricks", duration: "Variable", students: "200K+", level: "Data Pro",
+            link: "https://www.databricks.com/learn/training/login",
+            features: ["Big Data", "Spark AI"], isOfficial: false
+        },
+        {
+            title: "Snowflake University",
+            description: "Learn cloud data warehousing and sharing on the Snowflake platform.",
+            category: "skills", subCategory: "data",
+            provider: "Snowflake", duration: "Self-paced", students: "100K+", level: "Data Pro",
+            link: "https://learn.snowflake.com/",
+            features: ["Cloud Data", "Data Warehouse"], isOfficial: false
+        },
+        {
+            title: "Kaggle Courses",
+            description: "Practical micro-courses for Data Science, Machine Learning, and Python.",
+            category: "skills", subCategory: "data",
+            provider: "Google Kaggle", duration: "3-5 hours", students: "5M+", level: "Beginner",
+            link: "https://www.kaggle.com/learn",
+            features: ["Python", "Pandas", "Deep Learning"], isOfficial: false
+        },
+        {
+            title: "Fast.ai",
+            description: "Top-tier Deep Learning courses for coders. High-level focus on AI.",
+            category: "skills", subCategory: "data",
+            provider: "Fast.ai", duration: "Modular", students: "2M+", level: "Intermediate",
+            link: "https://www.fast.ai/",
+            features: ["Deep Learning", "CNNs", "NLP"], isOfficial: false
+        },
+        {
+            title: "OpenAI Guides",
+            description: "Learn to prompt, fine-tune, and integrate GPT models and Dall-E.",
+            category: "skills", subCategory: "data",
+            provider: "OpenAI", duration: "Project based", students: "Global", level: "All Levels",
+            link: "https://platform.openai.com/docs/guides/prompt-engineering",
+            features: ["Prompt Eng", "LLM APIs", "Fine-tuning"], isOfficial: false
+        },
+        {
+            title: "Hugging Face Course",
+            description: "Build NLP models and work with transformers from the community hub.",
+            category: "skills", subCategory: "data",
+            provider: "Hugging Face", duration: "Weeks", students: "1M+", level: "Advanced",
+            link: "https://huggingface.co/learn/nlp-course/",
+            features: ["Transformers", "Models Hub", "NLP"], isOfficial: false
+        },
+        {
+            title: "TensorFlow Learn",
+            description: "Official training for the TensorFlow ecosystem and production AI.",
+            category: "skills", subCategory: "data",
+            provider: "Google AI", duration: "Modular", students: "3M+", level: "Technical",
+            link: "https://www.tensorflow.org/learn",
+            features: ["AI Models", "Keras", "Model Deployment"], isOfficial: false
+        },
+        {
+            title: "PyTorch Tutorials",
+            description: "Learn the research-friendly AI framework through interactive tutorials.",
+            category: "skills", subCategory: "data",
+            provider: "Meta AI", duration: "Modular", students: "2M+", level: "Technical",
+            link: "https://pytorch.org/tutorials/",
+            features: ["Tensors", "Neural Nets", "PyTorch Live"], isOfficial: false
+        },
+        {
+            title: "Neo4j Graph Academy",
+            description: "Master graph databases and Cypher query language.",
+            category: "skills", subCategory: "data",
+            provider: "Neo4j", duration: "Flex", students: "500K+", level: "Intermediate",
+            link: "https://graphacademy.neo4j.com/",
+            features: ["Graph DB", "Cypher", "Relations"], isOfficial: false
+        },
+        {
+            title: "Apache Spark Docs",
+            description: "Official guide for building large-scale data processing engines.",
+            category: "skills", subCategory: "data",
+            provider: "Apache", duration: "Technical", students: "2M+", level: "Advanced",
+            link: "https://spark.apache.org/docs/latest/",
+            features: ["Big Data", "RDDs", "Spark SQL"], isOfficial: false
+        },
+        {
+            title: "H2O.ai University",
+            description: "Learn automated machine learning and professional AI platforms.",
+            category: "skills", subCategory: "data",
+            provider: "H2O.ai", duration: "Modular", students: "100K+", level: "Data Pro",
+            link: "https://university.h2o.ai/",
+            features: ["AutoML", "Explainable AI", "Data Pro"], isOfficial: false
+        },
+        {
+            title: "Scikit-learn Learn",
+            description: "Official documentation for machine learning in Python.",
+            category: "skills", subCategory: "data",
+            provider: "Scikit-community", duration: "Reference", students: "5M+", level: "Technical",
+            link: "https://scikit-learn.org/stable/tutorial/",
+            features: ["Algorithms", "Stats", "Python ML"], isOfficial: false
+        },
+        {
+            title: "DeepLearning.AI Hub",
+            description: "Free specialization modules and short courses on AI topics.",
+            category: "skills", subCategory: "data",
+            provider: "Andrew Ng", duration: "Variable", students: "10M+", level: "All Levels",
+            link: "https://www.deeplearning.ai/short-courses/",
+            features: ["AI Basics", "Future Tech", "Gen AI"], isOfficial: false
+        },
+        {
+            title: "Elastic Training",
+            description: "Official training for Elasticsearch, Logstash, and Kibana.",
+            category: "skills", subCategory: "data",
+            provider: "Elastic", duration: "Flex", students: "200K+", level: "Search Pro",
+            link: "https://training.elastic.co/",
+            features: ["ELK Stack", "Log Analysis", "Search"], isOfficial: false
+        },
+        {
+            title: "Tableau E-Learning",
+            description: "Learn data visualization and business intelligence.",
+            category: "skills", subCategory: "data",
+            provider: "Tableau", duration: "Modular", students: "1M+", level: "Data Analyst",
+            link: "https://www.tableau.com/learn",
+            features: ["Data Viz", "BI Skills"], isOfficial: false
+        },
+        {
+            title: "Power BI Microsoft Hub",
+            description: "Data analytics skills to transform data into insights.",
+            category: "skills", subCategory: "data",
+            provider: "Microsoft", duration: "Self-paced", students: "2M+", level: "Data Analyst",
+            link: "https://learn.microsoft.com/power-bi/learning-catalog/",
+            features: ["BI Dashboards", "Data Modeling"], isOfficial: false
+        },
+
+        // Software Development
+        {
+            title: "FreeCodeCamp",
+            description: "World's most popular coding boot camp. Earn 10+ free certifications.",
+            category: "skills", subCategory: "dev",
+            provider: "Quincy Larson", duration: "300 hours/cert", students: "40M+", level: "Beginner",
+            link: "https://www.freecodecamp.org/learn",
+            features: ["Full Stack", "Python", "Certs"], isOfficial: false
+        },
+        {
+            title: "MDN Web Docs Learning",
+            description: "Official Mozilla guide to HTML, CSS, and JavaScript from scratch.",
+            category: "skills", subCategory: "dev",
+            provider: "Mozilla", duration: "Reference", students: "Global", level: "All Levels",
+            link: "https://developer.mozilla.org/en-US/docs/Learn",
+            features: ["Standards", "JavaScript", "HTML5"], isOfficial: false
+        },
+        {
+            title: "The Odin Project",
+            description: "Full stack curriculum specializing in Ruby on Rails and JavaScript.",
+            category: "skills", subCategory: "dev",
+            provider: "Community", duration: "Modular", students: "1M+", level: "Beginner-Intermediate",
+            link: "https://www.theodinproject.com/",
+            features: ["Project based", "Full Stack", "Free"], isOfficial: false
+        },
+        {
+            title: "JavaScript.info",
+            description: "The modern JavaScript tutorial, from basics to advanced topics.",
+            category: "skills", subCategory: "dev",
+            provider: "Ilya Kantor", duration: "Reference", students: "Global", level: "All Levels",
+            link: "https://javascript.info/",
+            features: ["ES6+", "Dom", "Patterns"], isOfficial: false
+        },
+        {
+            title: "Python.org Tutorial",
+            description: "The official standard library guide to Python programming.",
+            category: "skills", subCategory: "dev",
+            provider: "Python PSF", duration: "Reference", students: "Global", level: "Beginner",
+            link: "https://docs.python.org/3/tutorial/",
+            features: ["OOP", "Scripting", "Official"], isOfficial: false
+        },
+        {
+            title: "Go Tour",
+            description: "Interactive introduction to Google's Go programming language.",
+            category: "skills", subCategory: "dev",
+            provider: "Go Team", duration: "Hours", students: "500K+", level: "Freshman",
+            link: "https://tour.golang.org/",
+            features: ["Concurrency", "Types", "Interactive"], isOfficial: false
+        },
+        {
+            title: "Rust Book",
+            description: "The definitive guide to the Rust systems programming language.",
+            category: "skills", subCategory: "dev",
+            provider: "Rust Team", duration: "Books", students: "500K+", level: "Advanced",
+            link: "https://doc.rust-lang.org/book/",
+            features: ["Safety", "Memory", "Performant"], isOfficial: false
+        },
+        {
+            title: "Unity Learn",
+            description: "Journey in 3D and Game Development with official tutorials.",
+            category: "skills", subCategory: "dev",
+            provider: "Unity", duration: "Self-paced", students: "1M+", level: "Technical",
+            link: "https://learn.unity.com/",
+            features: ["Game Dev", "3D Skills"], isOfficial: false
+        },
+        {
+            title: "Next.js Learning Path",
+            description: "Master React for Production with official Vercel tracks.",
+            category: "skills", subCategory: "dev",
+            provider: "Vercel", duration: "Practical", students: "1M+", level: "Advanced Web",
+            link: "https://nextjs.org/learn",
+            features: ["SSR", "App Router"], isOfficial: false
+        },
+        {
+            title: "Vite JS Training",
+            description: "Next generation of frontend tooling for fast development.",
+            category: "skills", subCategory: "dev",
+            provider: "Community", duration: "Build blocks", students: "400K+", level: "Web Tools",
+            link: "https://vitejs.dev/guide/",
+            features: ["Fast builds", "Modern JS"], isOfficial: false
+        },
+        {
+            title: "GitHub Skills Hub",
+            description: "Learn Git and CI/CD through interactive repositories.",
+            category: "skills", subCategory: "dev",
+            provider: "GitHub", duration: "Lab based", students: "5M+", level: "All Levels",
+            link: "https://skills.github.com/",
+            features: ["Version Control", "DevOps"], isOfficial: false
+        },
+        {
+            title: "React.dev Guides",
+            description: "Official interactive documentation for React UI library.",
+            category: "skills", subCategory: "dev",
+            provider: "Meta", duration: "Reference", students: "10M+", level: "Intermediate",
+            link: "https://react.dev/learn",
+            features: ["Hooks", "State", "UI"], isOfficial: false
+        },
+        {
+            title: "Vuejs.org Tutorial",
+            description: "Interactive journey through the approachable Vue.js framework.",
+            category: "skills", subCategory: "dev",
+            provider: "Evan You", duration: "Reference", students: "3M+", level: "All Levels",
+            link: "https://vuejs.org/tutorial/",
+            features: ["Components", "Reactive", "Flex"], isOfficial: false
+        },
+        {
+            title: "Svelte.dev Learn",
+            description: "Learn Svelte's compiler-first approach to building web apps.",
+            category: "skills", subCategory: "dev",
+            provider: "Community", duration: "Interactive", students: "500K+", level: "Modern",
+            link: "https://svelte.dev/tutorial",
+            features: ["Fast UI", "Zero runtime", "Compiler"], isOfficial: false
+        },
+        {
+            title: "Flutter.dev Labs",
+            description: "Build beautiful cross-platform apps with Google's UI toolkit.",
+            category: "skills", subCategory: "dev",
+            provider: "Google Flutter", duration: "Project based", students: "2M+", level: "Technical",
+            link: "https://flutter.dev/learn",
+            features: ["Dart", "Widgets", "Mobile"], isOfficial: false
+        },
+        {
+            title: "Postman Academy",
+            description: "Official certification for API development and testing.",
+            category: "skills", subCategory: "dev",
+            provider: "Postman", duration: "Modular", students: "1M+", level: "QA/Dev",
+            link: "https://academy.postman.com/",
+            features: ["API Testing", "Automation", "REST"], isOfficial: false
+        },
+        {
+            title: "GraphQL.org Learn",
+            description: "Official guide to query language for your APIs and server-side runtimes.",
+            category: "skills", subCategory: "dev",
+            provider: "GraphQL Team", duration: "Variable", students: "1M+", level: "Backend",
+            link: "https://graphql.org/learn/",
+            features: ["Queries", "Schemas", "Mutations"], isOfficial: false
+        },
+        {
+            title: "Supabase Docs",
+            description: "Learn to build apps with PostgreSQL and real-time backend functionality.",
+            category: "skills", subCategory: "dev",
+            provider: "Supabase", duration: "Modular", students: "200K+", level: "Intermediate",
+            link: "https://supabase.com/docs/guides/getting-started",
+            features: ["PostgreSQL", "Auth", "Storage"], isOfficial: false
+        },
+        {
+            title: "Unreal Engine Learn",
+            description: "Official tutorials for high-end 3D and Game Development.",
+            category: "skills", subCategory: "dev",
+            provider: "Epic Games", duration: "Project based", students: "1M+", level: "Advanced",
+            link: "https://dev.epicgames.com/community/learning",
+            features: ["C++", "Blueprints", "VFX"], isOfficial: false
+        },
+        {
+            title: "Tailwind CSS Docs",
+            description: "Master utility-first CSS for rapid UI development.",
+            category: "skills", subCategory: "dev",
+            provider: "Tailwind Labs", duration: "Reference", students: "1M+", level: "Frontend",
+            link: "https://tailwindcss.com/docs",
+            features: ["Responsive", "Utility", "CSS"], isOfficial: false
+        },
+        {
+            title: "TypeScript Lang",
+            description: "Official handbook for typed JavaScript at scale.",
+            category: "skills", subCategory: "dev",
+            provider: "Microsoft TS", duration: "Reference", students: "5M+", level: "Intermediate",
+            link: "https://www.typescriptlang.org/docs/",
+            features: ["Types", "Interfaces", "Scale"], isOfficial: false
+        },
+        {
+            title: "Laravel Guides",
+            description: "PHP framework for web artisans. Official documentation and video paths.",
+            category: "skills", subCategory: "dev",
+            provider: "Taylor Otwell", duration: "Technical", students: "2M+", level: "Backend",
+            link: "https://laravel.com/docs/",
+            features: ["Eloquent", "Blade", "Routing"], isOfficial: false
+        },
+        {
+            title: "Django Project Docs",
+            description: "Python framework for rapid development and pragmatic design.",
+            category: "skills", subCategory: "dev",
+            provider: "DSF", duration: "Reference", students: "2M+", level: "Backend",
+            link: "https://docs.djangoproject.com/en/stable/intro/",
+            features: ["Admin panel", "ORM", "Pythonic"], isOfficial: false
+        },
+        {
+            title: "Spring Guides",
+            description: "Modern Java development with Spring Boot and Cloud modules.",
+            category: "skills", subCategory: "dev",
+            provider: "VMware / Tanzu", duration: "Coding labs", students: "5M+", level: "Advanced",
+            link: "https://spring.io/guides",
+            features: ["Java", "Microservices", "REST"], isOfficial: false
+        },
+        {
+            title: "Kotlin Playground",
+            description: "Interactive tutorials for JetBrains' modern language for JVM and Android.",
+            category: "skills", subCategory: "dev",
+            provider: "JetBrains", duration: "Interactive", students: "1M+", level: "Technical",
+            link: "https://play.kotlinlang.org/byExample/overview",
+            features: ["Null safety", "Android", "JVM"], isOfficial: false
+        },
+        {
+            title: "Swift Playgrounds",
+            description: "Apple's interactive lessons for building iOS and macOS apps.",
+            category: "skills", subCategory: "dev",
+            provider: "Apple", duration: "iPad/Mac app", students: "5M+", level: "Beginner",
+            link: "https://www.apple.com/swift/playgrounds/",
+            features: ["iOS Dev", "Swift", "Gamified"], isOfficial: false
+        },
+        {
+            title: "Julia Academy",
+            description: "Free courses for Julia programming in Data Science and Scientific computing.",
+            category: "skills", subCategory: "dev",
+            provider: "Julia Computing", duration: "Modular", students: "100K+", level: "Mathematical",
+            link: "https://juliaacademy.com/",
+            features: ["Julia", "Physics", "Computing"], isOfficial: false
+        },
+
+        // Cybersecurity
+        {
+            title: "Cisco Networking Academy",
+            description: "Expert-led training in Networking, IoT, and Security.",
+            category: "skills", subCategory: "security",
+            provider: "Cisco", duration: "Modular", students: "15M+", level: "Technical",
+            link: "https://www.netacad.com/",
+            features: ["Virtual Labs", "Job Matching"], isOfficial: false
+        },
+        {
+            title: "Palo Alto Networks Academy",
+            description: "Cybersecurity training covering Cloud Security and SOC ops.",
+            category: "skills", subCategory: "security",
+            provider: "Palo Alto", duration: "Modular", students: "200K+", level: "Security",
+            link: "https://www.paloaltonetworks.com/services/education/academy",
+            features: ["Cyber Defense", "SOC Ops"], isOfficial: false
+        },
+        {
+            title: "Fortinet Training",
+            description: "Network security expert training and official NSE certs.",
+            category: "skills", subCategory: "security",
+            provider: "Fortinet", duration: "NSE 1-8", students: "1M+", level: "Security Pro",
+            link: "https://training.fortinet.com/",
+            features: ["NSE Certs", "Network Sec"], isOfficial: false
+        },
+        {
+            title: "TryHackMe",
+            description: "Hands-on cybersecurity labs for all skill levels. Gamified rooms.",
+            category: "skills", subCategory: "security",
+            provider: "THM", duration: "Infinite", students: "2M+", level: "All Levels",
+            link: "https://tryhackme.com/",
+            features: ["CTF", "Red Team", "Blue Team"], isOfficial: false
+        },
+        {
+            title: "Hack The Box Labs",
+            description: "Extreme hands-on labs to practice offensive security skills.",
+            category: "skills", subCategory: "security",
+            provider: "HTB", duration: "Infinite", students: "1M+", level: "Advanced",
+            link: "https://www.hackthebox.com/",
+            features: ["Pwn", "Reverse", "OSCP prep"], isOfficial: false
+        },
+        {
+            title: "PortSwigger Web Academy",
+            description: "Free web security training from the creators of Burp Suite.",
+            category: "skills", subCategory: "security",
+            provider: "PortSwigger", duration: "Project labs", students: "1M+", level: "Web Security",
+            link: "https://portswigger.net/web-security",
+            features: ["XSS", "SQLi", "Web labs"], isOfficial: false
+        },
+        {
+            title: "Cybrary Free Tier",
+            description: "Video-based training for CompTIA, CISSP, and more security paths.",
+            category: "skills", subCategory: "security",
+            provider: "Cybrary", duration: "Video", students: "3M+", level: "Certification",
+            link: "https://www.cybrary.it/",
+            features: ["InfoSec", "SOC", "CompTIA"], isOfficial: false
+        },
+        {
+            title: "OWASP Top 10 Guides",
+            description: "Community standards for web and mobile security awareness.",
+            category: "skills", subCategory: "security",
+            provider: "OWASP Foundation", duration: "Reference", students: "Global", level: "Developer",
+            link: "https://owasp.org/www-project-top-ten/",
+            features: ["Vulns", "Security Code", "Safety"], isOfficial: false
+        },
+        {
+            title: "SANS Institute Webcasts",
+            description: "Deep dive technical webcasts from the leading security training body.",
+            category: "skills", subCategory: "security",
+            provider: "SANS", duration: "1 hour each", students: "Millions", level: "Advanced",
+            link: "https://www.sans.org/webcasts/",
+            features: ["Analysis", "Threat Intel", "Live"], isOfficial: false
+        },
+        {
+            title: "Metasploit Unleashed",
+            description: "Free ethical hacking course by Offensive Security covering Metasploit.",
+            category: "skills", subCategory: "security",
+            provider: "OffSec", duration: "Self-paced", students: "500K+", level: "Advanced",
+            link: "https://www.offensive-security.com/metasploit-unleashed/",
+            features: ["Exploit", "Payloads", "Ethical"], isOfficial: false
+        },
+        {
+            title: "Wireshark University",
+            description: "Master packet analysis and network troubleshooting official guides.",
+            category: "skills", subCategory: "security",
+            provider: "Wireshark", duration: "Reference", students: "1M+", level: "Network Admin",
+            link: "https://www.wireshark.org/docs/",
+            features: ["Packet Sniffing", "Network Foren"], isOfficial: false
+        },
+        {
+            title: "Splunk Education",
+            description: "Official training for SIEM and log analysis with Splunk.",
+            category: "skills", subCategory: "security",
+            provider: "Splunk", duration: "Flex", students: "1M+", level: "SOC Analyst",
+            link: "https://www.splunk.com/en_us/training/free-courses.html",
+            features: ["Log Analysis", "Dashboards", "SIEM"], isOfficial: false
+        },
+        {
+            title: "Sophos Training",
+            description: "Official cybersecurity training for Sophos products and fundamentals.",
+            category: "skills", subCategory: "security",
+            provider: "Sophos", duration: "Video", students: "300K+", level: "Admin",
+            link: "https://www.sophos.com/en-us/training",
+            features: ["Firewall", "Endpoint", "XDR"], isOfficial: false
+        },
+        {
+            title: "Kaspersky Academy",
+            description: "Technical training and malware analysis whitepapers.",
+            category: "skills", subCategory: "security",
+            provider: "Kaspersky", duration: "Articles/Video", students: "200K+", level: "Researcher",
+            link: "https://academy.kaspersky.com/",
+            features: ["Malware", "Digital Forensics"], isOfficial: false
+        },
+        {
+            title: "Malwarebytes Academy",
+            description: "Security awareness and technical training for threat remediation.",
+            category: "skills", subCategory: "security",
+            provider: "Malwarebytes", duration: "Video", students: "100K+", level: "All Levels",
+            link: "https://academy.malwarebytes.com/",
+            features: ["Remediation", "Endpoint Sec"], isOfficial: false
+        },
+
+        // Design & Creative
+        {
+            title: "Adobe Creative Cloud Learn",
+            description: "Master Photoshop, Illustrator, and Premiere Pro official tutorials.",
+            category: "skills", subCategory: "design",
+            provider: "Adobe", duration: "Modular", students: "Global", level: "Creative",
+            link: "https://helpx.adobe.com/creative-cloud/tutorials-explore.html",
+            features: ["Creative Skills", "Project based"], isOfficial: false
+        },
+        {
+            title: "Figma Mastery Hub",
+            description: "UI/UX design tools and professional prototyping strategies.",
+            category: "skills", subCategory: "design",
+            provider: "Figma", duration: "Modular", students: "Global", level: "Designer",
+            link: "https://www.figma.com/resource-library/design-basics/",
+            features: ["UI/UX", "Industry Standard"], isOfficial: false
+        },
+        {
+            title: "Canva Design School",
+            description: "Master graphic design, video, and presentations for business.",
+            category: "skills", subCategory: "design",
+            provider: "Canva", duration: "Short modules", students: "10M+", level: "Creative",
+            link: "https://designschool.canva.com/",
+            features: ["Quick Design", "Templates"], isOfficial: false
+        },
+        {
+            title: "Dribbble Learn",
+            description: "Design interactive workshops and tutorials from the world's best designers.",
+            category: "skills", subCategory: "design",
+            provider: "Dribbble", duration: "Project based", students: "1M+", level: "Professional",
+            link: "https://dribbble.com/learn",
+            features: ["Portfolios", "Aesthetics", "Logo Design"], isOfficial: false
+        },
+        {
+            title: "Webflow University",
+            description: "Master professional web design and build site structures visually.",
+            category: "skills", subCategory: "design",
+            provider: "Webflow", duration: "Video", students: "500K+", level: "Low-code Designer",
+            link: "https://university.webflow.com/",
+            features: ["No-code", "CMS", "Layouts"], isOfficial: false
+        },
+        {
+            title: "Framer Academy",
+            description: "Learn high-fidelity prototyping and interactive design for modern products.",
+            category: "skills", subCategory: "design",
+            provider: "Framer", duration: "Modular", students: "200K+", level: "Product Designer",
+            link: "https://www.framer.com/academy/",
+            features: ["Interaction", "Prototyping", "UI"], isOfficial: false
+        },
+        {
+            title: "Behance Tutorials",
+            description: "Inspiration and technique guides from world-class creative professionals.",
+            category: "skills", subCategory: "design",
+            provider: "Adobe Behance", duration: "Flex", students: "2M+", level: "Artist",
+            link: "https://www.behance.net/live",
+            features: ["Fine Arts", "Exhibition", "Photography"], isOfficial: false
+        },
+        {
+            title: "Blender Guru Hub",
+            description: "Master 3D modeling, rendering, and sculpting with Blender.",
+            category: "skills", subCategory: "design",
+            provider: "Andrew Price", duration: "Deep Tutorials", students: "5M+", level: "3D Artist",
+            link: "https://www.blenderguru.com/",
+            features: ["Modeling", "Render", "3D Basics"], isOfficial: false
+        },
+        {
+            title: "Sketch Docs & Guides",
+            description: "Master macOS app design with official Sketch resources.",
+            category: "skills", subCategory: "design",
+            provider: "Sketch", duration: "Reference", students: "2M+", level: "Designer",
+            link: "https://www.sketch.com/docs/",
+            features: ["macOS Design", "Vectors"], isOfficial: false
+        },
+        {
+            title: "InVision Learn",
+            description: "Best practices for product design and collaboration.",
+            category: "skills", subCategory: "design",
+            provider: "InVision", duration: "Library", students: "1M+", level: "UX/UI",
+            link: "https://www.invisionapp.com/inside-design",
+            features: ["Design Ops", "Collab"], isOfficial: false
+        },
+
+        // Marketing & Business
+        {
+            title: "HubSpot Academy",
+            description: "Free certification for Inbound Marketing and Sales skills.",
+            category: "skills", subCategory: "business",
+            provider: "HubSpot", duration: "2-10 hours", students: "500K+", level: "Business",
+            link: "https://academy.hubspot.com/",
+            features: ["Marketing", "Sales", "HubSpot"], isOfficial: false
+        },
+        {
+            title: "Salesforce Trailhead",
+            description: "Gamified learning for Salesforce admin and developer skills.",
+            category: "skills", subCategory: "business",
+            provider: "Salesforce", duration: "Modular", students: "3M+", level: "Beginner",
+            link: "https://trailhead.salesforce.com/",
+            features: ["CRM Mastery", "Badges"], isOfficial: false
+        },
+        {
+            title: "SAP Learning Hub",
+            description: "Official training for ERP and business solution modules.",
+            category: "skills", subCategory: "business",
+            provider: "SAP", duration: "Long-term", students: "1.2M+", level: "Business Tech",
+            link: "https://learning.sap.com/",
+            features: ["ERP Skills", "S/4HANA"], isOfficial: false
+        },
+        {
+            title: "Google Analytics Academy",
+            description: "Official training for data analytics and measurement with GA4.",
+            category: "skills", subCategory: "business",
+            provider: "Google Marketing", duration: "Modular", students: "50M+", level: "Data/Digital",
+            link: "https://analytics.google.com/analytics/academy/",
+            features: ["GA4", "Analysis", "Tracking"], isOfficial: false
+        },
+        {
+            title: "Meta Blueprint",
+            description: "Official marketing training for Facebook, Instagram, and WhatsApp Ads.",
+            category: "skills", subCategory: "business",
+            provider: "Meta", duration: "Modular", students: "100M+", level: "Marketing Pro",
+            link: "https://www.facebook.com/business/learn",
+            features: ["Ads Manager", "Engagement", "Marketing"], isOfficial: false
+        },
+        {
+            title: "Twitter Flight School",
+            description: "Master advertising and campaigns on X (formerly Twitter).",
+            category: "skills", subCategory: "business",
+            provider: "Twitter / X", duration: "Flex", students: "5M+", level: "Marketing Ads",
+            link: "https://www.twitterflightschool.com/",
+            features: ["Campaigns", "Ads", "Social Media"], isOfficial: false
+        },
+        {
+            title: "LinkedIn Learning Free Hub",
+            description: "Selection of free professional certification paths for business skills.",
+            category: "skills", subCategory: "business",
+            provider: "LinkedIn", duration: "Video", students: "Global", level: "Professional",
+            link: "https://www.linkedin.com/learning/free-courses",
+            features: ["Leadership", "Management", "Business"], isOfficial: false
+        },
+        {
+            title: "Moz Academy",
+            description: "Master Search Engine Optimization and link building strategies.",
+            category: "skills", subCategory: "business",
+            provider: "Moz", duration: "Modular", students: "500K+", level: "SEO Specialist",
+            link: "https://moz.com/training",
+            features: ["SEO", "Keywords", "Backlinks"], isOfficial: false
+        },
+        {
+            title: "Semrush Academy",
+            description: "Practical digital marketing training with certs from SEO industry leader.",
+            category: "skills", subCategory: "business",
+            provider: "Semrush", duration: "Units", students: "1M+", level: "Digital Pro",
+            link: "https://www.semrush.com/academy/",
+            features: ["Content", "Market Analysis", "SEO"], isOfficial: false
+        },
+        {
+            title: "Shopify School",
+            description: "Learn to build and grow your own e-commerce business empire.",
+            category: "skills", subCategory: "business",
+            provider: "Shopify", duration: "Modular", students: "2M+", level: "Entrepreneur",
+            link: "https://www.shopify.com/learn",
+            features: ["E-commerce", "Dropshipping", "Sales"], isOfficial: false
+        },
         {
             title: "MooC.org Free Courses",
             description: "Aggregator of free massive open online courses (MOOCs) for lifelong learners.",
@@ -1440,6 +2225,9 @@ const LearningHub = () => {
         if (p.category !== selectedCategory) return false;
         if (selectedCategory === 'internship' && selectedSubCategory !== 'all') {
             return p.subCategory === selectedSubCategory;
+        }
+        if (selectedCategory === 'skills' && selectedSkillSubCategory !== 'all') {
+            return p.subCategory === selectedSkillSubCategory;
         }
         return true;
     })
@@ -1512,6 +2300,24 @@ const LearningHub = () => {
                                 className={`sub-filter-btn ${selectedSubCategory === sub.value ? 'active' : ''}`}
                                 onClick={() => {
                                     setSelectedSubCategory(sub.value)
+                                    setShowAll(false)
+                                }}
+                            >
+                                {sub.label}
+                            </button>
+                        ))}
+                    </div>
+                )}
+
+                {/* Skill Sub-Categories */}
+                {selectedCategory === 'skills' && (
+                    <div className="sub-category-filters">
+                        {skillSubCategories.map(sub => (
+                            <button
+                                key={sub.value}
+                                className={`sub-filter-btn ${selectedSkillSubCategory === sub.value ? 'active' : ''}`}
+                                onClick={() => {
+                                    setSelectedSkillSubCategory(sub.value)
                                     setShowAll(false)
                                 }}
                             >
