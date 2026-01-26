@@ -556,23 +556,21 @@
 
     .google-login-wrapper {
         width: 100% !important;
-        display: flex !important;
-        justify-content: center !important;
-        align-items: center !important;
-        margin: 0 auto !important;
+        display: block !important;
+        text-align: center !important;
+        margin: 0 !important;
         padding: 0 !important;
-        overflow: hidden !important;
     }
 
     .google-login-wrapper>div {
         width: 100% !important;
         max-width: 100% !important;
-        display: flex !important;
-        justify-content: center !important;
-        align-items: center !important;
+        display: block !important;
+        margin: 0 auto !important;
     }
 
     .google-login-wrapper>div>div {
+        width: 100% !important;
         margin: 0 auto !important;
         display: flex !important;
         justify-content: center !important;
@@ -583,6 +581,15 @@
         max-width: 100% !important;
         margin: 0 auto !important;
     }
+
+    /* Force Google button to be full width on mobile */
+    .google-login-wrapper [data-client-id],
+    .google-login-wrapper div[role="button"],
+    .google-login-wrapper button {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
 
     .auth-footer {
         margin-top: var(--space-6) !important;

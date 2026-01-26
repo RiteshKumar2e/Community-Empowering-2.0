@@ -175,32 +175,33 @@
 
 /* Google Login Button Wrapper */
 .google-login-wrapper {
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
+    display: block !important;
     width: 100% !important;
-    margin: 0 auto !important;
-    overflow: hidden !important;
+    margin: 0 !important;
+    padding: 0 !important;
     text-align: center !important;
 }
 
 .google-login-wrapper>div {
     width: 100% !important;
     max-width: 100% !important;
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
+    margin: 0 auto !important;
+    display: block !important;
 }
 
 .google-login-wrapper>div>div {
+    width: 100% !important;
+    max-width: 100% !important;
     margin: 0 auto !important;
-    display: inline-block !important;
+    display: flex !important;
+    justify-content: center !important;
 }
 
 .google-login-wrapper iframe {
     max-width: 100% !important;
     margin: 0 auto !important;
     display: block !important;
+    /* Kept from original, as it's not explicitly removed by the instruction */
 }
 
 /* Target the actual Google button container */
@@ -347,27 +348,32 @@
     /* Ensure Google Login button fits */
     .google-login-wrapper {
         width: 100% !important;
-        margin: 0 auto !important;
-        transform: none !important;
-        display: flex !important;
-        justify-content: center !important;
-        align-items: center !important;
-        overflow: hidden !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        display: block !important;
+        text-align: center !important;
     }
 
     .google-login-wrapper>div {
-        transform: scale(0.95);
-        transform-origin: center;
-        display: flex !important;
-        justify-content: center !important;
-        align-items: center !important;
         width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 auto !important;
+        display: block !important;
+        transform: scale(1) !important;
+        transform-origin: center !important;
     }
 
     .google-login-wrapper>div>div {
+        width: 100% !important;
         margin: 0 auto !important;
+        display: flex !important;
+        justify-content: center !important;
     }
 
+    .google-login-wrapper iframe {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
 }
 
 /* ===================================

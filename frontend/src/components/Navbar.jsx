@@ -228,11 +228,11 @@ const Navbar = () => {
                         ) : (
                             <div className="mobile-nav-links">
                                 <div className="mobile-auth-actions">
-                                    <Link to="/admin-login" className="btn-admin mobile-auth-btn" onClick={() => setMobileMenuOpen(false)}>
-                                        <Shield size={18} /> Admin Login
-                                    </Link>
                                     <Link to="/login" className="btn-signin mobile-auth-btn" onClick={() => setMobileMenuOpen(false)}>
                                         <User size={18} /> Sign In
+                                    </Link>
+                                    <Link to="/admin-login" className="btn-admin mobile-auth-btn" onClick={() => setMobileMenuOpen(false)}>
+                                        <Shield size={18} /> Admin Login
                                     </Link>
                                 </div>
                                 <div className="menu-divider"></div>
