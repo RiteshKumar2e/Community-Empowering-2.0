@@ -478,13 +478,13 @@ const Landing = () => {
                             </div>
                             <h5 className="connect-title">Connect With Us</h5>
                             <div className="footer-social-links">
-                                <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="social-icon-link">
+                                <a href="https://github.com/RiteshKumar2e" target="_blank" rel="noopener noreferrer" className="social-icon-link">
                                     <Github size={24} />
                                 </a>
-                                <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="social-icon-link">
+                                <a href="https://www.linkedin.com/in/ritesh-kumar-b3a654253" target="_blank" rel="noopener noreferrer" className="social-icon-link">
                                     <Linkedin size={24} />
                                 </a>
-                                <a href="mailto:support@communityai.in" className="social-icon-link">
+                                <a href="riteshkumar90359@gmail.com" className="social-icon-link">
                                     <Mail size={24} />
                                 </a>
                             </div>
