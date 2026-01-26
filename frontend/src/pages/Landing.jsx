@@ -424,10 +424,10 @@ const Landing = () => {
                                 <span>Community-Driven Tech Solutions</span>
                             </p>
                             <div className="member-social">
-                                <a href="#" target="_blank" rel="noopener noreferrer" className="social-btn linkedin">
+                                <a href="https://www.linkedin.com/in/dev-ankit29/" target="_blank" rel="noopener noreferrer" className="social-btn linkedin">
                                     <Linkedin size={20} />
                                 </a>
-                                <a href="#" target="_blank" rel="noopener noreferrer" className="social-btn github">
+                                <a href="https://github.com/Ankitkr-ak007/" target="_blank" rel="noopener noreferrer" className="social-btn github">
                                     <Github size={20} />
                                 </a>
                             </div>
