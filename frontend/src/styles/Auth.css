@@ -173,24 +173,26 @@
 }
 
 
-/* Google Login Button Wrapper - Static Centering Fix */
+/* Google Login Button Wrapper - Ultimate Centering Fix */
 .google-login-wrapper {
     width: 100% !important;
-    text-align: center !important;
-    display: block !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
     margin: var(--space-6) 0 !important;
     min-height: 44px;
+    padding: 0 !important;
 }
 
 .google-login-wrapper>div {
-    display: inline-block !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
     margin: 0 auto !important;
-    text-align: left;
-    /* Keep button content left-aligned internally if needed */
 }
 
 .google-login-wrapper iframe {
-    display: inline-block !important;
+    display: block !important;
     margin: 0 auto !important;
 }
 
