@@ -558,18 +558,30 @@
         width: 100% !important;
         display: flex !important;
         justify-content: center !important;
-        margin: 0 !important;
+        align-items: center !important;
+        margin: 0 auto !important;
         padding: 0 !important;
+        overflow: hidden !important;
     }
 
     .google-login-wrapper>div {
         width: 100% !important;
         max-width: 100% !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+    }
+
+    .google-login-wrapper>div>div {
+        margin: 0 auto !important;
+        display: flex !important;
+        justify-content: center !important;
     }
 
     .google-login-wrapper iframe {
         width: 100% !important;
         max-width: 100% !important;
+        margin: 0 auto !important;
     }
 
     .auth-footer {

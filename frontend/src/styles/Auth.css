@@ -172,24 +172,47 @@
     text-decoration: underline;
 }
 
+
 /* Google Login Button Wrapper */
 .google-login-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    margin: 0 auto;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    width: 100% !important;
+    margin: 0 auto !important;
+    overflow: hidden !important;
+    text-align: center !important;
 }
 
 .google-login-wrapper>div {
     width: 100% !important;
-    display: flex;
-    justify-content: center;
+    max-width: 100% !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+}
+
+.google-login-wrapper>div>div {
+    margin: 0 auto !important;
+    display: inline-block !important;
 }
 
 .google-login-wrapper iframe {
-    max-width: 100%;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    display: block !important;
 }
+
+/* Target the actual Google button container */
+.google-login-wrapper [data-client-id] {
+    margin: 0 auto !important;
+    display: block !important;
+}
+
+.google-login-wrapper div[role="button"] {
+    margin: 0 auto !important;
+}
+
 
 /* Features Side */
 .auth-features {
@@ -323,15 +346,28 @@
 
     /* Ensure Google Login button fits */
     .google-login-wrapper {
-        width: 100%;
-        margin: 0 auto;
-        transform: none;
+        width: 100% !important;
+        margin: 0 auto !important;
+        transform: none !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        overflow: hidden !important;
     }
 
     .google-login-wrapper>div {
         transform: scale(0.95);
         transform-origin: center;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        width: 100% !important;
     }
+
+    .google-login-wrapper>div>div {
+        margin: 0 auto !important;
+    }
+
 }
 
 /* ===================================
