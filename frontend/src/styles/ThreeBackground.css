@@ -13,8 +13,8 @@
 
 body.light-theme .three-background {
     background: linear-gradient(135deg, #ffffff 0%, #f4f7ff 50%, #ffffff 100%);
-    background-size: 400% 400%;
-    animation: luxurySilk 15s ease infinite;
+    background-size: 200% 200%;
+    animation: luxurySilk 20s ease infinite;
 }
 
 @keyframes luxurySilk {
@@ -120,7 +120,7 @@ body.light-theme .three-background::after {
 /* Subtle glassmorphism enhancement for all sections on this space background */
 .glass-panel {
     background: rgba(255, 255, 255, 0.03);
-    backdrop-filter: blur(12px) saturate(180%);
-    -webkit-backdrop-filter: blur(12px) saturate(180%);
+    backdrop-filter: blur(8px) saturate(150%);
+    -webkit-backdrop-filter: blur(8px) saturate(150%);
     border: 1px solid rgba(255, 255, 255, 0.08);
 }

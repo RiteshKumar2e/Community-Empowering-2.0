@@ -225,23 +225,14 @@ const Landing = () => {
                         </p>
 
                         <div className="hero-actions">
-                            {isAuthenticated ? (
-                                <button onClick={() => navigate('/dashboard')} className="btn btn-explore" style={{ background: 'var(--primary-500)', border: 'none' }}>
-                                    Dashboard
-                                    <ArrowRight size={20} />
-                                </button>
-                            ) : (
-                                <>
-                                    <button onClick={() => scrollToSection('features')} className="btn btn-explore">
-                                        Explore Solutions
-                                        <ArrowRight size={20} />
-                                    </button>
-                                    <button onClick={() => scrollToSection('about')} className="btn btn-learn">
-                                        Learn More
-                                        <ArrowRight size={20} />
-                                    </button>
-                                </>
-                            )}
+                            <button onClick={() => scrollToSection('features')} className="btn btn-explore">
+                                Explore Solutions
+                                <ArrowRight size={20} />
+                            </button>
+                            <button onClick={() => scrollToSection('about')} className="btn btn-learn">
+                                Learn More
+                                <ArrowRight size={20} />
+                            </button>
                         </div>
 
                     </div>

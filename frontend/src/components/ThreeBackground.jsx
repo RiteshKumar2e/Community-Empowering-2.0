@@ -24,7 +24,7 @@ const ThreeBackground = () => {
             powerPreference: "high-performance"
         })
         renderer.setSize(window.innerWidth, window.innerHeight)
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.2)) // Lowered from 2 for better performance
         containerRef.current.appendChild(renderer.domElement)
 
         // Theme detection
@@ -48,7 +48,7 @@ const ThreeBackground = () => {
 
         // 1. Starfield (Static distant stars) - OPTIMIZED
         const starsGeometry = new THREE.BufferGeometry()
-        const starsCount = 1500 // Further reduced from 3000
+        const starsCount = 800 // Reduced from 1500
         const starsPos = new Float32Array(starsCount * 3)
         for (let i = 0; i < starsCount * 3; i++) {
             starsPos[i] = (Math.random() - 0.5) * 1000
@@ -66,7 +66,7 @@ const ThreeBackground = () => {
 
         // 2. Cosmic Dust / Nebula Particles - OPTIMIZED
         const nebulaGeometry = new THREE.BufferGeometry()
-        const nebulaCount = 800 // Further reduced from 1500
+        const nebulaCount = 400 // Reduced from 800
         const nebulaPos = new Float32Array(nebulaCount * 3)
         const nebulaColors = new Float32Array(nebulaCount * 3)
 
@@ -262,17 +262,17 @@ const ThreeBackground = () => {
             if (isLight && frameCount % 3 === 0) {
                 const positions = nebulaGeometry.attributes.position.array
                 let lineIdx = 0
-                const maxDist = 8
+                const maxDistSq = 64 // 8 * 8
 
                 // Reduced sample size for better performance
-                for (let i = 0; i < 60; i += 3) { // Reduced from 100
-                    for (let j = i + 3; j < 120; j += 3) { // Reduced from 200
+                for (let i = 0; i < 60; i += 3) {
+                    for (let j = i + 3; j < 120; j += 3) {
                         const dx = positions[i] - positions[j]
                         const dy = positions[i + 1] - positions[j + 1]
                         const dz = positions[i + 2] - positions[j + 2]
-                        const dist = Math.sqrt(dx * dx + dy * dy + dz * dz)
+                        const distSq = dx * dx + dy * dy + dz * dz
 
-                        if (dist < maxDist && lineIdx < 500) {
+                        if (distSq < maxDistSq && lineIdx < 500) {
                             linePositions[lineIdx++] = positions[i]
                             linePositions[lineIdx++] = positions[i + 1]
                             linePositions[lineIdx++] = positions[i + 2]

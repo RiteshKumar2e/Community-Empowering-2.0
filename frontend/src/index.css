@@ -142,7 +142,7 @@ body.light-theme {
   --shadow-xl: 0 35px 70px rgba(0, 0, 0, 0.08);
   --shadow-glow: 0 0 30px rgba(99, 102, 241, 0.1);
 
-  --glass-blur: 8px;
+  --glass-blur: 6px;
 }
 
 /* Light Theme Button Overrides */
