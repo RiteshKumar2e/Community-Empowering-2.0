@@ -173,27 +173,24 @@
 }
 
 
-/* Google Login Button Wrapper - Fix for refresh shift */
+/* Google Login Button Wrapper - Rock solid centering */
 .google-login-wrapper {
+    display: grid !important;
+    place-items: center !important;
     width: 100% !important;
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
     margin: var(--space-6) 0 !important;
     min-height: 44px;
-    /* Maintain height to prevent jump */
 }
 
-/* Force all dynamically injected containers to center */
+/* Target all direct children divs created by Google library */
 .google-login-wrapper>div {
-    display: flex !important;
-    justify-content: center !important;
-    width: 100% !important;
+    display: block !important;
+    margin: 0 auto !important;
 }
 
 .google-login-wrapper iframe {
-    margin: 0 auto !important;
     display: block !important;
+    margin: 0 auto !important;
 }
 
 

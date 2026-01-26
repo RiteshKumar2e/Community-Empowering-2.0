@@ -157,7 +157,6 @@ const Login = () => {
                                 theme="outline"
                                 size="large"
                                 text="signin_with"
-                                width="320"
                                 logo_alignment="center"
                                 useOneTap={false}
                                 auto_select={false}
