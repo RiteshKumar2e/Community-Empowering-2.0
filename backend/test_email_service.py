@@ -46,20 +46,18 @@ def test_email_service():
     test_email = input("    Enter your email to receive a test OTP (or press Enter to skip): ").strip()
     
     if test_email and "@" in test_email:
-        print(f"\n    Sending test OTP to {test_email}...")
+        print(f"\n    [STEP] Sending test OTP to {test_email}...")
         test_otp = email_service.generate_otp()
-        email_service.send_otp(test_email, test_otp)
+        success = email_service.send_otp(test_email, test_otp)
         
-        print(f"\n    [INFO] OTP sent: {test_otp}")
-        print("    Please check your email inbox (and spam folder)")
-        print("    The email should arrive within 1-2 minutes")
+        print(f"    [INFO] OTP to send: {test_otp}")
+        print("    [DEBUG] Check console for worker thread output...")
         
-        # Wait a bit for the email to be sent
-        print("\n    Waiting 3 seconds for email to be dispatched...")
-        time.sleep(3)
-        
-        print("\n    [OK] Email dispatch completed")
-        print("    Check the console output above for Brevo API response")
+        # Keep main thread alive to see worker output
+        for i in range(10):
+            print(f"    Checking for delivery... {10-i}s", end="\r")
+            time.sleep(1)
+        print("\n    [DONE] Test sequence finished.")
     else:
         print("    [SKIPPED] Email sending test skipped")
     

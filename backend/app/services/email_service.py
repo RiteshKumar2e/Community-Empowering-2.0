@@ -45,32 +45,29 @@ class EmailService:
         thread.daemon = False
         thread.start()
         return True
-    
+
     def generate_otp(self) -> str:
         """Generate a secure 6-digit OTP"""
         return ''.join([str(secrets.randbelow(10)) for _ in range(6)])
-    
+
     def get_otp_expiry(self) -> datetime:
         """Get OTP expiry time (10 minutes from now)"""
-        return datetime.utcnow() + timedelta(minutes=10)
-    
+        return datetime.now(timezone.utc) + timedelta(minutes=10)
+
     # ------------------------------------------------------------------
     # BACKGROUND WORKER
     # ------------------------------------------------------------------
-    
+
     def _worker_send_otp(self, user_email: str, otp: str):
         """INSTANT OTP delivery with priority handling"""
         try:
             subject = f"🔐 {otp} is your {self.company_name} Verification Code"
             html_body = self._generate_otp_html(otp)
-            print(f"⚡ [PRIORITY] Sending OTP to: {user_email}...")
             self._dispatch_api(user_email, subject, html_body, priority=True)
             print(f"✅ OTP sent successfully to {user_email}")
         except Exception as e:
-            print(f"❌ CRITICAL: OTP Email Failed for {user_email}")
-            print(f"   Error: {str(e)}")
-            traceback.print_exc()
-    
+            print(f"❌ CRITICAL: OTP Email Failed for {user_email}: {str(e)}")
+
     def _dispatch_api(self, to_email: str, subject: str, html_body: str, priority: bool = False):
         """Ultra-fast internal dispatcher"""
         if not self.api_key:
@@ -89,15 +86,14 @@ class EmailService:
             "htmlContent": html_body
         }
         
-        # Super short timeout for priority OTPs to avoid hanging threads
-        timeout_duration = 2 if priority else 5
+        timeout_duration = 10 if priority else 15
         
         try:
-            # use a session for connection pooling if this were a high-volume app, 
-            # but for now, just a fast post.
-            requests.post(url, headers=headers, json=data, timeout=timeout_duration)
-        except Exception:
-            pass # Silent failure in worker thread to prevent any ripple effect
+            response = requests.post(url, headers=headers, json=data, timeout=timeout_duration)
+            if response.status_code not in [200, 201, 202]:
+                print(f"⚠️ Email API Failure: {response.status_code} - {response.text}")
+        except Exception as e:
+            print(f"❌ Dispatch Error: {str(e)}")
     
     # ------------------------------------------------------------------
     # HTML TEMPLATES
