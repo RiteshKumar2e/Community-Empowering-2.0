@@ -83,6 +83,16 @@ export const AuthProvider = ({ children }) => {
     const googleLogin = async (credential) => {
         try {
             const response = await api.post('/auth/google-login', { credential })
+
+            // Handle OTP requirement
+            if (response.data.requires_otp) {
+                return {
+                    success: true,
+                    requiresOtp: true,
+                    email: response.data.email
+                }
+            }
+
             const { token, user: userData } = response.data
 
             localStorage.setItem('token', token)
@@ -101,6 +111,24 @@ export const AuthProvider = ({ children }) => {
         }
     }
 
+    const verifyGoogleOtp = async (email, otp) => {
+        try {
+            const response = await api.post('/auth/verify-google-otp', { email, otp })
+            const { token, user: userData } = response.data
+
+            localStorage.setItem('token', token)
+            localStorage.setItem('user', JSON.stringify(userData))
+            api.defaults.headers.common['Authorization'] = `Bearer ${token}`
+
+            setUser(userData)
+            navigate('/dashboard')
+
+            return { success: true }
+        } catch (error) {
+            throw error; // Let the component handle the error
+        }
+    }
+
     const updateUser = (userData) => {
         localStorage.setItem('user', JSON.stringify(userData))
         setUser(userData)
@@ -113,6 +141,7 @@ export const AuthProvider = ({ children }) => {
         register,
         logout,
         googleLogin,
+        verifyGoogleOtp,
         updateUser,
         isAuthenticated: !!user
     }

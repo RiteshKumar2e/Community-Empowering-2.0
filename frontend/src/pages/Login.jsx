@@ -4,11 +4,12 @@ import { GoogleLogin } from '@react-oauth/google'
 import { useAuth } from '../contexts/AuthContext'
 import { useLanguage } from '../contexts/LanguageContext'
 import { Mail, Lock, AlertCircle, Loader } from 'lucide-react'
+import OTPModal from '../components/OTPModal'
 
 import '../styles/Auth.css'
 
 const Login = () => {
-    const { login, googleLogin } = useAuth()
+    const { login, googleLogin, verifyGoogleOtp } = useAuth()
     const { t } = useLanguage()
     const [formData, setFormData] = useState({
         email: '',
@@ -16,6 +17,8 @@ const Login = () => {
     })
     const [error, setError] = useState('')
     const [loading, setLoading] = useState(false)
+    const [isOtpOpen, setIsOtpOpen] = useState(false)
+    const [emailForOtp, setEmailForOtp] = useState('')
 
     const handleChange = (e) => {
         setFormData({
@@ -44,14 +47,24 @@ const Login = () => {
         setLoading(true)
         try {
             const result = await googleLogin(credentialResponse.credential)
-            if (!result.success) {
+            if (result.success) {
+                if (result.requiresOtp) {
+                    setEmailForOtp(result.email)
+                    setIsOtpOpen(true)
+                }
+                // If not requiresOtp, AuthContext already handles navigation
+            } else {
                 setError(result.error)
-                setLoading(false)
             }
         } catch (err) {
             setError('An error occurred during Google login.')
+        } finally {
             setLoading(false)
         }
+    }
+
+    const handleVerifyOtp = async (otp) => {
+        await verifyGoogleOtp(emailForOtp, otp)
     }
 
     const handleGoogleError = () => {
@@ -184,6 +197,13 @@ const Login = () => {
                     </ul>
                 </div>
             </div>
+            <OTPModal
+                isOpen={isOtpOpen}
+                onClose={() => setIsOtpOpen(false)}
+                email={emailForOtp}
+                onVerify={handleVerifyOtp}
+                loading={loading}
+            />
         </div>
     )
 }
