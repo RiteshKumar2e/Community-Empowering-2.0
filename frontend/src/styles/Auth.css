@@ -173,22 +173,21 @@
 }
 
 
-/* Google Login Button Wrapper - Ultimate Centering Fix */
+/* Google Login Button Wrapper - Static Grid Lock */
 .google-login-wrapper {
+    display: grid !important;
+    place-items: center !important;
     width: 100% !important;
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
     margin: var(--space-6) 0 !important;
     min-height: 44px;
     padding: 0 !important;
 }
 
+/* Force the library container to stay in the center with a fixed footprint */
 .google-login-wrapper>div {
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
     margin: 0 auto !important;
+    width: 300px !important;
+    display: block !important;
 }
 
 .google-login-wrapper iframe {

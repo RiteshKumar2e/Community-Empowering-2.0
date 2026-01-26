@@ -555,20 +555,18 @@
     }
 
     .google-login-wrapper {
+        display: grid !important;
+        place-items: center !important;
         width: 100% !important;
-        display: flex !important;
-        justify-content: center !important;
-        align-items: center !important;
         margin: var(--space-6) 0 !important;
         min-height: 44px;
         padding: 0 !important;
     }
 
     .google-login-wrapper>div {
-        display: flex !important;
-        justify-content: center !important;
-        align-items: center !important;
         margin: 0 auto !important;
+        width: 300px !important;
+        display: block !important;
     }
 
     .google-login-wrapper iframe {
