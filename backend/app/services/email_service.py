@@ -21,7 +21,7 @@ class EmailService:
         self.sender_email = os.getenv("SENDER_EMAIL", "noreply@quickfix.com")
         self.admin_email = os.getenv("ADMIN_EMAIL", "riteshkumar90359@gmail.com")
         self.company_name = os.getenv("COMPANY_NAME", "Community AI Platform")
-        self.app_url = os.getenv("APP_URL", "http://localhost:5173")
+        self.app_url = os.getenv("APP_URL", "https://community-empowering-2-0.vercel.app")
         
         # Safety Validation
         if not self.sender_email or "@" not in self.sender_email:
