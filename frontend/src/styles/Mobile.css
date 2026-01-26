@@ -419,7 +419,7 @@
     /* Scroll to Top Button Fix */
     .scroll-to-top {
         bottom: 25px !important;
-        right: 85px !important;
+        right: 110px !important;
         width: 50px !important;
         height: 50px !important;
         background: linear-gradient(135deg, #22c55e 0%, #3b82f6 100%) !important;
@@ -448,9 +448,9 @@
     }
 
     .chatbot-toggle-btn {
-        width: 54px !important;
-        height: 54px !important;
-        border-radius: 16px !important;
+        width: 65px !important;
+        height: 65px !important;
+        border-radius: 20px !important;
     }
 
     .chatbot-container {
