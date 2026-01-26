@@ -150,18 +150,20 @@ const Login = () => {
                             <span>OR</span>
                         </div>
 
-                        <div className="google-login-wrapper">
-                            <GoogleLogin
-                                onSuccess={handleGoogleSuccess}
-                                onError={handleGoogleError}
-                                theme="outline"
-                                size="large"
-                                text="signin_with"
-                                width="320"
-                                logo_alignment="center"
-                                useOneTap={false}
-                                auto_select={false}
-                            />
+                        <div className="google-login-wrapper" style={{ display: 'block', textAlign: 'center', width: '100%' }}>
+                            <div style={{ display: 'inline-block', margin: '0 auto' }}>
+                                <GoogleLogin
+                                    onSuccess={handleGoogleSuccess}
+                                    onError={handleGoogleError}
+                                    theme="outline"
+                                    size="large"
+                                    text="signin_with"
+                                    width="320"
+                                    logo_alignment="center"
+                                    useOneTap={false}
+                                    auto_select={false}
+                                />
+                            </div>
                         </div>
                     </form>
 
