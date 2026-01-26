@@ -3,13 +3,14 @@ import { MessageSquare, Send, Mic, MicOff, X, Bot, User, Hash, Tag, AlertCircle 
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 import '../styles/SideChatBot.css';
+import chatbotIcon from '../assets/chatbot.jpg';
 
 const SideChatBot = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState([
         {
             id: 1,
-            text: "Hello! I'm your Community Assistant. How can I help you today?",
+            text: "Hi 👋 I'm the AI Support Agent. I can help you understand this website or take your complaint.",
             sender: 'bot',
             timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             meta: { type: 'greeting', category: 'general', priority: 'low' }
@@ -125,11 +126,11 @@ const SideChatBot = () => {
                         transition={{ type: "spring", damping: 25, stiffness: 300 }}
                     >
                         <div className="chatbot-header">
-                            <div className="bot-avatar">
-                                <Bot size={24} />
+                            <div className="bot-avatar" style={{ overflow: 'hidden' }}>
+                                <img src={chatbotIcon} alt="AI Agent" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                             </div>
                             <div className="bot-info">
-                                <h3>Community Assistant</h3>
+                                <h3>AI Agent</h3>
                                 <div className="bot-status">
                                     <span className="status-dot"></span>
                                     Online
@@ -148,28 +149,6 @@ const SideChatBot = () => {
                             {messages.map((msg) => (
                                 <div key={msg.id} className={`message ${msg.sender}`}>
                                     {msg.text}
-                                    {msg.meta && (
-                                        <div className="message-meta">
-                                            {msg.meta.type && (
-                                                <span className="tag">
-                                                    <Tag size={10} style={{ marginRight: '4px' }} />
-                                                    {msg.meta.type}
-                                                </span>
-                                            )}
-                                            {msg.meta.category && (
-                                                <span className="tag">
-                                                    <Hash size={10} style={{ marginRight: '4px' }} />
-                                                    {msg.meta.category}
-                                                </span>
-                                            )}
-                                            {msg.meta.priority && (
-                                                <span className={`tag priority-${msg.meta.priority.toLowerCase()}`}>
-                                                    <AlertCircle size={10} style={{ marginRight: '4px' }} />
-                                                    {msg.meta.priority}
-                                                </span>
-                                            )}
-                                        </div>
-                                    )}
                                     <div style={{ fontSize: '0.7rem', opacity: 0.5, marginTop: '4px', textAlign: msg.sender === 'user' ? 'right' : 'left' }}>
                                         {msg.timestamp}
                                     </div>
@@ -204,7 +183,7 @@ const SideChatBot = () => {
                                 </button>
                             </div>
                             <button className="send-btn" type="submit" disabled={!inputText.trim() || isLoading}>
-                                <Send size={18} />
+                                Send
                             </button>
                         </form>
                     </motion.div>
@@ -216,8 +195,9 @@ const SideChatBot = () => {
                     className="chatbot-toggle-btn"
                     onClick={() => setIsOpen(true)}
                     aria-label="Open Chatbot"
+                    style={{ padding: '0', overflow: 'hidden' }}
                 >
-                    <MessageSquare size={28} />
+                    <img src={chatbotIcon} alt="Toggle Chat" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 </button>
             )}
         </div>
