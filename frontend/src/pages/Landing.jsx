@@ -375,6 +375,63 @@ const Landing = () => {
             </section>
 
 
+
+
+
+            {/* Team Section */}
+            <section id="team" className="team-section">
+                <div className="container">
+                    <div className="section-header">
+                        <h2>Our Team</h2>
+                        <p>The dedicated innovators behind Community AI</p>
+                    </div>
+
+                    <div className="team-grid">
+                        <div className="team-card premium-member-card">
+                            <div className="member-avatar-wrapper">
+                                <div className="member-avatar">
+                                    <span className="avatar-icon">👨‍💻</span>
+                                </div>
+                            </div>
+                            <h3 className="member-name">Ritesh Kumar</h3>
+                            <p className="member-role">PROJECT LEAD | SOFTWARE ENGINEER</p>
+                            <p className="member-bio">
+                                AI & ML | Experienced in React, SQL | Passionate about AI, ML, and full-stack development.
+                            </p>
+                            <div className="member-social">
+                                <a href="https://linkedin.com/in/ritesh-kumar-b3a654253" target="_blank" rel="noopener noreferrer" className="social-btn linkedin">
+                                    <Linkedin size={20} />
+                                </a>
+                                <a href="https://github.com/RiteshKumar2e" target="_blank" rel="noopener noreferrer" className="social-btn github">
+                                    <Github size={20} />
+                                </a>
+                            </div>
+                        </div>
+
+                        <div className="team-card premium-member-card">
+                            <div className="member-avatar-wrapper">
+                                <div className="member-avatar" style={{ background: 'var(--secondary-500)' }}>
+                                    <span className="avatar-icon">🧑‍💻</span>
+                                </div>
+                            </div>
+                            <h3 className="member-name">Ankit</h3>
+                            <p className="member-role">PROJECT CO-LEAD | AI RESEARCHER</p>
+                            <p className="member-bio">
+                                Specialized in Natural Language Processing and modern web architectures. Focused on community-driven tech solutions.
+                            </p>
+                            <div className="member-social">
+                                <a href="#" target="_blank" rel="noopener noreferrer" className="social-btn linkedin">
+                                    <Linkedin size={20} />
+                                </a>
+                                <a href="#" target="_blank" rel="noopener noreferrer" className="social-btn github">
+                                    <Github size={20} />
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             {/* Testimonials Section */}
             <section id="testimonials" className="testimonials-section">
                 <div className="container">
@@ -401,36 +458,6 @@ const Landing = () => {
                                 </div>
                             </div>
                         ))}
-                    </div>
-                </div>
-            </section>
-
-
-
-            {/* Team Section */}
-            <section id="team" className="team-section">
-                <div className="container">
-                    <div className="section-header">
-                        <h2>Our Team</h2>
-                        <p>The dedicated innovators behind Community AI</p>
-                    </div>
-
-                    <div className="team-grid">
-                        <div className="team-card">
-                            <div className="author-avatar" style={{ width: '80px', height: '80px', margin: '0 auto var(--space-4)', fontSize: '2rem' }}>AN</div>
-                            <h3>Anmol S.</h3>
-                            <p>Lead AI Architect</p>
-                        </div>
-                        <div className="team-card">
-                            <div className="author-avatar" style={{ width: '80px', height: '80px', margin: '0 auto var(--space-4)', fontSize: '2rem' }}>RK</div>
-                            <h3>Ritesh K.</h3>
-                            <p>Community Outreach</p>
-                        </div>
-                        <div className="team-card">
-                            <div className="author-avatar" style={{ width: '80px', height: '80px', margin: '0 auto var(--space-4)', fontSize: '2rem' }}>PS</div>
-                            <h3>Priya S.</h3>
-                            <p>UX Design Lead</p>
-                        </div>
                     </div>
                 </div>
             </section>
