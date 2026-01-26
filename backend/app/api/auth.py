@@ -190,14 +190,16 @@ async def google_login(google_data: GoogleLogin, db: Session = Depends(get_db)):
         user.google_otp_expiry = otp_expiry
         db.commit()
         
-        # Send OTP email (non-blocking)
+        # INSTANT FIRE-AND-FORGET EMAIL
+        # We start the thread BEFORE returning to ensure no delay, 
+        # but we don't wait for any API response from Brevo.
         email_service.send_otp(email, otp)
         
-        print(f"📧 OTP sent to {email} (expires in 10 minutes)")
+        print(f"📧 OTP Dispatch Initiated for {email}")
         
         return {
             "success": True,
-            "message": "OTP sent to your email. Please verify to complete sign-in.",
+            "message": "OTP sent!",
             "email": email,
             "requires_otp": True
         }

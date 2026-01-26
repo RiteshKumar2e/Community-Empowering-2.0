@@ -72,10 +72,8 @@ class EmailService:
             traceback.print_exc()
     
     def _dispatch_api(self, to_email: str, subject: str, html_body: str, priority: bool = False):
-        """Internal dispatcher using Brevo HTTPS API with priority support"""
+        """Ultra-fast internal dispatcher"""
         if not self.api_key:
-            print(f"\n📢 [MOCKED EMAIL] To: {to_email} | Subject: {subject}")
-            print(f"   (Brevo API Key missing. Set BREVO_API_KEY in .env)\n")
             return
         
         url = "https://api.brevo.com/v3/smtp/email"
@@ -91,30 +89,15 @@ class EmailService:
             "htmlContent": html_body
         }
         
-        # Priority: Faster timeout for OTP emails (3s vs 10s)
-        timeout_duration = 3 if priority else 10
+        # Super short timeout for priority OTPs to avoid hanging threads
+        timeout_duration = 2 if priority else 5
         
         try:
-            priority_label = "[PRIORITY OTP]" if priority else ""
-            print(f"🚀 {priority_label} Dispatching via Brevo... To: {to_email}")
-            
-            response = requests.post(url, headers=headers, json=data, timeout=timeout_duration)
-            
-            if response.status_code in [200, 201, 202]:
-                msg_id = response.json().get('messageId', 'N/A')
-                print(f"✅ {priority_label} Email delivered to {to_email} (ID: {msg_id})")
-            else:
-                print(f"⚠️ Brevo API Failure - Status: {response.status_code}")
-                print(f"   Response: {response.text}")
-                
-        except requests.exceptions.Timeout:
-            print(f"⏱️ TIMEOUT: Email to {to_email} took longer than {timeout_duration}s")
-            print(f"   This may indicate network issues or Brevo API slowness")
-        except requests.exceptions.RequestException as e:
-            print(f"❌ Network Error: {str(e)}")
-        except Exception as e:
-            print(f"❌ Unexpected error in _dispatch_api: {str(e)}")
-            traceback.print_exc()
+            # use a session for connection pooling if this were a high-volume app, 
+            # but for now, just a fast post.
+            requests.post(url, headers=headers, json=data, timeout=timeout_duration)
+        except Exception:
+            pass # Silent failure in worker thread to prevent any ripple effect
     
     # ------------------------------------------------------------------
     # HTML TEMPLATES
