@@ -61,6 +61,10 @@ const AIAssistant = () => {
     const handleSend = async () => {
         if (!input.trim() || loading) return
 
+        // Detect language based on input (Basic detection for Hindi characters)
+        const isHindiInput = /[\u0900-\u097F]/.test(input)
+        const currentLang = isHindiInput ? 'hi' : 'en'
+
         const userMessage = {
             role: 'user',
             content: input,
@@ -68,33 +72,62 @@ const AIAssistant = () => {
         }
 
         setMessages(prev => [...prev, userMessage])
+        const messageToSend = input
         setInput('')
         setLoading(true)
 
         try {
             const response = await api.post('/ai/chat', {
-                message: input,
-                language,
+                message: messageToSend,
+                language: currentLang,
                 context: {
                     communityType: user?.communityType,
                     location: user?.location
                 }
             })
 
+            const cleanContent = response.data.message.replaceAll('*', '')
             const assistantMessage = {
                 role: 'assistant',
-                content: response.data.message.replaceAll('*', ''),
+                content: cleanContent,
                 timestamp: new Date()
             }
 
             setMessages(prev => [...prev, assistantMessage])
 
-            // Text-to-speech for response
+            // Text-to-speech for response (Human-like Voice Selection)
             if ('speechSynthesis' in window) {
-                // Remove markdown for speech synthesis
-                const cleanText = response.data.message.replace(/[#*`]/g, '')
-                const utterance = new SpeechSynthesisUtterance(cleanText)
-                utterance.lang = language === 'hi' ? 'hi-IN' : 'en-US'
+                const utterance = new SpeechSynthesisUtterance(cleanContent)
+
+                // Detect response language
+                const isHindiResponse = /[\u0900-\u097F]/.test(cleanContent)
+                const targetLang = isHindiResponse ? 'hi-IN' : 'en-US'
+                utterance.lang = targetLang
+
+                // Find best human-like voice (Prioritize Google voices)
+                const voices = window.speechSynthesis.getVoices()
+
+                // Detailed voice selection strategy:
+                // 1. Look for Google Hindi/English (High quality human-like)
+                // 2. Look for Premium/Enhanced voices
+                // 3. Fallback to any voice matching the language
+                let selectedVoice = voices.find(v => v.name.includes('Google') && v.lang.includes(targetLang))
+
+                if (!selectedVoice) {
+                    selectedVoice = voices.find(v => v.lang.includes(targetLang) && (v.name.includes('Premium') || v.name.includes('Enhanced')))
+                }
+
+                if (!selectedVoice) {
+                    selectedVoice = voices.find(v => v.lang.includes(targetLang))
+                }
+
+                if (selectedVoice) {
+                    utterance.voice = selectedVoice
+                    // Google voices sound better at a slightly slower rate
+                    utterance.rate = 0.95
+                }
+
+                utterance.pitch = 1.0
                 window.speechSynthesis.speak(utterance)
             }
         } catch (error) {
