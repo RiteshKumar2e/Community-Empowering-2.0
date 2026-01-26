@@ -245,8 +245,15 @@ async def verify_google_otp(otp_data: GoogleOTPVerify, db: Session = Depends(get
                 detail="No OTP found. Please request a new OTP."
             )
         
-        # Check if OTP has expired
-        if user.google_otp_expiry < datetime.now(timezone.utc):
+        # Check if OTP has expired (Safe comparison for SQLite)
+        now = datetime.now(timezone.utc)
+        expiry = user.google_otp_expiry
+        
+        # Normalize to UTC aware if naive (SQLite common issue)
+        if expiry and expiry.tzinfo is None:
+            expiry = expiry.replace(tzinfo=timezone.utc)
+            
+        if not expiry or expiry < now:
             # Clear expired OTP
             user.google_otp = None
             user.google_otp_expiry = None
