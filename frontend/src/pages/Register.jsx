@@ -18,8 +18,8 @@ const Register = () => {
         phone: '',
         password: '',
         confirmPassword: '',
-        language: 'en',
-        communityType: 'general',
+        language: '',
+        communityType: '',
         location: ''
     })
     const [error, setError] = useState('')
@@ -180,7 +180,7 @@ const Register = () => {
                         <div className="form-row">
                             <div className="form-group">
                                 <label htmlFor="language" className="form-label">
-                                    Preferred Language
+                                    Select your language
                                 </label>
                                 <select
                                     id="language"
@@ -190,6 +190,7 @@ const Register = () => {
                                     className="form-select"
                                     required
                                 >
+                                    <option value="" disabled>Select your language</option>
                                     <option value="en">English</option>
                                     <option value="hi">हिंदी (Hindi)</option>
                                     <option value="bn">বাংলা (Bengali)</option>
@@ -200,7 +201,7 @@ const Register = () => {
 
                             <div className="form-group">
                                 <label htmlFor="communityType" className="form-label">
-                                    Community Type
+                                    Enter community type
                                 </label>
                                 <select
                                     id="communityType"
@@ -210,6 +211,7 @@ const Register = () => {
                                     className="form-select"
                                     required
                                 >
+                                    <option value="" disabled>Enter community type</option>
                                     <option value="general">General</option>
                                     <option value="student">Student</option>
                                     <option value="farmer">Farmer</option>
