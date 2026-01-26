@@ -394,7 +394,7 @@ const Landing = () => {
                                 </div>
                             </div>
                             <h3 className="member-name">Ritesh Kumar</h3>
-                            <p className="member-role">PROJECT LEAD </p>
+                            <p className="member-role">PROJECT LEAD</p>
                             <p className="member-bio">
                                 <span>AI & ML Enthusiast</span>
                                 <span>React & SQL Developer</span>
@@ -417,7 +417,7 @@ const Landing = () => {
                                 </div>
                             </div>
                             <h3 className="member-name">Ankit</h3>
-                            <p className="member-role">PROJECT CO-LEAD </p>
+                            <p className="member-role">PROJECT CO-LEAD</p>
                             <p className="member-bio">
                                 <span>Full Stack Architect</span>
                                 <span>Modern Web Architect</span>

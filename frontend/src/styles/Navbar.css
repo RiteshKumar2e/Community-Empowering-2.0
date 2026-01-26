@@ -587,3 +587,26 @@ body.light-theme .mobile-menu-btn {
         opacity: 1;
     }
 }
+
+.mobile-auth-actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding: var(--space-2);
+    margin-bottom: var(--space-2);
+}
+
+.mobile-auth-btn {
+    width: 100%;
+    padding: var(--space-4) !important;
+    font-size: 1.1rem !important;
+    border-radius: var(--radius-lg) !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+}
+
+.mobile-auth-btn svg {
+    margin-right: 0;
+}

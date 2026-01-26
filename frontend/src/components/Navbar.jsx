@@ -227,19 +227,22 @@ const Navbar = () => {
                             </>
                         ) : (
                             <div className="mobile-nav-links">
+                                <div className="mobile-auth-actions">
+                                    <Link to="/admin-login" className="btn-admin mobile-auth-btn" onClick={() => setMobileMenuOpen(false)}>
+                                        <Shield size={18} /> Admin Login
+                                    </Link>
+                                    <Link to="/login" className="btn-signin mobile-auth-btn" onClick={() => setMobileMenuOpen(false)}>
+                                        <User size={18} /> Sign In
+                                    </Link>
+                                </div>
+                                <div className="menu-divider"></div>
                                 <button onClick={() => scrollToSection('home')} className="mobile-link">Home</button>
                                 <button onClick={() => scrollToSection('mission')} className="mobile-link">Mission</button>
                                 <button onClick={() => scrollToSection('about')} className="mobile-link">About</button>
                                 <button onClick={() => scrollToSection('goals')} className="mobile-link">Goals</button>
+                                <button onClick={() => scrollToSection('team')} className="mobile-link">Team</button>
                                 <button onClick={() => scrollToSection('testimonials')} className="mobile-link">Testimonials</button>
                                 <button onClick={() => scrollToSection('contact')} className="mobile-link">Contact</button>
-                                <div className="menu-divider"></div>
-                                <Link to="/login" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>
-                                    <User size={18} /> Sign In
-                                </Link>
-                                <Link to="/admin-login" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>
-                                    <Shield size={18} /> Admin Login
-                                </Link>
                             </div>
                         )}
                     </div>
