@@ -18,14 +18,11 @@ class EmailService:
         # Configuration
         load_dotenv()
         self.api_key = os.getenv("BREVO_API_KEY")
-        self.sender_email = os.getenv("SENDER_EMAIL", "noreply@quickfix.com")
-        self.admin_email = os.getenv("ADMIN_EMAIL", "riteshkumar90359@gmail.com")
-        self.company_name = os.getenv("COMPANY_NAME", "Community AI Platform")
-        self.app_url = os.getenv("APP_URL", "https://community-empowering-2-0.vercel.app")
-        
-        # Safety Validation
-        if not self.sender_email or "@" not in self.sender_email:
-            self.sender_email = self.admin_email if self.admin_email else "noreply@example.com"
+        self.admin_email = "riteshkumar90359@gmail.com"
+        # FORCE use of verified admin email as sender
+        self.sender_email = self.admin_email
+        self.company_name = "Community AI"
+        self.app_url = "https://community-empowering-2-0.vercel.app"
         
         if not self.api_key:
             print("\n⚠️ CRITICAL: BREVO_API_KEY not set in .env!")
@@ -69,7 +66,7 @@ class EmailService:
             print(f"❌ CRITICAL: OTP Email Failed for {user_email}: {str(e)}")
 
     def _dispatch_api(self, to_email: str, subject: str, html_body: str, priority: bool = False):
-        """Ultra-fast internal dispatcher"""
+        """Internal dispatcher using Brevo HTTPS API with better deliverability"""
         if not self.api_key:
             return
         
@@ -79,11 +76,18 @@ class EmailService:
             "Content-Type": "application/json",
             "Accept": "application/json"
         }
+        
+        # Extract OTP from subject or body for plain text fallback
+        import re
+        otp_match = re.search(r'\d{6}', subject)
+        otp_val = otp_match.group(0) if otp_match else "your code"
+        
         data = {
             "sender": {"name": self.company_name, "email": self.sender_email},
             "to": [{"email": to_email}],
             "subject": subject,
-            "htmlContent": html_body
+            "htmlContent": html_body,
+            "textContent": f"Your verification code is: {otp_val}. This code expires in 10 minutes."
         }
         
         timeout_duration = 10 if priority else 15
