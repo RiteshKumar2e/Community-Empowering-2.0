@@ -394,9 +394,11 @@ const Landing = () => {
                                 </div>
                             </div>
                             <h3 className="member-name">Ritesh Kumar</h3>
-                            <p className="member-role">PROJECT LEAD | SOFTWARE ENGINEER</p>
+                            <p className="member-role">PROJECT LEAD </p>
                             <p className="member-bio">
-                                AI & ML | Experienced in React, SQL | Passionate about AI, ML, and full-stack development.
+                                <span>AI & ML Enthusiast</span>
+                                <span>React & SQL Developer</span>
+                                <span>Passionate about Full-Stack Innovation</span>
                             </p>
                             <div className="member-social">
                                 <a href="https://linkedin.com/in/ritesh-kumar-b3a654253" target="_blank" rel="noopener noreferrer" className="social-btn linkedin">
@@ -415,9 +417,11 @@ const Landing = () => {
                                 </div>
                             </div>
                             <h3 className="member-name">Ankit</h3>
-                            <p className="member-role">PROJECT CO-LEAD | AI RESEARCHER</p>
+                            <p className="member-role">PROJECT CO-LEAD </p>
                             <p className="member-bio">
-                                Specialized in Natural Language Processing and modern web architectures. Focused on community-driven tech solutions.
+                                <span>Full Stack Architect</span>
+                                <span>Modern Web Architect</span>
+                                <span>Community-Driven Tech Solutions</span>
                             </p>
                             <div className="member-social">
                                 <a href="#" target="_blank" rel="noopener noreferrer" className="social-btn linkedin">
