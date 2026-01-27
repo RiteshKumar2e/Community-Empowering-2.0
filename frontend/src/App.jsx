@@ -17,6 +17,7 @@ import ProtectedRoute from './components/ProtectedRoute'
 import AdminLogin from './pages/AdminLogin'
 import AdminDashboard from './pages/AdminDashboard'
 import SideChatBot from './components/SideChatBot'
+import Feedback from './pages/Feedback'
 import NotFound from './pages/NotFound'
 
 // Google OAuth Client ID - Replace with your actual client ID
@@ -78,6 +79,11 @@ function App() {
                                 <Route path="/profile" element={
                                     <ProtectedRoute>
                                         <Profile />
+                                    </ProtectedRoute>
+                                } />
+                                <Route path="/feedback" element={
+                                    <ProtectedRoute>
+                                        <Feedback />
                                     </ProtectedRoute>
                                 } />
                                 <Route path="/admin" element={

@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { Menu, X, User, LogOut, Shield, ChevronDown, LayoutDashboard, FileText, MessageSquare } from 'lucide-react'
+import { Menu, X, User, LogOut, Shield, ChevronDown, LayoutDashboard, FileText, MessageSquare, Star } from 'lucide-react'
 import { useState, useRef, useEffect } from 'react'
 import ThemeToggle from './ThemeToggle'
 import '../styles/Navbar.css'
@@ -80,6 +80,7 @@ const Navbar = () => {
                             <Link to="/assistant" className={`nav-link ${isActive('/assistant') ? 'active' : ''}`}>AI Assistant</Link>
                             <Link to="/resources" className={`nav-link ${isActive('/resources') ? 'active' : ''}`}>Resources</Link>
                             <Link to="/learning" className={`nav-link ${isActive('/learning') ? 'active' : ''}`}>Learning</Link>
+                            <Link to="/feedback" className={`nav-link ${isActive('/feedback') ? 'active' : ''}`}>Feedback</Link>
                             {isAdmin && (
                                 <Link to="/admin" className={`nav-link admin-link ${isActive('/admin') ? 'active' : ''}`}>
                                     <Shield size={16} /> Admin
@@ -142,6 +143,9 @@ const Navbar = () => {
                                                 </Link>
                                                 <Link to="/learning" className="menu-item" onClick={() => setProfileMenuOpen(false)}>
                                                     <Shield size={18} /> Learning
+                                                </Link>
+                                                <Link to="/feedback" className="menu-item" onClick={() => setProfileMenuOpen(false)}>
+                                                    <Star size={18} /> Feedback
                                                 </Link>
                                                 <div className="menu-divider"></div>
                                                 <button onClick={() => { logout(); setProfileMenuOpen(false); }} className="menu-item logout">
@@ -213,6 +217,9 @@ const Navbar = () => {
                                     </Link>
                                     <Link to="/profile" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>
                                         <User size={18} /> My Profile
+                                    </Link>
+                                    <Link to="/feedback" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>
+                                        <Star size={18} /> Feedback
                                     </Link>
                                     {isAdmin && (
                                         <Link to="/admin" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>

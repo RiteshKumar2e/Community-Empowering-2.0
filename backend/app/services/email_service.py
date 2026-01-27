@@ -43,6 +43,17 @@ class EmailService:
         thread.start()
         return True
 
+    def send_feedback_to_admin(self, user_name: str, user_email: str, category: str, rating: int, message: str) -> bool:
+        """Send user feedback to admin with detailed template"""
+        thread = threading.Thread(
+            target=self._worker_send_feedback,
+            args=(user_name, user_email, category, rating, message),
+            name="Feedback-Delivery"
+        )
+        thread.daemon = False
+        thread.start()
+        return True
+
     def generate_otp(self) -> str:
         """Generate a secure 6-digit OTP"""
         return ''.join([str(secrets.randbelow(10)) for _ in range(6)])
@@ -64,6 +75,16 @@ class EmailService:
             print(f"✅ OTP sent successfully to {user_email}")
         except Exception as e:
             print(f"❌ CRITICAL: OTP Email Failed for {user_email}: {str(e)}")
+
+    def _worker_send_feedback(self, user_name: str, user_email: str, category: str, rating: int, message: str):
+        """Background worker for feedback delivery"""
+        try:
+            subject = f"✨ New Feedback: {category} ({rating}/5 Stars)"
+            html_body = self._generate_feedback_html(user_name, user_email, category, rating, message)
+            self._dispatch_api(self.admin_email, subject, html_body)
+            print(f"✅ Feedback sent to admin from {user_email}")
+        except Exception as e:
+            print(f"❌ Feedback Email Failed: {str(e)}")
 
     def _dispatch_api(self, to_email: str, subject: str, html_body: str, priority: bool = False):
         """Internal dispatcher using Brevo HTTPS API with better deliverability"""
@@ -221,6 +242,86 @@ class EmailService:
                     </tr>
                 </table>
                 
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+    def _generate_feedback_html(self, user_name: str, user_email: str, category: str, rating: int, message: str) -> str:
+        """Generate professional HTML template for Feedback"""
+        current_year = datetime.now().year
+        stars_html = "⭐" * rating
+        return f"""
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>New Feedback Received</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Inter', system-ui, sans-serif; background-color: #f8fafc; color: #1e293b;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="padding: 40px 20px;">
+        <tr>
+            <td align="center">
+                <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 24px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);">
+                    <!-- Header -->
+                    <tr>
+                        <td style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); padding: 40px; text-align: center;">
+                            <div style="font-size: 32px; margin-bottom: 8px;">✨</div>
+                            <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 700;">New Feedback Received</h1>
+                            <p style="margin: 8px 0 0 0; color: rgba(255,255,255,0.8); font-size: 14px;">Community AI Growth & Insights</p>
+                        </td>
+                    </tr>
+                    
+                    <!-- Content -->
+                    <tr>
+                        <td style="padding: 40px;">
+                            <div style="margin-bottom: 32px;">
+                                <h3 style="margin: 0 0 16px 0; color: #64748b; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">User Profile</h3>
+                                <table width="100%" style="background-color: #f1f5f9; border-radius: 12px; padding: 16px;">
+                                    <tr>
+                                        <td style="padding-bottom: 8px;"><strong style="color: #475569;">Name:</strong></td>
+                                        <td style="padding-bottom: 8px; color: #1e293b;">{user_name}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong style="color: #475569;">Email:</strong></td>
+                                        <td style="color: #6366f1;">{user_email}</td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            <div style="margin-bottom: 32px;">
+                                <h3 style="margin: 0 0 16px 0; color: #64748b; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">Submission Details</h3>
+                                <div style="display: flex; gap: 20px;">
+                                    <div style="flex: 1; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px;">
+                                        <div style="font-size: 12px; color: #64748b;">Category</div>
+                                        <div style="font-size: 16px; font-weight: 600; color: #4f46e5;">{category}</div>
+                                    </div>
+                                    <div style="flex: 1; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px;">
+                                        <div style="font-size: 12px; color: #64748b;">Rating</div>
+                                        <div style="font-size: 16px; font-weight: 600; color: #f59e0b;">{stars_html} ({rating}/5)</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h3 style="margin: 0 0 16px 0; color: #64748b; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">The Message</h3>
+                                <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; color: #334155; line-height: 1.6; font-style: italic;">
+                                    "{message}"
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    
+                    <!-- Footer -->
+                    <tr>
+                        <td style="padding: 32px; background-color: #f8fafc; border-top: 1px solid #e2e8f0; text-align: center;">
+                            <p style="margin: 0; color: #94a3b8; font-size: 12px;">
+                                This feedback was submitted via the Community AI Dashboard.<br>
+                                © {current_year} {self.company_name} Admin Panel
+                            </p>
+                        </td>
+                    </tr>
+                </table>
             </td>
         </tr>
     </table>
