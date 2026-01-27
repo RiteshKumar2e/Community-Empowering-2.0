@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from typing import List, Optional
 from app.core.database import get_db
 from app.models.models import User, Query, Enrollment, Course, Resource, LearningPlatform, Feedback
+from app.services.market_scanner import market_scanner
 from app.api.users import get_current_user
 
 router = APIRouter()
@@ -234,3 +235,14 @@ async def delete_platform(
     db.delete(platform)
     db.commit()
     return {"message": "Platform deleted successfully"}
+
+@router.post("/scan-market")
+async def trigger_market_scan(
+    admin: User = Depends(verify_admin)
+):
+    """Manually trigger the market scanner to search for new schemes/learning"""
+    new_items = await market_scanner.scan_and_update()
+    return {
+        "message": f"Scan completed. {len(new_items)} new items added.",
+        "items": new_items
+    }

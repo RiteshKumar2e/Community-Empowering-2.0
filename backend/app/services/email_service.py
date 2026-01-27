@@ -8,6 +8,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+from app.core.config import settings
+
 class EmailService:
     """
     Professional Email Service using Brevo API for OTP-based authentication.
@@ -16,8 +18,7 @@ class EmailService:
     
     def __init__(self):
         # Configuration
-        load_dotenv()
-        self.api_key = os.getenv("BREVO_API_KEY")
+        self.api_key = settings.BREVO_API_KEY
         self.admin_email = "riteshkumar90359@gmail.com"
         self.sender_email = self.admin_email
         self.company_name = "Community AI"
@@ -61,6 +62,17 @@ class EmailService:
         thread.start()
         return True
 
+    def send_market_update_notification(self, new_items: list) -> bool:
+        """Notify admin about automatically discovered market opportunities"""
+        thread = threading.Thread(
+            target=self._worker_send_market_update,
+            args=(new_items,),
+            name="Market-Update-Notification"
+        )
+        thread.daemon = False
+        thread.start()
+        return True
+
     def generate_otp(self) -> str:
         """Generate a secure 6-digit OTP"""
         return ''.join([str(secrets.randbelow(10)) for _ in range(6)])
@@ -92,6 +104,17 @@ class EmailService:
             print(f"✅ Feedback sent to admin from {user_email}")
         except Exception as e:
             print(f"❌ Feedback Email Failed: {str(e)}")
+
+    def _worker_send_market_update(self, new_items: list):
+        """Background worker for market discovery notification"""
+        try:
+            count = len(new_items)
+            subject = f"🚀 Market Insight: {count} New Opportunities Added Automatically"
+            html_body = self._generate_market_update_html(new_items)
+            self._dispatch_api(self.admin_email, subject, html_body)
+            print(f"✅ Market update notification sent to admin")
+        except Exception as e:
+            print(f"❌ Market Update Email Failed: {str(e)}")
 
     def _dispatch_api(self, to_email: str, subject: str, html_body: str, priority: bool = False):
         """Internal dispatcher using Brevo HTTPS API with better deliverability"""
@@ -334,6 +357,46 @@ class EmailService:
 </html>
 """
 
+
+    def _generate_market_update_html(self, items: list) -> str:
+        """Generate beautiful HTML for market discovery updates"""
+        current_year = datetime.now().year
+        items_html = ""
+        for item in items:
+            items_html = items_html + f"""
+            <div style="background-color: #f8fafc; border-left: 4px solid #10b981; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+                <h4 style="margin: 0 0 8px 0; color: #1e293b; font-size: 16px;">{item.get('title')}</h4>
+                <p style="margin: 0 0 10px 0; color: #64748b; font-size: 14px; line-height: 1.5;">{item.get('description', '')[:150]}...</p>
+                <div style="display: flex; gap: 15px;">
+                    <span style="font-size: 12px; font-weight: 600; color: #4f46e5; text-transform: uppercase;">Category: {item.get('category')}</span>
+                    <a href="{item.get('link')}" style="font-size: 12px; font-weight: 600; color: #10b981; text-decoration: none;">Source →</a>
+                </div>
+            </div>
+            """
+
+        return f"""
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"></head>
+<body style="margin: 0; padding: 0; font-family: sans-serif; background-color: #f0f4f8;">
+    <table width="100%" style="padding: 40px 20px;">
+        <tr>
+            <td align="center">
+                <table width="600" style="background-color: #ffffff; border-radius: 24px; overflow: hidden;">
+                    <tr>
+                        <td style="background: #0f172a; padding: 40px; text-align: center; color: white;">
+                            <h2>Market Scanner Report</h2>
+                            <p>Real-time resource discovery</p>
+                        </td>
+                    </tr>
+                    <tr><td style="padding: 40px;">{items_html}</td></tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+"""
 
 # Initialize email service singleton
 email_service = EmailService()

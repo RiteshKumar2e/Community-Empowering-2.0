@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import {
     Users, MessageSquare, BookOpen, Search, TrendingUp, Award,
     Shield, Activity, Database, Globe, AlertCircle, CheckCircle,
-    UserCheck, FileText, BarChart3, Clock, Trash2, Heart, ExternalLink
+    UserCheck, FileText, BarChart3, Clock, Trash2, Heart, ExternalLink, Radar
 } from 'lucide-react'
 import api from '../services/api'
 import '../styles/AdminDashboard.css'
@@ -50,6 +50,7 @@ const AdminDashboard = () => {
     const [recentActivity, setRecentActivity] = useState([])
     const [existingResources, setExistingResources] = useState([])
     const [existingPlatforms, setExistingPlatforms] = useState([])
+    const [isScanning, setIsScanning] = useState(false)
 
     useEffect(() => {
         // Check if user is admin - more robust check
@@ -133,6 +134,19 @@ const AdminDashboard = () => {
         } catch (error) { alert('Delete failed') }
     }
 
+    const handleMarketScan = async () => {
+        try {
+            setIsScanning(true)
+            const res = await api.post('/admin/scan-market')
+            alert(res.data.message)
+            fetchAdminData() // refresh
+        } catch (error) {
+            alert('Scan failed')
+        } finally {
+            setIsScanning(false)
+        }
+    }
+
     const handleResourceSubmit = async (e) => {
         e.preventDefault()
         try {
@@ -197,7 +211,17 @@ const AdminDashboard = () => {
                             <Shield size={32} />
                             Admin Dashboard
                         </h1>
-                        <p>Complete platform overview and management</p>
+                        <p>Manage your community platform and resources</p>
+                    </div>
+                    <div className="admin-header-actions">
+                        <button
+                            className={`btn-scan ${isScanning ? 'scanning' : ''}`}
+                            onClick={handleMarketScan}
+                            disabled={isScanning}
+                        >
+                            <Radar size={18} className={isScanning ? 'spin' : ''} />
+                            {isScanning ? 'Scanning Market...' : 'Scan Market Pulse'}
+                        </button>
                     </div>
                 </div>
 

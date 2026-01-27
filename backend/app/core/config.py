@@ -35,10 +35,27 @@ class Settings(BaseSettings):
     # Database
     DATABASE_URL: str = "sqlite:///./community_ai.db"
     
-    # AI API Keys
+    # AI & Service API Keys
     GROQ_API_KEY: str = ""
     GEMINI_API_KEY: str = ""
+    BREVO_API_KEY: str = ""
+    NEWS_API_KEY: str = ""
+    YOUTUBE_API_KEY: str = ""
+    PIB_RSS_URL: str = "https://pib.gov.in/RssMain.aspx?ModId=6"
     GOOGLE_CLIENT_ID: str = "951248037202-st6tgbo07tjljditc95n7kuvgqr7a7mg.apps.googleusercontent.com"
+
+    def check_keys(self):
+        """Check for essential API keys and print warnings"""
+        missing = []
+        if not self.BREVO_API_KEY: missing.append("BREVO_API_KEY (for emails)")
+        if not self.GEMINI_API_KEY and not self.GROQ_API_KEY: missing.append("AI_API_KEY (for Chatbot)")
+        
+        if missing:
+            print("\n" + "!"*50)
+            print(f"⚠️ WARNING: Missing essential configuration:")
+            for m in missing: print(f"  - {m}")
+            print("Please set these in your .env or Render environment variables.")
+            print("!"*50 + "\n")
     
     # File Upload
     MAX_UPLOAD_SIZE: int = 10 * 1024 * 1024  # 10MB
