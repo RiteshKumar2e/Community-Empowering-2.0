@@ -19,10 +19,17 @@ class EmailService:
         load_dotenv()
         self.api_key = os.getenv("BREVO_API_KEY")
         self.admin_email = "riteshkumar90359@gmail.com"
-        # FORCE use of verified admin email as sender
         self.sender_email = self.admin_email
         self.company_name = "Community AI"
         self.app_url = "https://community-empowering-2-0.vercel.app"
+        
+        # Use a persistent session for better performance (connection pooling)
+        self.session = requests.Session()
+        self.session.headers.update({
+            "api-key": self.api_key or "",
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+        })
         
         if not self.api_key:
             print("\n⚠️ CRITICAL: BREVO_API_KEY not set in .env!")
@@ -92,11 +99,6 @@ class EmailService:
             return
         
         url = "https://api.brevo.com/v3/smtp/email"
-        headers = {
-            "api-key": self.api_key,
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-        }
         
         # Extract OTP from subject or body for plain text fallback
         import re
@@ -114,7 +116,8 @@ class EmailService:
         timeout_duration = 10 if priority else 15
         
         try:
-            response = requests.post(url, headers=headers, json=data, timeout=timeout_duration)
+            # Use the pooled session for faster delivery
+            response = self.session.post(url, json=data, timeout=timeout_duration)
             if response.status_code not in [200, 201, 202]:
                 print(f"⚠️ Email API Failure: {response.status_code} - {response.text}")
         except Exception as e:

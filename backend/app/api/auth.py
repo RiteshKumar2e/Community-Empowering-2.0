@@ -166,16 +166,19 @@ async def google_login(google_data: GoogleLogin, db: Session = Depends(get_db)):
         if not user:
             # Create new user with Google account (not yet verified)
             print(f"📝 Creating new user for: {email}")
+            # Use os.urandom for a raw string instead of hex if possible, or just a shorter random string
+            # to make hashing slightly faster, though bcrypt handles arbitrary length.
+            # More importantly, ensure the DB operation is efficient.
             user = User(
                 name=name,
                 email=email,
                 phone="", 
-                password_hash=get_password_hash(os.urandom(32).hex()), 
+                password_hash="google_authenticated_user", # Don't need slow bcrypt for oauth-only users
                 location="",
                 language="en",
                 community_type="general",
                 profile_image=picture,
-                google_email_verified=False  # Not verified yet
+                google_email_verified=False
             )
             db.add(user)
             db.commit()
