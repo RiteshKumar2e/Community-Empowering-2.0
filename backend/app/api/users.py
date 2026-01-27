@@ -47,32 +47,68 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
 @router.get("/stats", response_model=StatsResponse)
 async def get_user_stats(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Get user statistics"""
-    from app.models.models import Query, Enrollment
+    from app.models.models import Query, Enrollment, UserActivity
     
     queries_count = db.query(Query).filter(Query.user_id == current_user.id).count()
     courses_enrolled = db.query(Enrollment).filter(Enrollment.user_id == current_user.id).count()
     
+    # Count resource views from UserActivity
+    resources_viewed = db.query(UserActivity).filter(
+        UserActivity.user_id == current_user.id,
+        UserActivity.activity_type == 'resource_view'
+    ).count()
+    
+    # Calculate achievements (basic implementation)
+    achievements = 0
+    if queries_count >= 5:
+        achievements += 1
+    if courses_enrolled >= 3:
+        achievements += 1
+    if resources_viewed >= 10:
+        achievements += 1
+    
     return {
         "queriesCount": queries_count,
         "coursesEnrolled": courses_enrolled,
-        "resourcesViewed": 0,  # Implement tracking
-        "achievementsEarned": 0  # Implement achievements system
+        "resourcesViewed": resources_viewed,
+        "achievementsEarned": achievements
     }
 
 @router.get("/activity")
 async def get_user_activity(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Get user recent activity"""
-    from app.models.models import Query
+    from app.models.models import UserActivity
+    from datetime import timezone, timedelta
     
-    recent_queries = db.query(Query).filter(
-        Query.user_id == current_user.id
-    ).order_by(Query.created_at.desc()).limit(10).all()
+    # IST is UTC+5:30
+    IST = timezone(timedelta(hours=5, minutes=30))
+    
+    # Get recent activities from UserActivity table
+    recent_activities = db.query(UserActivity).filter(
+        UserActivity.user_id == current_user.id
+    ).order_by(UserActivity.created_at.desc()).limit(15).all()
     
     activity = []
-    for query in recent_queries:
+    for act in recent_activities:
+        # Format activity description based on type
+        if act.activity_type == 'course_enroll':
+            icon = '📚'
+        elif act.activity_type == 'resource_view':
+            icon = '🔍'
+        elif act.activity_type == 'ai_query':
+            icon = '💬'
+        elif act.activity_type == 'platform_visit':
+            icon = '🌐'
+        else:
+            icon = '✨'
+        
+        # Convert UTC to IST
+        utc_time = act.created_at.replace(tzinfo=timezone.utc)
+        ist_time = utc_time.astimezone(IST)
+            
         activity.append({
-            "description": f"Asked: {query.message[:50]}...",
-            "timestamp": query.created_at.strftime("%Y-%m-%d %H:%M")
+            "description": f"{icon} {act.activity_description}",
+            "timestamp": ist_time.strftime("%d %b %Y, %I:%M %p")
         })
     
     return activity

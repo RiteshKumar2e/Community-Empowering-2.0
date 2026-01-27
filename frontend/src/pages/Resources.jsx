@@ -14,6 +14,18 @@ const Resources = () => {
     const [showAll, setShowAll] = useState(false)
     const [selectedSubCategory, setSelectedSubCategory] = useState('all')
 
+    // Track resource view
+    const trackResourceView = async (resource) => {
+        try {
+            await api.post('/tracking/log/resource-view', {
+                title: resource.title,
+                category: resource.category
+            })
+        } catch (error) {
+            console.log('Tracking error:', error)
+        }
+    }
+
     const subCategories = [
         { value: 'all', label: 'All Education' },
         { value: 'higher', label: 'Higher Education' },
@@ -1081,6 +1093,7 @@ const Resources = () => {
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="btn btn-primary btn-sm"
+                                        onClick={() => trackResourceView(resource)}
                                     >
                                         Visit Official Website
                                         <ExternalLink size={16} />

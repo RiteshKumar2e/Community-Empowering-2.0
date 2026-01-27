@@ -6,6 +6,10 @@ from app.core.database import get_db
 from app.models.models import User, Query, Enrollment, Course, Resource, LearningPlatform, Feedback
 from app.services.market_scanner import market_scanner
 from app.api.users import get_current_user
+from datetime import timezone, timedelta
+
+# IST is UTC+5:30
+IST = timezone(timedelta(hours=5, minutes=30))
 
 router = APIRouter()
 
@@ -90,18 +94,33 @@ async def get_all_users(
     """Get all registered users"""
     users = db.query(User).all()
     
-    return [{
-        "id": user.id,
-        "name": user.name,
-        "email": user.email,
-        "phone": user.phone,
-        "location": user.location,
-        "language": user.language,
-        "community_type": user.community_type,
-        "is_active": user.is_active,
-        "created_at": user.created_at.isoformat() if user.created_at else None,
-        "last_login": (user.last_login.isoformat() + ("Z" if not user.last_login.tzinfo else "")) if user.last_login else None
-    } for user in users]
+    user_list = []
+    for user in users:
+        # Convert timestamps to IST
+        created_at_ist = None
+        if user.created_at:
+            utc_time = user.created_at.replace(tzinfo=timezone.utc)
+            created_at_ist = utc_time.astimezone(IST).strftime("%d %b %Y, %I:%M %p")
+        
+        last_login_ist = None
+        if user.last_login:
+            utc_time = user.last_login.replace(tzinfo=timezone.utc)
+            last_login_ist = utc_time.astimezone(IST).strftime("%d %b %Y, %I:%M %p")
+        
+        user_list.append({
+            "id": user.id,
+            "name": user.name,
+            "email": user.email,
+            "phone": user.phone,
+            "location": user.location,
+            "language": user.language,
+            "community_type": user.community_type,
+            "is_active": user.is_active,
+            "created_at": created_at_ist,
+            "last_login": last_login_ist
+        })
+    
+    return user_list
 
 @router.get("/queries")
 async def get_all_queries(
@@ -111,14 +130,24 @@ async def get_all_queries(
     """Get all AI queries"""
     queries = db.query(Query).order_by(Query.created_at.desc()).all()
     
-    return [{
-        "id": query.id,
-        "user_id": query.user_id,
-        "message": query.message,
-        "response": query.response,
-        "language": query.language,
-        "created_at": query.created_at.isoformat() if query.created_at else None
-    } for query in queries]
+    query_list = []
+    for query in queries:
+        # Convert timestamp to IST
+        created_at_ist = None
+        if query.created_at:
+            utc_time = query.created_at.replace(tzinfo=timezone.utc)
+            created_at_ist = utc_time.astimezone(IST).strftime("%d %b %Y, %I:%M %p")
+        
+        query_list.append({
+            "id": query.id,
+            "user_id": query.user_id,
+            "message": query.message,
+            "response": query.response,
+            "language": query.language,
+            "created_at": created_at_ist
+        })
+    
+    return query_list
 
 @router.get("/enrollments")
 async def get_all_enrollments(
@@ -133,6 +162,12 @@ async def get_all_enrollments(
         user = db.query(User).filter(User.id == enrollment.user_id).first()
         course = db.query(Course).filter(Course.id == enrollment.course_id).first()
         
+        # Convert timestamp to IST
+        enrolled_at_ist = None
+        if enrollment.enrolled_at:
+            utc_time = enrollment.enrolled_at.replace(tzinfo=timezone.utc)
+            enrolled_at_ist = utc_time.astimezone(IST).strftime("%d %b %Y, %I:%M %p")
+        
         result.append({
             "id": enrollment.id,
             "user_id": enrollment.user_id,
@@ -141,7 +176,7 @@ async def get_all_enrollments(
             "course_title": course.title if course else "Unknown",
             "progress": enrollment.progress,
             "completed": enrollment.completed,
-            "enrolled_at": enrollment.enrolled_at.isoformat() if enrollment.enrolled_at else None
+            "enrolled_at": enrolled_at_ist
         })
     
     return result

@@ -114,3 +114,14 @@ class Feedback(Base):
     comment = Column(Text)
     category = Column(String)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+class UserActivity(Base):
+    __tablename__ = "user_activities"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    activity_type = Column(String, nullable=False)  # 'course_enroll', 'resource_view', 'ai_query', 'platform_visit'
+    activity_title = Column(String)
+    activity_description = Column(Text)
+    metadata = Column(Text)  # JSON string for additional data
+    created_at = Column(DateTime(timezone=True), server_default=func.now())

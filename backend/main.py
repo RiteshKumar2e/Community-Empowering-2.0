@@ -5,7 +5,7 @@ import os
 from app.core.config import settings
 from app.core.database import engine, Base
 from app.models import models  # Import models to register them
-from app.api import auth, users, ai, resources, learning, admin, agent, feedback
+from app.api import auth, users, ai, resources, learning, admin, agent, feedback, tracking
 from app.services.market_scanner import market_scanner
 import asyncio
 
@@ -42,6 +42,7 @@ app.include_router(learning.router, prefix="/api/learning", tags=["Learning"])
 app.include_router(admin.router, prefix="/api/admin", tags=["Admin"])
 app.include_router(agent.router, prefix="/api/agent", tags=["Agent"])
 app.include_router(feedback.router, prefix="/api/feedback", tags=["Feedback"])
+app.include_router(tracking.router, prefix="/api/tracking", tags=["Tracking"])
 
 @app.on_event("startup")
 async def startup_event():

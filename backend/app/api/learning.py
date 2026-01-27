@@ -75,6 +75,8 @@ async def enroll_in_course(
     db: Session = Depends(get_db)
 ):
     """Enroll in a course"""
+    from app.services.activity_tracker import ActivityTracker
+    
     # Check if course exists
     course = db.query(Course).filter(Course.id == course_id).first()
     if not course:
@@ -98,5 +100,12 @@ async def enroll_in_course(
     
     db.add(enrollment)
     db.commit()
+    
+    # Log activity for dashboard
+    ActivityTracker.log_course_enrollment(
+        db=db,
+        user_id=current_user.id,
+        course_title=course.title
+    )
     
     return {"message": "Successfully enrolled in course"}

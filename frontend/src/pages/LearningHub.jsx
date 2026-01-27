@@ -11,6 +11,18 @@ const LearningHub = () => {
     const [showAll, setShowAll] = useState(false)
     const [loading, setLoading] = useState(true)
 
+    // Track platform visit
+    const trackPlatformVisit = async (platform) => {
+        try {
+            await api.post('/tracking/log/platform-visit', {
+                platform_name: platform.title,
+                platform_url: platform.link
+            })
+        } catch (error) {
+            console.log('Tracking error:', error)
+        }
+    }
+
     useEffect(() => {
         const fetchPlatforms = async () => {
             try {
@@ -2390,6 +2402,7 @@ const LearningHub = () => {
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="btn btn-primary btn-sm"
+                                    onClick={() => trackPlatformVisit(platform)}
                                 >
                                     {platform.category === 'internship' ? (
                                         <>
