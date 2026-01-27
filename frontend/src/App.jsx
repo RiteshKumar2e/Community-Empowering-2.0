@@ -39,6 +39,12 @@ const RefreshHandler = () => {
     return null;
 };
 
+const ChatBotCondition = () => {
+    const location = useLocation();
+    if (location.pathname === '/assistant') return null;
+    return <SideChatBot />;
+};
+
 function App() {
     return (
         <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
@@ -93,7 +99,7 @@ function App() {
                                 } />
                                 <Route path="*" element={<NotFound />} />
                             </Routes>
-                            <SideChatBot />
+                            <ChatBotCondition />
                         </div>
                     </LanguageProvider>
                 </AuthProvider>
