@@ -383,6 +383,13 @@ body.light-theme .assistant-header h1 {
     -webkit-text-fill-color: transparent;
 }
 
+body.light-theme .bot-avatar {
+    background: #1e293b;
+    /* Dark background for light theme header */
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
 body.light-theme .messages-area {
     background: #ffffff;
 }
@@ -392,6 +399,14 @@ body.light-theme .assistant-message .message-content {
     border: 1px solid #e2e8f0;
     color: #334155;
     box-shadow: none;
+}
+
+body.light-theme .assistant-message .message-avatar {
+    background: #4f46e5;
+    /* Strong blue background */
+    color: #ffffff;
+    /* White icon */
+    border: none;
 }
 
 body.light-theme .message-time {
