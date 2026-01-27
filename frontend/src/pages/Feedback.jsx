@@ -17,12 +17,13 @@ import {
 import '../styles/Feedback.css'
 
 const Feedback = () => {
-    const [category, setCategory] = useState('Assistant')
+    const [category, setCategory] = useState('')
     const [rating, setRating] = useState(0)
     const [hoverRating, setHoverRating] = useState(0)
     const [message, setMessage] = useState('')
     const [submitted, setSubmitted] = useState(false)
     const [loading, setLoading] = useState(false)
+    const [showAlert, setShowAlert] = useState(false)
 
     const categories = [
         {
@@ -59,6 +60,13 @@ const Feedback = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault()
+
+        if (!category || rating === 0 || !message.trim()) {
+            setShowAlert(true);
+            setTimeout(() => setShowAlert(false), 3000);
+            return;
+        }
+
         setLoading(true)
 
         try {
@@ -243,6 +251,35 @@ const Feedback = () => {
                     </motion.div>
                 </div>
             </div>
+
+            {/* Custom Alert Pop-up */}
+            <AnimatePresence>
+                {showAlert && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -100, x: '-50%' }}
+                        animate={{ opacity: 1, y: 20, x: '-50%' }}
+                        exit={{ opacity: 0, y: -100, x: '-50%' }}
+                        style={{
+                            position: 'fixed',
+                            top: '20px',
+                            left: '50%',
+                            zIndex: 9999,
+                            background: '#ef4444',
+                            color: 'white',
+                            padding: '16px 32px',
+                            borderRadius: '16px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '12px',
+                            boxShadow: '0 20px 40px rgba(239, 68, 68, 0.4)',
+                            fontWeight: 600
+                        }}
+                    >
+                        <Zap size={20} fill="white" />
+                        Please fill all fields to continue!
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     )
 }

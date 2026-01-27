@@ -247,6 +247,8 @@ class EmailService:
     </table>
 </body>
 </html>
+"""
+
     def _generate_feedback_html(self, user_name: str, user_email: str, category: str, rating: int, message: str) -> str:
         """Generate professional HTML template for Feedback"""
         current_year = datetime.now().year
