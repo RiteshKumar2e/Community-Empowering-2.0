@@ -13,7 +13,7 @@ class ActivityTracker:
         activity_type: str,
         activity_title: str,
         activity_description: str,
-        metadata: dict = None
+        extra_data: dict = None
     ):
         """
         Log a user activity
@@ -24,7 +24,7 @@ class ActivityTracker:
             activity_type: Type of activity ('course_enroll', 'resource_view', 'ai_query', 'platform_visit')
             activity_title: Title of the activity
             activity_description: Description of the activity
-            metadata: Additional metadata as dictionary
+            extra_data: Additional metadata as dictionary
         """
         try:
             activity = UserActivity(
@@ -32,7 +32,7 @@ class ActivityTracker:
                 activity_type=activity_type,
                 activity_title=activity_title,
                 activity_description=activity_description,
-                metadata=json.dumps(metadata) if metadata else None
+                extra_data=json.dumps(extra_data) if extra_data else None
             )
             db.add(activity)
             db.commit()
@@ -51,7 +51,7 @@ class ActivityTracker:
             activity_type='course_enroll',
             activity_title=course_title,
             activity_description=f"Enrolled in course: {course_title}",
-            metadata={'platform': platform} if platform else None
+            extra_data={'platform': platform} if platform else None
         )
     
     @staticmethod
@@ -63,7 +63,7 @@ class ActivityTracker:
             activity_type='resource_view',
             activity_title=resource_title,
             activity_description=f"Viewed resource: {resource_title}",
-            metadata={'category': category} if category else None
+            extra_data={'category': category} if category else None
         )
     
     @staticmethod
@@ -77,7 +77,7 @@ class ActivityTracker:
             activity_type='ai_query',
             activity_title='AI Query',
             activity_description=f"Asked AI: {truncated}",
-            metadata={'language': language, 'full_query': query_text}
+            extra_data={'language': language, 'full_query': query_text}
         )
     
     @staticmethod
@@ -89,5 +89,5 @@ class ActivityTracker:
             activity_type='platform_visit',
             activity_title=platform_name,
             activity_description=f"Visited learning platform: {platform_name}",
-            metadata={'url': platform_url} if platform_url else None
+            extra_data={'url': platform_url} if platform_url else None
         )

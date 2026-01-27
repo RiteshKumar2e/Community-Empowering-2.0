@@ -123,5 +123,5 @@ class UserActivity(Base):
     activity_type = Column(String, nullable=False)  # 'course_enroll', 'resource_view', 'ai_query', 'platform_visit'
     activity_title = Column(String)
     activity_description = Column(Text)
-    metadata = Column(Text)  # JSON string for additional data
+    extra_data = Column(Text)  # JSON string for additional data (renamed from metadata)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
