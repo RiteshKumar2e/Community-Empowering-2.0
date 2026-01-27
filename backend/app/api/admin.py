@@ -100,7 +100,7 @@ async def get_all_users(
         "community_type": user.community_type,
         "is_active": user.is_active,
         "created_at": user.created_at.isoformat() if user.created_at else None,
-        "last_login": user.last_login.isoformat() if user.last_login else None
+        "last_login": (user.last_login.isoformat() + ("Z" if not user.last_login.tzinfo else "")) if user.last_login else None
     } for user in users]
 
 @router.get("/queries")

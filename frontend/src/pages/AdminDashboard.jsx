@@ -134,6 +134,19 @@ const AdminDashboard = () => {
         } catch (error) { alert('Delete failed') }
     }
 
+    const formatDate = (dateString) => {
+        if (!dateString) return 'Never'
+        const date = new Date(dateString)
+        return date.toLocaleString('en-IN', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true
+        })
+    }
+
     const handleMarketScan = async () => {
         try {
             setIsScanning(true)
@@ -508,8 +521,8 @@ const AdminDashboard = () => {
                                             <td> {u.name}</td>
                                             <td>{u.email}</td>
                                             <td>{u.community_type}</td>
-                                            <td>{new Date(u.created_at).toLocaleDateString()}</td>
-                                            <td>{u.last_login ? new Date(u.last_login).toLocaleString() : 'Never'}</td>
+                                            <td>{formatDate(u.created_at)}</td>
+                                            <td>{formatDate(u.last_login)}</td>
                                             <td>
                                                 <button
                                                     onClick={() => handleDeleteUser(u.id)}
