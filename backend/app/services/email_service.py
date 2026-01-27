@@ -22,7 +22,7 @@ class EmailService:
         self.admin_email = "riteshkumar90359@gmail.com"
         self.sender_email = self.admin_email
         self.company_name = "Community AI"
-        self.app_url = "https://community-empowering-2-0.vercel.app"
+        self.app_url = "https://communityai.co.in"
         
         # Use a persistent session for better performance (connection pooling)
         self.session = requests.Session()

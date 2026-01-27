@@ -1,16 +1,18 @@
 import os
 import json
 import asyncio
+import requests
 from datetime import datetime
 from sqlalchemy.orm import Session
 from app.models.models import Resource, LearningPlatform
 from app.services.email_service import email_service
 from app.core.database import SessionLocal
+from app.core.config import settings
 
 class MarketScanner:
     """
-    Automated Market Scanner to find and add new government schemes 
-    and learning platforms. It uses AI-driven logic to ensure data quality.
+    Automated Market Scanner to find and add new government schemes (News API)
+    and learning platforms (YouTube API).
     """
     
     @staticmethod
@@ -18,82 +20,75 @@ class MarketScanner:
         """Main scanner logic to be run in background or triggered by admin"""
         db = SessionLocal()
         try:
-            print("🚀 Starting Market Scan...")
+            print("🚀 Starting Multi-Channel Live Market Scan...")
             new_additions = []
             
-            # 1. Define typical market trends (Simulated dynamic data for demo)
-            # In production, this would call a real news/search API
-            market_data = [
-                {
-                    "type": "resource",
-                    "title": "PM Farmer ID 2026",
-                    "description": "A unique identity for farmers to simplify access to loans, insurance, and welfare schemes with satellite-based crop assessment.",
-                    "category": "agriculture",
-                    "provider": "Ministry of Agriculture",
-                    "link": "https://pib.gov.in",
-                    "isNew": True
-                },
-                {
-                    "type": "resource",
-                    "title": "Ayushman Bharat Expansion 2026",
-                    "description": "Expanded health coverage up to ₹5 lakh per family including secondary and tertiary care hospitalizations.",
-                    "category": "health",
-                    "provider": "National Health Authority",
-                    "link": "https://pmjay.gov.in",
-                    "isNew": True
-                },
-                {
-                    "type": "platform",
-                    "title": "AI Skills for Rural Youth",
-                    "description": "Specialized digital literacy program focused on AI-assisted farming and small business management.",
-                    "category": "digital",
-                    "provider": "Community AI Initiative",
-                    "level": "Beginner",
-                    "link": "https://community-empowering-2-0.vercel.app",
-                    "features": ["AI Tools", "Business Basics"]
-                }
-            ]
-            
-            for item in market_data:
-                # Check if already exists by title
-                if item["type"] == "resource":
-                    exists = db.query(Resource).filter(Resource.title == item["title"]).first()
-                    if not exists:
-                        new_res = Resource(
-                            title=item["title"],
-                            description=item["description"],
-                            category=item["category"],
-                            provider=item["provider"],
-                            link=item["link"],
-                            is_new=item.get("isNew", False)
-                        )
-                        db.add(new_res)
-                        new_additions.append(item)
-                else:
-                    exists = db.query(LearningPlatform).filter(LearningPlatform.title == item["title"]).first()
-                    if not exists:
-                        new_plat = LearningPlatform(
-                            title=item["title"],
-                            description=item["description"],
-                            category=item["category"],
-                            provider=item["provider"],
-                            duration="12 Weeks",
-                            students="0",
-                            level=item["level"],
-                            link=item["link"],
-                            features=json.dumps(item["features"]),
-                            is_official=True
-                        )
-                        db.add(new_plat)
-                        new_additions.append(item)
-            
+            # 1. CHANNEL: News (Government Schemes)
+            if settings.NEWS_API_KEY:
+                try:
+                    print("📡 Fetching latest Government Schemes from News API...")
+                    news_url = f"https://newsdata.io/api/1/news?apikey={settings.NEWS_API_KEY}&q=government%20scheme%20india&language=en"
+                    res = requests.get(news_url, timeout=10)
+                    if res.status_code == 200:
+                        articles = res.json().get('results', [])
+                        for art in articles:
+                            title = art.get('title', 'New Scheme').split('|')[0].strip()[:150]
+                            # Check duplicates
+                            if not db.query(Resource).filter(Resource.title == title).first():
+                                resource = Resource(
+                                    title=title,
+                                    description=art.get('description') or art.get('content') or "Details available at source.",
+                                    category="agriculture" if "farmer" in title.lower() else "general",
+                                    provider=art.get('source_id', 'Govt Source'),
+                                    link=art.get('link', 'https://www.india.gov.in/'),
+                                    is_new=True
+                                )
+                                db.add(resource)
+                                new_additions.append({"type": "resource", "title": title, "category": resource.category, "link": resource.link})
+                except Exception as e:
+                    print(f"⚠️ News API Error: {str(e)}")
+
+            # 2. CHANNEL: YouTube (Learning Content)
+            if settings.YOUTUBE_API_KEY:
+                try:
+                    print("📺 Fetching latest Skill Development videos from YouTube...")
+                    # Searching for official/high-quality learning content
+                    query = "digital literacy india government skill development"
+                    yt_url = f"https://www.googleapis.com/youtube/v3/search?part=snippet&q={query}&type=video&key={settings.YOUTUBE_API_KEY}&maxResults=5"
+                    res = requests.get(yt_url, timeout=10)
+                    if res.status_code == 200:
+                        videos = res.json().get('items', [])
+                        for vid in videos:
+                            title = vid['snippet']['title'][:150]
+                            video_id = vid['id']['videoId']
+                            link = f"https://www.youtube.com/watch?v={video_id}"
+                            
+                            # Check duplicates
+                            if not db.query(LearningPlatform).filter(LearningPlatform.title == title).first():
+                                platform = LearningPlatform(
+                                    title=title,
+                                    description=vid['snippet']['description'],
+                                    category="digital",
+                                    provider=vid['snippet']['channelTitle'],
+                                    duration="Video",
+                                    students="Live",
+                                    level="Beginner",
+                                    link=link,
+                                    features=json.dumps(["Video Tutorial", "Self-Paced"]),
+                                    is_official=True
+                                )
+                                db.add(platform)
+                                new_additions.append({"type": "platform", "title": title, "category": "Learning", "link": link})
+                except Exception as e:
+                    print(f"⚠️ YouTube API Error: {str(e)}")
+
             if new_additions:
                 db.commit()
-                print(f"✅ Successfully added {len(new_additions)} new market items.")
+                print(f"✅ Successfully added {len(new_additions)} new items from News & YouTube.")
                 # Send mail to admin
                 email_service.send_market_update_notification(new_additions)
             else:
-                print("ℹ️ No new items found in this scan.")
+                print("ℹ️ No new unique items found in this multi-channel scan.")
             
             return new_additions
 
@@ -103,5 +98,5 @@ class MarketScanner:
         finally:
             db.close()
 
-# Singleton instance for background tasks
+# Singleton instance
 market_scanner = MarketScanner()
