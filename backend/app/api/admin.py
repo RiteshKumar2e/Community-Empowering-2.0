@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from typing import List, Optional
 from app.core.database import get_db
-from app.models.models import User, Query, Enrollment, Course, Resource, LearningPlatform
+from app.models.models import User, Query, Enrollment, Course, Resource, LearningPlatform, Feedback
 from app.api.users import get_current_user
 
 router = APIRouter()
@@ -98,7 +98,8 @@ async def get_all_users(
         "language": user.language,
         "community_type": user.community_type,
         "is_active": user.is_active,
-        "created_at": user.created_at.isoformat() if user.created_at else None
+        "created_at": user.created_at.isoformat() if user.created_at else None,
+        "last_login": user.last_login.isoformat() if user.last_login else None
     } for user in users]
 
 @router.get("/queries")
@@ -161,3 +162,75 @@ async def get_admin_stats(
         "totalQueries": total_queries,
         "totalEnrollments": total_enrollments
     }
+
+@router.delete("/users/{user_id}")
+async def delete_user(
+    user_id: int,
+    admin: User = Depends(verify_admin),
+    db: Session = Depends(get_db)
+):
+    """Delete a user account"""
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Check if trying to delete yourself or another admin
+    if user.email == admin.email:
+        raise HTTPException(status_code=400, detail="Cannot delete your own admin account")
+    
+    db.delete(user)
+    db.commit()
+    return {"message": "User deleted successfully"}
+
+@router.get("/feedback")
+async def get_all_feedback(
+    admin: User = Depends(verify_admin),
+    db: Session = Depends(get_db)
+):
+    """Get all user feedback submissions"""
+    feedbacks = db.query(Feedback).order_by(Feedback.created_at.desc()).all()
+    return feedbacks
+
+@router.get("/resources")
+async def get_all_resources(
+    admin: User = Depends(verify_admin),
+    db: Session = Depends(get_db)
+):
+    """Get all resources"""
+    return db.query(Resource).all()
+
+@router.delete("/resources/{resource_id}")
+async def delete_resource(
+    resource_id: int,
+    admin: User = Depends(verify_admin),
+    db: Session = Depends(get_db)
+):
+    """Delete a resource"""
+    resource = db.query(Resource).filter(Resource.id == resource_id).first()
+    if not resource:
+        raise HTTPException(status_code=404, detail="Resource not found")
+    db.delete(resource)
+    db.commit()
+    return {"message": "Resource deleted successfully"}
+
+@router.get("/learning-platforms")
+async def get_all_learning_platforms(
+    admin: User = Depends(verify_admin),
+    db: Session = Depends(get_db)
+):
+    """Get all learning platforms"""
+    return db.query(LearningPlatform).all()
+
+@router.delete("/platforms/{platform_id}")
+async def delete_platform(
+    platform_id: int,
+    admin: User = Depends(verify_admin),
+    db: Session = Depends(get_db)
+):
+    """Delete a platform"""
+    platform = db.query(LearningPlatform).filter(LearningPlatform.id == platform_id).first()
+    if not platform:
+        raise HTTPException(status_code=404, detail="Platform not found")
+    db.delete(platform)
+    db.commit()
+    return {"message": "Platform deleted successfully"}

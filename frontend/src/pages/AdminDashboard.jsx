@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import {
     Users, MessageSquare, BookOpen, Search, TrendingUp, Award,
     Shield, Activity, Database, Globe, AlertCircle, CheckCircle,
-    UserCheck, FileText, BarChart3, Clock
+    UserCheck, FileText, BarChart3, Clock, Trash2, Heart, ExternalLink
 } from 'lucide-react'
 import api from '../services/api'
 import '../styles/AdminDashboard.css'
@@ -46,6 +46,10 @@ const AdminDashboard = () => {
         features: '',
         isOfficial: false
     })
+    const [feedback, setFeedback] = useState([])
+    const [recentActivity, setRecentActivity] = useState([])
+    const [existingResources, setExistingResources] = useState([])
+    const [existingPlatforms, setExistingPlatforms] = useState([])
 
     useEffect(() => {
         // Check if user is admin - more robust check
@@ -60,33 +64,73 @@ const AdminDashboard = () => {
     const fetchAdminData = async () => {
         try {
             setLoading(true)
-            const [usersRes, queriesRes, enrollmentsRes, statsRes] = await Promise.all([
+            const [usersRes, queriesRes, statsRes, feedbackRes, resRes, platformsRes] = await Promise.all([
                 api.get('/admin/users'),
                 api.get('/admin/queries'),
-                api.get('/admin/enrollments'),
-                api.get('/admin/stats')
+                api.get('/admin/stats'),
+                api.get('/admin/feedback'),
+                api.get('/admin/resources'),
+                api.get('/admin/learning-platforms')
             ])
 
             setUsers(usersRes.data || [])
             setRecentQueries(queriesRes.data || [])
-            setRecentEnrollments(enrollmentsRes.data || [])
+            setFeedback(feedbackRes.data || [])
+            setExistingResources(resRes.data || [])
+            setExistingPlatforms(platformsRes.data || [])
 
             setStats({
                 totalUsers: statsRes.data.totalUsers,
                 totalQueries: statsRes.data.totalQueries,
-                totalCourses: statsRes.data.totalEnrollments, // Just using total enrollments as placeholder
-                totalResources: 0,
+                totalCourses: statsRes.data.totalEnrollments,
+                totalResources: resRes.data?.length || 0,
                 activeUsers: statsRes.data.activeUsers,
                 todayQueries: queriesRes.data?.filter(q => {
                     const today = new Date().toDateString()
                     return new Date(q.created_at).toDateString() === today
                 })?.length || 0
             })
+
+            const activity = [
+                ...(usersRes.data || []).map(u => ({ type: 'user', name: u.name, time: u.created_at })),
+                ...(queriesRes.data || []).map(q => ({ type: 'query', name: 'Anonymous', time: q.created_at })),
+                ...(feedbackRes.data || []).map(f => ({ type: 'feedback', name: f.user_name || 'User', time: f.created_at }))
+            ].sort((a, b) => new Date(b.time) - new Date(a.time)).slice(0, 8)
+
+            setRecentActivity(activity)
+
         } catch (error) {
             console.error('Error fetching admin data:', error)
         } finally {
             setLoading(false)
         }
+    }
+
+    const handleDeleteUser = async (userId) => {
+        if (!window.confirm('Are you sure you want to delete this user? This action is permanent.')) return
+        try {
+            await api.delete(`/admin/users/${userId}`)
+            setUsers(users.filter(u => u.id !== userId))
+            alert('User deleted successfully')
+        } catch (error) {
+            alert(error.response?.data?.detail || 'Failed to delete user')
+        }
+    }
+
+    const handleDeleteResource = async (id) => {
+        if (!window.confirm('Delete this resource?')) return
+        try {
+            await api.delete(`/admin/resources/${id}`)
+            setExistingResources(existingResources.filter(r => r.id !== id))
+        } catch (error) { alert('Delete failed') }
+    }
+
+    const handleDeletePlatform = async (id) => {
+        if (!window.confirm('Delete this platform?')) return
+        try {
+            await api.delete(`/admin/platforms/${id}`)
+            setExistingPlatforms(existingPlatforms.filter(p => p.id !== id))
+        } catch (error) { alert('Delete failed') }
     }
 
     const handleResourceSubmit = async (e) => {
@@ -177,6 +221,12 @@ const AdminDashboard = () => {
                     >
                         Users
                     </button>
+                    <button
+                        className={`admin-tab ${activeTab === 'feedback' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('feedback')}
+                    >
+                        Feedback
+                    </button>
                 </div>
 
                 {activeTab === 'overview' && (
@@ -197,21 +247,67 @@ const AdminDashboard = () => {
                                     <div className="stat-label">AI Queries</div>
                                 </div>
                             </div>
+                            <div className="admin-stat-card warning">
+                                <div className="stat-icon"><Heart size={32} /></div>
+                                <div className="stat-details">
+                                    <div className="stat-value">{feedback.length}</div>
+                                    <div className="stat-label">Feedbacks</div>
+                                </div>
+                            </div>
+                            <div className="admin-stat-card info">
+                                <div className="stat-icon"><Database size={32} /></div>
+                                <div className="stat-details">
+                                    <div className="stat-value">{stats.totalResources}</div>
+                                    <div className="stat-label">Resources</div>
+                                </div>
+                            </div>
                         </div>
 
                         <div className="admin-content-grid">
+                            {/* Analytics & Activity */}
+                            <div className="admin-section">
+                                <div className="section-header">
+                                    <h2><Activity size={20} /> Latest Activity</h2>
+                                </div>
+                                <div className="activity-feed">
+                                    {recentActivity.map((act, idx) => (
+                                        <div key={idx} className="activity-item">
+                                            <div className={`activity-icon ${act.type}`}>
+                                                {act.type === 'user' ? <UserCheck size={16} /> :
+                                                    act.type === 'feedback' ? <Heart size={16} /> :
+                                                        <MessageSquare size={16} />}
+                                            </div>
+                                            <div className="activity-info">
+                                                <p>
+                                                    <strong>{act.name}</strong>
+                                                    {act.type === 'user' ? ' joined the community' :
+                                                        act.type === 'feedback' ? ' shared their feedback' :
+                                                            ' consulted the AI Assistant'}
+                                                </p>
+                                                <span>{new Date(act.time).toLocaleString()}</span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                    {recentActivity.length === 0 && <p className="text-muted">No recent activity detected.</p>}
+                                </div>
+                            </div>
+
                             {/* Recent Queries */}
                             <div className="admin-section">
                                 <div className="section-header">
-                                    <h2>Recent AI Queries</h2>
+                                    <h2><MessageSquare size={20} /> Recent AI Queries</h2>
                                 </div>
                                 <div className="queries-list">
-                                    {recentQueries.slice(0, 5).map((query, index) => (
-                                        <div key={index} className="query-item">
-                                            <p><strong>Q:</strong> {query.message}</p>
-                                            <p><strong>A:</strong> {query.response?.substring(0, 100)}...</p>
+                                    {recentQueries.slice(0, 4).map((query, index) => (
+                                        <div key={index} className="query-card-compact">
+                                            <div className="query-meta-top">
+                                                <span className="query-lang">{query.language?.toUpperCase()}</span>
+                                                <span className="query-date">{new Date(query.created_at).toLocaleTimeString()}</span>
+                                            </div>
+                                            <p className="query-text">"{query.message}"</p>
                                         </div>
                                     ))}
+                                    {recentQueries.length === 0 && <p className="text-muted">No queries yet.</p>}
                                 </div>
                             </div>
                         </div>
@@ -320,6 +416,48 @@ const AdminDashboard = () => {
                                 <button type="submit" className="btn btn-success">Add Platform</button>
                             </form>
                         </div>
+
+                        {/* Resource Management List */}
+                        <div className="admin-section full-width">
+                            <div className="section-header">
+                                <h2>Manage Resources</h2>
+                            </div>
+                            <div className="content-manage-list">
+                                {existingResources.map(res => (
+                                    <div key={res.id} className="manage-item">
+                                        <div className="item-info">
+                                            <h4>{res.title}</h4>
+                                            <p>{res.provider} • {res.category}</p>
+                                        </div>
+                                        <div className="item-actions">
+                                            <a href={res.link} target="_blank" rel="noreferrer" className="action-btn"><ExternalLink size={18} /></a>
+                                            <button onClick={() => handleDeleteResource(res.id)} className="action-btn delete"><Trash2 size={18} /></button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Platform Management List */}
+                        <div className="admin-section full-width">
+                            <div className="section-header">
+                                <h2>Manage Platforms</h2>
+                            </div>
+                            <div className="content-manage-list">
+                                {existingPlatforms.map(plat => (
+                                    <div key={plat.id} className="manage-item">
+                                        <div className="item-info">
+                                            <h4>{plat.title}</h4>
+                                            <p>{plat.provider} • {plat.level}</p>
+                                        </div>
+                                        <div className="item-actions">
+                                            <a href={plat.link} target="_blank" rel="noreferrer" className="action-btn"><ExternalLink size={18} /></a>
+                                            <button onClick={() => handleDeletePlatform(plat.id)} className="action-btn delete"><Trash2 size={18} /></button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
                     </div>
                 )}
 
@@ -336,19 +474,61 @@ const AdminDashboard = () => {
                                         <th>Email</th>
                                         <th>Type</th>
                                         <th>Joined</th>
+                                        <th>Last Login</th>
+                                        <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {users.map(u => (
                                         <tr key={u.id}>
-                                            <td>{u.name}</td>
+                                            <td> {u.name}</td>
                                             <td>{u.email}</td>
                                             <td>{u.community_type}</td>
                                             <td>{new Date(u.created_at).toLocaleDateString()}</td>
+                                            <td>{u.last_login ? new Date(u.last_login).toLocaleString() : 'Never'}</td>
+                                            <td>
+                                                <button
+                                                    onClick={() => handleDeleteUser(u.id)}
+                                                    className="btn-delete-small"
+                                                    title="Delete User"
+                                                >
+                                                    <Trash2 size={16} />
+                                                </button>
+                                            </td>
                                         </tr>
                                     ))}
                                 </tbody>
                             </table>
+                        </div>
+                    </div>
+                )}
+
+                {activeTab === 'feedback' && (
+                    <div className="admin-section">
+                        <div className="section-header">
+                            <h2>User Feedback ({feedback.length})</h2>
+                        </div>
+                        <div className="feedback-grid-admin">
+                            {feedback.map((f, i) => (
+                                <div key={i} className="admin-feedback-card">
+                                    <div className="feedback-card-header">
+                                        <div className="user-initial">{f.user_name?.charAt(0)}</div>
+                                        <div className="user-meta">
+                                            <h4>{f.user_name}</h4>
+                                            <span>{f.user_email}</span>
+                                        </div>
+                                        <div className="feedback-rating">
+                                            {'⭐'.repeat(f.rating)}
+                                        </div>
+                                    </div>
+                                    <div className="feedback-category-tag">{f.category}</div>
+                                    <p className="feedback-message">"{f.message}"</p>
+                                    <div className="feedback-footer">
+                                        {new Date(f.created_at).toLocaleString()}
+                                    </div>
+                                </div>
+                            ))}
+                            {feedback.length === 0 && <p className="empty-msg">No feedback received yet.</p>}
                         </div>
                     </div>
                 )}

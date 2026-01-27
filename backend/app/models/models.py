@@ -17,6 +17,7 @@ class User(Base):
     profile_image = Column(String)
     is_admin = Column(Boolean, default=False)
     is_active = Column(Boolean, default=True)
+    last_login = Column(DateTime(timezone=True), nullable=True)
     
     # OTP fields for Google OAuth verification
     google_otp = Column(String, nullable=True)

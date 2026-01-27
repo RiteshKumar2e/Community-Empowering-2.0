@@ -117,6 +117,10 @@ async def login(user_data: UserLogin, db: Session = Depends(get_db)):
             detail="Inactive user"
         )
     
+    # Update last login
+    user.last_login = datetime.now(timezone.utc)
+    db.commit()
+    
     access_token = create_access_token(data={"sub": user.email})
     
     return {
@@ -276,10 +280,11 @@ async def verify_google_otp(otp_data: GoogleOTPVerify, db: Session = Depends(get
         # OTP verified successfully
         print(f"✅ OTP verified for {user.email}")
         
-        # Mark email as verified and clear OTP
+        # Mark email as verified, clear OTP and update login time
         user.google_email_verified = True
         user.google_otp = None
         user.google_otp_expiry = None
+        user.last_login = datetime.now(timezone.utc)
         db.commit()
         db.refresh(user)
         
