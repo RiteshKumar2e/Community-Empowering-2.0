@@ -448,18 +448,87 @@
     }
 
     .chatbot-toggle-btn {
-        width: 65px !important;
-        height: 65px !important;
-        border-radius: 20px !important;
+        width: 60px !important;
+        height: 60px !important;
+        border-radius: 18px !important;
+    }
+
+    .chatbot-toggle-btn svg {
+        font-size: 1.5rem !important;
     }
 
     .chatbot-container {
         width: calc(100vw - 30px) !important;
-        height: 70vh !important;
-        max-height: 500px !important;
+        height: 75vh !important;
+        max-height: 550px !important;
         right: 15px !important;
-        bottom: 80px !important;
+        bottom: 85px !important;
         border-radius: 20px !important;
+    }
+
+    .chatbot-messages {
+        padding: 1.25rem !important;
+    }
+
+    .message {
+        max-width: 90% !important;
+    }
+
+    /* Admin Dashboard Polish */
+    .admin-tabs {
+        width: 100% !important;
+        overflow-x: auto !important;
+        display: flex !important;
+        white-space: nowrap !important;
+        padding-bottom: 5px !important;
+        background: transparent !important;
+        border: none !important;
+        -webkit-overflow-scrolling: touch;
+        gap: 10px !important;
+    }
+
+    .admin-tab {
+        padding: 10px 20px !important;
+        flex-shrink: 0 !important;
+        background: var(--bg-card) !important;
+        border: 1px solid var(--border-color) !important;
+        border-radius: 12px !important;
+    }
+
+    .admin-tab.active {
+        background: var(--primary-500) !important;
+    }
+
+    .admin-management-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Hub Filters Scrollable */
+    .category-filters,
+    .sub-category-filters,
+    .education-sub-filters {
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        padding-bottom: 10px !important;
+        -webkit-overflow-scrolling: touch;
+        margin-left: -1rem !important;
+        margin-right: -1rem !important;
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+        scrollbar-width: none;
+    }
+
+    .category-filters::-webkit-scrollbar,
+    .sub-category-filters::-webkit-scrollbar,
+    .education-sub-filters::-webkit-scrollbar {
+        display: none;
+    }
+
+    .filter-btn,
+    .sub-filter-btn {
+        flex-shrink: 0 !important;
+        white-space: nowrap !important;
+        width: auto !important;
     }
 
     /* Disable Custom Cursor - Essential for Mobile UX */
@@ -469,14 +538,146 @@
         display: none !important;
     }
 
-    /* Better transitions and feel */
-    * {
-        cursor: auto !important;
-        -webkit-tap-highlight-color: transparent;
-    }
-
     .btn:active {
         transform: scale(0.96) !important;
+    }
+
+    /* AI Assistant Interface Fixes (AIAssistant.jsx) */
+    .ai-assistant-page {
+        padding-top: 60px !important;
+        padding-bottom: 0 !important;
+    }
+
+    .assistant-container {
+        height: calc(100svh - 60px) !important;
+        border-radius: 0 !important;
+        margin: 0 !important;
+        border: none !important;
+    }
+
+    .messages-area {
+        padding: var(--space-4) !important;
+    }
+
+    .assistant-header {
+        padding: var(--space-3) var(--space-4) !important;
+    }
+
+    .assistant-header h1 {
+        font-size: 1.1rem !important;
+    }
+
+    .input-area {
+        padding: var(--space-3) var(--space-4) !important;
+    }
+
+    /* Landing Page Section Headers */
+    .section-header h2 {
+        font-size: 1.75rem !important;
+        padding: 0 var(--space-4);
+    }
+
+    .section-header p {
+        font-size: 1rem !important;
+        padding: 0 var(--space-6);
+    }
+
+    /* About Section Grid Fix */
+    .about-grid {
+        grid-template-columns: 1fr !important;
+        gap: var(--space-8) !important;
+    }
+
+    .about-visual {
+        order: -1;
+    }
+
+    /* Team Member Cards Polish */
+    .team-card.premium-member-card {
+        max-width: 100% !important;
+        padding: var(--space-8) var(--space-4) !important;
+        border-radius: 32px !important;
+    }
+
+    .member-name {
+        font-size: 1.75rem !important;
+    }
+
+    /* Mission Section Grid */
+    .mission-content {
+        grid-template-columns: 1fr !important;
+        gap: var(--space-4) !important;
+    }
+
+    /* Dashboard Activity and Recommendations */
+    .dashboard-content-grid {
+        grid-template-columns: 1fr !important;
+        gap: var(--space-4) !important;
+    }
+
+    .dashboard-section {
+        padding: var(--space-4) !important;
+    }
+
+    .recommendation-card {
+        padding: var(--space-3) !important;
+    }
+
+    .recommendation-icon {
+        font-size: 1.5rem !important;
+    }
+
+    /* Form Rows in Admin Dashboard */
+    .form-row {
+        grid-template-columns: 1fr !important;
+        gap: var(--space-3) !important;
+    }
+
+    /* Essential Mobile UX Behaviors */
+    * {
+        cursor: auto !important;
+        -webkit-tap-highlight-color: transparent !important;
+    }
+
+    /* Feedback Page Polish */
+    .feedback-page {
+        padding: 80px 15px 40px !important;
+    }
+
+    .feedback-info h1 {
+        font-size: 2.25rem !important;
+        margin-bottom: 15px !important;
+    }
+
+    .feedback-card {
+        padding: 25px 20px !important;
+        border-radius: 24px !important;
+    }
+
+    .category-tabs {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+    }
+
+    .category-tab {
+        padding: 15px !important;
+    }
+
+    /* OTP Modal Polish */
+    .otp-modal-content {
+        width: 95% !important;
+        padding: 25px 20px !important;
+        margin: 0 10px !important;
+    }
+
+    .otp-inputs {
+        gap: 8px !important;
+    }
+
+    .otp-input {
+        width: 45px !important;
+        height: 55px !important;
+        font-size: 1.5rem !important;
     }
 
     /* Light Theme Overrides for Mobile Menu */
