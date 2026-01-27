@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
     Star,
@@ -17,6 +18,7 @@ import {
 import '../styles/Feedback.css'
 
 const Feedback = () => {
+    const navigate = useNavigate()
     const [category, setCategory] = useState('')
     const [rating, setRating] = useState(0)
     const [hoverRating, setHoverRating] = useState(0)
@@ -90,6 +92,10 @@ const Feedback = () => {
 
             if (response.ok) {
                 setSubmitted(true);
+                // Redirect to dashboard after 2.5 seconds
+                setTimeout(() => {
+                    navigate('/dashboard');
+                }, 2500);
             } else {
                 const errorData = await response.json();
                 alert(errorData.detail || 'Failed to submit feedback.');
@@ -135,6 +141,9 @@ const Feedback = () => {
                         <h1 className="success-title">Insights Received!</h1>
                         <p className="success-text">
                             Thank you for helping us evolve. Your feedback is already on its way to our team for review.
+                        </p>
+                        <p className="mt-4" style={{ color: '#10b981', fontWeight: 600 }}>
+                            Redirecting to dashboard...
                         </p>
                         <button
                             className="btn btn-primary mt-4"
