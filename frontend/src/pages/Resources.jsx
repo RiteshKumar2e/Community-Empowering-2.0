@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useLanguage } from '../contexts/LanguageContext'
-import { Search, Filter, ExternalLink, Building, Users, Briefcase, GraduationCap, Heart, Home, Leaf, BookOpen, Award } from 'lucide-react'
+import { Search, Filter, ExternalLink, Building, Users, Briefcase, GraduationCap, Heart, Home, Leaf, BookOpen, Award, Baby, Accessibility, Rocket } from 'lucide-react'
 import api from '../services/api'
 import '../styles/Resources.css'
 
@@ -30,7 +30,10 @@ const Resources = () => {
         { value: 'healthcare', label: 'Healthcare', icon: <Heart size={18} /> },
         { value: 'housing', label: 'Housing', icon: <Home size={18} /> },
         { value: 'agriculture', label: 'Agriculture', icon: <Leaf size={18} /> },
-        { value: 'jobs', label: 'Employment', icon: <Briefcase size={18} /> }
+        { value: 'jobs', label: 'Employment', icon: <Briefcase size={18} /> },
+        { value: 'women', label: 'Women & Child', icon: <Baby size={18} /> },
+        { value: 'disability', label: 'Disability Support', icon: <Accessibility size={18} /> },
+        { value: 'startup', label: 'Startups & Business', icon: <Rocket size={18} /> }
     ]
 
     // Real Government Resources and Schemes - 60+ Verified Items
@@ -541,6 +544,350 @@ const Resources = () => {
             eligibility: "SC, OBC, EBC and Safai Karamcharis",
             link: "https://pmdaksh.dosje.gov.in/",
             provider: "Ministry of Social Justice"
+        },
+
+        // --- WOMEN & CHILD ---
+        {
+            title: "Pradhan Mantri Matru Vandana Yojana",
+            description: "Maternity benefit program providing cash incentives for pregnant and lactating mothers.",
+            category: "women",
+            eligibility: "Pregnant and lactating mothers",
+            link: "https://pmmvy.wcd.gov.in/",
+            provider: "Ministry of Women & Child Development"
+        },
+        {
+            title: "Mahila Coir Yojana",
+            description: "Skill development program for women artisans in the coir industry.",
+            category: "women",
+            eligibility: "Rural women and artisans",
+            link: "https://coirboard.gov.in/",
+            provider: "Coir Board"
+        },
+        {
+            title: "STEP Scheme",
+            description: "Support to Training and Employment Programme for Women to provide skills that lead to employability.",
+            category: "women",
+            eligibility: "Women aged 16 years and above",
+            link: "https://wcd.nic.in/schemes/support-training-and-employment-programme-women-step",
+            provider: "Ministry of Women & Child Development"
+        },
+        {
+            title: "Mahila Shakti Kendra",
+            description: "Empowering rural women through community participation and providing convergence of government schemes.",
+            category: "women",
+            eligibility: "Rural women in identified districts",
+            link: "https://wcd.nic.in/",
+            provider: "Ministry of Women & Child Development"
+        },
+        {
+            title: "One Stop Centre Scheme",
+            description: "Support for women affected by violence, in private and public spaces, within the family, community and at the workplace.",
+            category: "women",
+            eligibility: "All women facing violence",
+            link: "https://wcd.nic.in/",
+            provider: "Ministry of Women & Child Development"
+        },
+        {
+            title: "Nari Shakti Puraskar",
+            description: "Highest civilian honor for women in India, recognizing exceptional achievements and contributions.",
+            category: "women",
+            eligibility: "Women and institutions working for women's empowerment",
+            link: "https://narishaktipuraskar.wcd.gov.in/",
+            provider: "Ministry of Women & Child Development"
+        },
+        {
+            title: "Working Women Hostel",
+            description: "Providing safe and affordable accommodation for working women with daycare facilities for their children.",
+            category: "women",
+            eligibility: "Working women, trainees under training for job",
+            link: "https://wcd.nic.in/",
+            provider: "Ministry of Women & Child Development"
+        },
+
+        // --- DISABILITY SUPPORT ---
+        {
+            title: "ADIP Scheme",
+            description: "Assistance to Disabled Persons for Purchase/Fitting of Aids and Appliances (ADIP).",
+            category: "disability",
+            eligibility: "Persons with 40% or more disability, monthly income < ₹20,000",
+            link: "https://depwd.gov.in/",
+            provider: "Department of Empowerment of Persons with Disabilities"
+        },
+        {
+            title: "National Fellowship for Students with Disabilities",
+            description: "Fellowship for students with disabilities to pursue M.Phil and Ph.D. programs.",
+            category: "disability",
+            eligibility: "Students with disabilities pursuing higher education",
+            link: "https://www.ugc.ac.in/",
+            provider: "UGC / Ministry of Social Justice"
+        },
+        {
+            title: "Deendayal Disabled Rehabilitation Scheme",
+            description: "Financial assistance to NGOs for providing education, vocational training and rehabilitation of persons with disabilities.",
+            category: "disability",
+            eligibility: "NGOs and PwD beneficiaries",
+            link: "https://socialjustice.gov.in/",
+            provider: "Ministry of Social Justice"
+        },
+        {
+            title: "Unique Disability ID (UDID)",
+            description: "Creation of a national database for PwDs and providing a unique ID card for accessing government benefits.",
+            category: "disability",
+            eligibility: "All persons with disabilities",
+            link: "https://www.swavlambancard.gov.in/",
+            provider: "DEPwD"
+        },
+        {
+            title: "Sugamya Bharat Abhiyan",
+            description: "Accessible India Campaign to make the built environment, transport system, and ICT ecosystem accessible for PwDs.",
+            category: "disability",
+            eligibility: "All citizens (infrastructure focus)",
+            link: "https://accessibleindia.gov.in/",
+            provider: "Government of India"
+        },
+        {
+            title: "NHFDC Loan Schemes",
+            description: "Concessional loans for persons with disabilities for starting small businesses or professional education.",
+            category: "disability",
+            eligibility: "Persons with disabilities aged 18-60",
+            link: "http://www.nhfdc.nic.in/",
+            provider: "National Handicapped Finance and Development Corp"
+        },
+
+        // --- STARTUPS & BUSINESS ---
+        {
+            title: "Startup India Seed Fund Scheme",
+            description: "Financial assistance to startups for proof of concept, prototype development, product trials, and market entry.",
+            category: "startup",
+            eligibility: "Startups recognized by DPIIT",
+            link: "https://seedfund.startupindia.gov.in/",
+            provider: "Department for Promotion of Industry and Internal Trade"
+        },
+        {
+            title: "ASPIRE Scheme",
+            description: "A Scheme for Promotion of Innovation, Rural Industries and Entrepreneurship.",
+            category: "startup",
+            eligibility: "Entrepreneurs and MSMEs",
+            link: "https://aspire.msme.gov.in/",
+            provider: "Ministry of MSME"
+        },
+        {
+            title: "SFURTI Scheme",
+            description: "Scheme of Fund for Regeneration of Traditional Industries for making traditional industries more productive and competitive.",
+            category: "startup",
+            eligibility: "Traditional industry clusters, NGOs, SHGs",
+            link: "https://sfurti.msme.gov.in/",
+            provider: "Ministry of MSME"
+        },
+        {
+            title: "CLCS-TU Scheme",
+            description: "Credit Linked Capital Subsidy and Technology Upgradation Scheme for MSMEs.",
+            category: "startup",
+            eligibility: "Micro and Small Enterprises",
+            link: "https://msme.gov.in/",
+            provider: "Ministry of MSME"
+        },
+        {
+            title: "ZED Certification Scheme",
+            description: "Zero Defect Zero Effect (ZED) Certification for MSMEs to encourage quality and environmental sustainability.",
+            category: "startup",
+            eligibility: "MSMEs with valid Udyam Registration",
+            link: "https://zed.msme.gov.in/",
+            provider: "Ministry of MSME"
+        },
+        {
+            title: "SAMRIDH Scheme",
+            description: "Startup Accelerator of MeitY for Product Innovation, Development and growth.",
+            category: "startup",
+            eligibility: "Startups and Accelerators",
+            link: "https://www.meity.gov.in/",
+            provider: "Ministry of Electronics & IT"
+        },
+        {
+            title: "Mudra Loan Program",
+            description: "Refinance support to banks for lending to micro-units in manufacturing, trading, and service sectors.",
+            category: "startup",
+            eligibility: "Small businesses and entrepreneurs",
+            link: "https://www.mudra.org.in/",
+            provider: "MUDRA Bank"
+        },
+
+        // --- ADDITIONAL RESOURCES ---
+        {
+            title: "Digital India BPO Promotion Scheme",
+            description: "Incentives to BPO/ITES operations in small towns and cities to create employment.",
+            category: "jobs",
+            eligibility: "IT/ITES companies",
+            link: "https://meity.gov.in/ibps",
+            provider: "MeitY"
+        },
+        {
+            title: "PLI for Electronics",
+            description: "Production Linked Incentive scheme for large scale electronics manufacturing in India.",
+            category: "startup",
+            eligibility: "Manufacturing companies",
+            link: "https://www.meity.gov.in/",
+            provider: "Ministry of IT"
+        },
+        {
+            title: "RKVY-RAFTAAR",
+            description: "Rashtriya Krishi Vikas Yojana - Remunerative Approaches for Agriculture and Allied Sectors Rejuvenation.",
+            category: "agriculture",
+            eligibility: "States and Farmer Groups",
+            link: "https://rkvy.nic.in/",
+            provider: "Ministry of Agriculture"
+        },
+        {
+            title: "PM-ABHIM",
+            description: "PM Ayushman Bharat Health Infrastructure Mission for strengthening health systems across levels.",
+            category: "healthcare",
+            eligibility: "General Public / Health Institutions",
+            link: "https://nhm.gov.in/",
+            provider: "Ministry of Health"
+        },
+        {
+            title: "Ayushman Bhava",
+            description: "Campaign to ensure optimum delivery of health schemes to every intended beneficiary.",
+            category: "healthcare",
+            eligibility: "All citizens",
+            link: "https://ayushmanbhava.mohfw.gov.in/",
+            provider: "National Health Authority"
+        },
+        {
+            title: "SVAMITVA Scheme",
+            description: "Survey of Villages and Mapping with Improvised Technology in Village Areas for property validation.",
+            category: "schemes",
+            eligibility: "Rural property owners",
+            link: "https://svamitva.nic.in/",
+            provider: "Ministry of Panchayati Raj"
+        },
+        {
+            title: "PM-PRANAM",
+            description: "PM Programme for Restoration, Awareness, Nourishment and Amelioration of Mother Earth (Reduction of Chemical Fertilizers).",
+            category: "agriculture",
+            eligibility: "Farmers and State Governments",
+            link: "https://fert.nic.in/",
+            provider: "Ministry of Chemicals & Fertilizers"
+        },
+        {
+            title: "Namami Gange",
+            description: "Integrated Conservation Mission to check pollution, conservation and rejuvenation of National River Ganga.",
+            category: "schemes",
+            eligibility: "General Public / Communities along Ganga",
+            link: "https://nmcg.nic.in/",
+            provider: "National Mission for Clean Ganga"
+        },
+        {
+            title: "PM Van Dhan Yojana",
+            description: "Livelihood generation for tribals by harnessing non-timber forest produce.",
+            category: "jobs",
+            eligibility: "Tribal gatherers and SHGs",
+            link: "https://trifed.tribal.gov.in/",
+            provider: "TRIFED"
+        },
+        {
+            title: "National Digital Health Mission",
+            description: "Digital health ecosystem for India, including ABHA (Health ID) and digital health records.",
+            category: "healthcare",
+            eligibility: "All Indian citizens",
+            link: "https://abdm.gov.in/",
+            provider: "NHA"
+        },
+        {
+            title: "E-Shram Card",
+            description: "Registration of unorganized workers to facilitate social security benefits and accidental insurance cover.",
+            category: "schemes",
+            eligibility: "Unorganized workers aged 16-59",
+            link: "https://eshram.gov.in/",
+            provider: "Ministry of Labour & Employment"
+        },
+        {
+            title: "PM SHRI Schools",
+            description: "PM Schools for Rising India - upgraded schools with modern infrastructure and pedagogical techniques.",
+            category: "education",
+            eligibility: "Students in government schools",
+            link: "https://pmshrischools.education.gov.in/",
+            provider: "Ministry of Education"
+        },
+        {
+            title: "National Apprenticeship Promotion Scheme",
+            description: "Incentivizing employers to engage apprentices and providing training for youth.",
+            category: "jobs",
+            eligibility: "Apprentices and Training Providers",
+            link: "https://www.apprenticeshipindia.gov.in/",
+            provider: "MSDE"
+        },
+        {
+            title: "Operation Greens",
+            description: "Integrated development of Tomato, Onion and Potato (TOP) value chain to prevent price volatility.",
+            category: "agriculture",
+            eligibility: "Farmers and Food Processors",
+            link: "https://mofpi.gov.in/",
+            provider: "Ministry of Food Processing"
+        },
+        {
+            title: "PM DevINE",
+            description: "Prime Minister’s Development Initiative for North East Region to fund infrastructure and social development projects.",
+            category: "schemes",
+            eligibility: "NE Region projects and communities",
+            link: "https://mdoner.gov.in/",
+            provider: "MDoNER"
+        },
+        {
+            title: "Mahila Samman Saving Certificate",
+            description: "Small savings scheme for women with attractive interest rates and partial withdrawal options.",
+            category: "women",
+            eligibility: "Women and Girl Child",
+            link: "https://www.indiapost.gov.in/",
+            provider: "Department of Posts"
+        },
+        {
+            title: "MISHTI Scheme",
+            description: "Mangrove Initiative for Shoreline Habitats & Tangible Incomes for mangrove plantation along coastline.",
+            category: "schemes",
+            eligibility: "Coastal communities and environmental agencies",
+            link: "https://moef.gov.in/",
+            provider: "Ministry of Environment & Forests"
+        },
+        {
+            title: "Amrit Bharat Station Scheme",
+            description: "Modernization of railway stations across the country with enhanced passenger amenities.",
+            category: "housing",
+            eligibility: "Rail passengers",
+            link: "https://indianrailways.gov.in/",
+            provider: "Ministry of Railways"
+        },
+        {
+            title: "PM-Jivan Jyoti Bima Yojana",
+            description: "Life insurance cover of ₹2 lakh for savings bank account holders for an annual premium of ₹436.",
+            category: "schemes",
+            eligibility: "Bank account holders aged 18-50",
+            link: "https://jansuraksha.gov.in/",
+            provider: "Ministry of Finance"
+        },
+        {
+            title: "NSAP (Social Assistance)",
+            description: "Financial assistance to the elderly, widows and persons with disabilities in the form of social pensions.",
+            category: "schemes",
+            eligibility: "BPL households, senior citizens, widows",
+            link: "https://nsap.nic.in/",
+            provider: "Ministry of Rural Development"
+        },
+        {
+            title: "Atal Bhujal Yojana",
+            description: "Sustainable management of ground water resources with community participation.",
+            category: "agriculture",
+            eligibility: "Gram Panchayats in identified regions",
+            link: "https://ataljal.mowr.gov.in/",
+            provider: "Ministry of Jal Shakti"
+        },
+        {
+            title: "National Logistics Policy",
+            description: "Reducing cost of logistics and improving efficiency for global competitiveness of Indian products.",
+            category: "startup",
+            eligibility: "Logistics companies and entrepreneurs",
+            link: "https://logistics.gov.in/",
+            provider: "DPIIT"
         }
     ]
 
@@ -625,7 +972,7 @@ const Resources = () => {
                             <Search size={24} />
                         </div>
                         <div className="stat-content">
-                            <div className="stat-number">7</div>
+                            <div className="stat-number">10</div>
                             <div className="stat-label">Categories</div>
                         </div>
                     </div>
@@ -704,7 +1051,10 @@ const Resources = () => {
                                             resource.category === 'healthcare' ? 'error' :
                                                 resource.category === 'housing' ? 'warning' :
                                                     resource.category === 'agriculture' ? 'success' :
-                                                        'secondary'
+                                                        resource.category === 'women' ? 'primary' :
+                                                            resource.category === 'disability' ? 'info' :
+                                                                resource.category === 'startup' ? 'success' :
+                                                                    'secondary'
                                         }`}>
                                         {resource.category}
                                     </span>
