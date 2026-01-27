@@ -238,9 +238,15 @@ const Feedback = () => {
 
                             <textarea
                                 className="modern-textarea"
-                                placeholder="Describe your experience or suggest an improvement..."
+                                placeholder="Describe your experience or suggest an improvement... (Press Enter to submit)"
                                 value={message}
                                 onChange={(e) => setMessage(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' && !e.shiftKey) {
+                                        e.preventDefault();
+                                        handleSubmit(e);
+                                    }
+                                }}
                                 required
                             />
 
