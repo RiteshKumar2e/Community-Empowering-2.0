@@ -1,16 +1,17 @@
+import os
 from pydantic_settings import BaseSettings
 from pydantic import validator
-from typing import List
+from typing import List, Optional
 
 class Settings(BaseSettings):
     # App Settings
     APP_NAME: str = "Community AI Platform"
     DEBUG: bool = True
     
-    # Security
-    SECRET_KEY: str = "your-secret-key-change-in-production"
+    # Security - Fixed key to prevent session loss on redeploy
+    SECRET_KEY: str = os.getenv("SECRET_KEY", "community-ai-platform-super-stable-key-123-fixed")
     ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # 7 days
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 30  # 30 days
     
     # CORS
     ALLOWED_ORIGINS: List[str] = [
@@ -32,15 +33,22 @@ class Settings(BaseSettings):
             return v
         return v
     
-    # Database
-    DATABASE_URL: str = "sqlite:///./community_ai.db"
+    # Database - Handle Render Postgres URL format (postgres:// -> postgresql://)
+    _db_url: str = os.getenv("DATABASE_URL", "sqlite:///./community_ai.db")
+    
+    @property
+    def DATABASE_URL(self) -> str:
+        url = self._db_url
+        if url.startswith("postgres://"):
+            url = url.replace("postgres://", "postgresql://", 1)
+        return url
     
     # AI & Service API Keys
-    GROQ_API_KEY: str = ""
-    GEMINI_API_KEY: str = ""
-    BREVO_API_KEY: str = ""
-    NEWS_API_KEY: str = ""
-    YOUTUBE_API_KEY: str = ""
+    GROQ_API_KEY: str = os.getenv("GROQ_API_KEY", "")
+    GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
+    BREVO_API_KEY: str = os.getenv("BREVO_API_KEY", "")
+    NEWS_API_KEY: str = os.getenv("NEWS_API_KEY", "")
+    YOUTUBE_API_KEY: str = os.getenv("YOUTUBE_API_KEY", "")
     PIB_RSS_URL: str = "https://pib.gov.in/RssMain.aspx?ModId=6"
     GOOGLE_CLIENT_ID: str = "951248037202-st6tgbo07tjljditc95n7kuvgqr7a7mg.apps.googleusercontent.com"
 
@@ -50,6 +58,12 @@ class Settings(BaseSettings):
         if not self.BREVO_API_KEY: missing.append("BREVO_API_KEY (for emails)")
         if not self.GEMINI_API_KEY and not self.GROQ_API_KEY: missing.append("AI_API_KEY (for Chatbot)")
         
+        if self.DATABASE_URL.startswith("sqlite"):
+            print("\n" + "-"*50)
+            print("ℹ️  Using SQLite. Note: On Render, data clears on redeploy.")
+            print("   To persist data, use Render Postgres or a Persistent Disk.")
+            print("-"*50 + "\n")
+            
         if missing:
             print("\n" + "!"*50)
             print(f"⚠️ WARNING: Missing essential configuration:")
