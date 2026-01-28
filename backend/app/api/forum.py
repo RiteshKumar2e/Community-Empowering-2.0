@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from pydantic import BaseModel
@@ -150,7 +151,7 @@ async def get_discussions(
     elif filter_type == "unanswered":
         # Get discussions with no replies
         query = query.outerjoin(ForumReply).group_by(ForumDiscussion.id).having(
-            db.func.count(ForumReply.id) == 0
+            func.count(ForumReply.id) == 0
         )
     elif filter_type == "popular":
         query = query.order_by(ForumDiscussion.views.desc())
@@ -334,7 +335,7 @@ async def get_forum_stats(
     active_discussions = db.query(ForumDiscussion).filter(
         ForumDiscussion.status == "active"
     ).count()
-    total_views = db.query(db.func.sum(ForumDiscussion.views)).scalar() or 0
+    total_views = db.query(func.sum(ForumDiscussion.views)).scalar() or 0
     
     stats = {
         "total_discussions": total_discussions,

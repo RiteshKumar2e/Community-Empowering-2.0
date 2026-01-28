@@ -21,7 +21,14 @@ import '../styles/Forum.css'
 
 const Forum = () => {
     const { user } = useAuth()
-    const [categories, setCategories] = useState([])
+    const [categories, setCategories] = useState([
+        { id: 1, name: "Community Support", icon: "🤝", color: "#6366f1" },
+        { id: 2, name: "Social Impact", icon: "❤️", color: "#f59e0b" },
+        { id: 3, name: "Local Resources", icon: "📍", color: "#10b981" },
+        { id: 4, name: "Skill Building", icon: "🎓", color: "#8b5cf6" },
+        { id: 5, name: "Success Stories", icon: "🏆", color: "#facc15" },
+        { id: 6, name: "General Help", icon: "💬", color: "#64748b" }
+    ])
     const [discussions, setDiscussions] = useState([])
     const [stats, setStats] = useState(null)
     const [loading, setLoading] = useState(true)
@@ -61,7 +68,9 @@ const Forum = () => {
         try {
             // Fetch categories
             const categoriesRes = await api.get('/forum/categories')
-            setCategories(Array.isArray(categoriesRes.data) ? categoriesRes.data : [])
+            if (Array.isArray(categoriesRes.data) && categoriesRes.data.length > 0) {
+                setCategories(categoriesRes.data)
+            }
 
             // Fetch discussions
             let url = `/forum/discussions?filter_type=${filterType}`
@@ -80,7 +89,6 @@ const Forum = () => {
 
         } catch (error) {
             console.error('Error fetching forum data:', error)
-            setCategories([])
             setDiscussions([])
         } finally {
             setLoading(false)
