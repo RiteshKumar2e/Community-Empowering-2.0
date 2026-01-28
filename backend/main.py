@@ -45,10 +45,48 @@ app.include_router(feedback.router, prefix="/api/feedback", tags=["Feedback"])
 app.include_router(tracking.router, prefix="/api/tracking", tags=["Tracking"])
 app.include_router(forum.router, tags=["Forum"])
 
+async def seed_database():
+    """Seed initial data if database is empty"""
+    from app.core.database import SessionLocal
+    from app.models.models import ForumCategory
+    
+    db = SessionLocal()
+    try:
+        # Check and add categories individually
+        print("🌱 Checking forum categories...")
+        categories = [
+            {"name": "Community Support", "description": "Get help from fellow community members", "icon": "🤝", "color": "#6366f1"},
+            {"name": "Social Impact", "description": "Discuss projects making a difference", "icon": "❤️", "color": "#f59e0b"},
+            {"name": "Local Resources", "description": "Find and share local services and tools", "icon": "📍", "color": "#10b981"},
+            {"name": "Skill Building", "description": "Learn and share new talents", "icon": "🎓", "color": "#8b5cf6"},
+            {"name": "Success Stories", "description": "Share your wins and milestones", "icon": "🏆", "color": "#facc15"},
+            {"name": "General Help", "description": "Misc community discussions", "icon": "💬", "color": "#64748b"}
+        ]
+        
+        for cat_data in categories:
+            exists = db.query(ForumCategory).filter(ForumCategory.name == cat_data["name"]).first()
+            if not exists:
+                print(f"  + Adding category: {cat_data['name']}")
+                db.add(ForumCategory(**cat_data))
+        
+        db.commit()
+        print("✅ Forum categories checked/updated!")
+    except Exception as e:
+        print(f"❌ Error seeding database: {e}")
+        db.rollback()
+    finally:
+        db.close()
+
 @app.on_event("startup")
 async def startup_event():
     # Check configuration
     settings.check_keys()
+    
+    # Create tables separately to be safe
+    Base.metadata.create_all(bind=engine)
+    
+    # Seed data
+    await seed_database()
     
     # Run market scan in background on startup to ensure fresh data
     print("🔔 Server starting... Initiating background market scan.")

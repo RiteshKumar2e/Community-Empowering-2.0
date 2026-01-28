@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../contexts/AuthContext'
+import api from '../services/api'
 import {
     MessageSquare,
     Plus,
@@ -17,8 +18,6 @@ import {
     ChevronDown
 } from 'lucide-react'
 import '../styles/Forum.css'
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
 const Forum = () => {
     const { user } = useAuth()
@@ -60,49 +59,30 @@ const Forum = () => {
 
     const fetchData = async () => {
         try {
-            const token = localStorage.getItem('token')
-            const headers = {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
-
             // Fetch categories
-            const categoriesRes = await fetch(`${API_URL}/api/forum/categories`, { headers })
-            if (categoriesRes.ok) {
-                const categoriesData = await categoriesRes.json()
-                setCategories(Array.isArray(categoriesData) ? categoriesData : [])
-            } else {
-                setCategories([])
-            }
+            const categoriesRes = await api.get('/forum/categories')
+            setCategories(Array.isArray(categoriesRes.data) ? categoriesRes.data : [])
 
             // Fetch discussions
-            let url = `${API_URL}/api/forum/discussions?filter_type=${filterType}`
+            let url = `/forum/discussions?filter_type=${filterType}`
             if (selectedCategory) {
                 url += `&category_id=${selectedCategory}`
             }
             if (selectedTags.length > 0) {
                 url += `&tags=${encodeURIComponent(selectedTags.join(','))}`
             }
-            const discussionsRes = await fetch(url, { headers })
-            if (discussionsRes.ok) {
-                const discussionsData = await discussionsRes.json()
-                setDiscussions(Array.isArray(discussionsData) ? discussionsData : [])
-            } else {
-                setDiscussions([])
-            }
+            const discussionsRes = await api.get(url)
+            setDiscussions(Array.isArray(discussionsRes.data) ? discussionsRes.data : [])
 
             // Fetch stats
-            const statsRes = await fetch(`${API_URL}/api/forum/stats`, { headers })
-            if (statsRes.ok) {
-                const statsData = await statsRes.json()
-                setStats(statsData)
-            }
+            const statsRes = await api.get('/forum/stats')
+            setStats(statsRes.data)
 
-            setLoading(false)
         } catch (error) {
             console.error('Error fetching forum data:', error)
             setCategories([])
             setDiscussions([])
+        } finally {
             setLoading(false)
         }
     }
@@ -110,30 +90,22 @@ const Forum = () => {
     const handleCreateDiscussion = async (e) => {
         e.preventDefault()
         try {
-            const token = localStorage.getItem('token')
             const tags = newDiscussion.tags.split(',').map(t => t.trim()).filter(t => t)
 
-            const response = await fetch(`${API_URL}/api/forum/discussions`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    title: newDiscussion.title,
-                    content: newDiscussion.content,
-                    category_id: parseInt(newDiscussion.category_id),
-                    tags: tags
-                })
+            await api.post('/forum/discussions', {
+                title: newDiscussion.title,
+                content: newDiscussion.content,
+                category_id: parseInt(newDiscussion.category_id),
+                tags: tags
             })
 
-            if (response.ok) {
-                setShowNewDiscussion(false)
-                setNewDiscussion({ title: '', content: '', category_id: '', tags: '' })
-                fetchData()
-            }
+            setShowNewDiscussion(false)
+            setNewDiscussion({ title: '', content: '', category_id: '', tags: '' })
+            fetchData()
+            alert('Discussion posted successfully!')
         } catch (error) {
             console.error('Error creating discussion:', error)
+            alert(error.response?.data?.detail || 'Failed to post discussion')
         }
     }
 
@@ -535,20 +507,19 @@ const Forum = () => {
                             </div>
                             <div className="form-group">
                                 <label>Select Category</label>
-                                <div className="category-selector-grid">
+                                <select
+                                    className="category-dropdown-select"
+                                    value={newDiscussion.category_id}
+                                    onChange={(e) => setNewDiscussion({ ...newDiscussion, category_id: e.target.value })}
+                                    required
+                                >
+                                    <option value="" disabled>Choose a category...</option>
                                     {categories.map(cat => (
-                                        <button
-                                            key={cat.id}
-                                            type="button"
-                                            className={`category-select-item ${newDiscussion.category_id == cat.id ? 'active' : ''}`}
-                                            onClick={() => setNewDiscussion({ ...newDiscussion, category_id: cat.id })}
-                                            style={{ '--cat-color': cat.color || '#667eea' }}
-                                        >
-                                            <span className="cat-icon">{cat.icon}</span>
-                                            <span className="cat-name">{cat.name}</span>
-                                        </button>
+                                        <option key={cat.id} value={cat.id}>
+                                            {cat.icon} {cat.name}
+                                        </option>
                                     ))}
-                                </div>
+                                </select>
                             </div>
                             <div className="form-group">
                                 <label>Content</label>

@@ -52,6 +52,13 @@ const AdminDashboard = () => {
     const [existingResources, setExistingResources] = useState([])
     const [existingPlatforms, setExistingPlatforms] = useState([])
     const [isScanning, setIsScanning] = useState(false)
+    const [forumCategories, setForumCategories] = useState([])
+    const [newForumCategory, setNewForumCategory] = useState({
+        name: '',
+        description: '',
+        icon: '💬',
+        color: '#6366f1'
+    })
 
     useEffect(() => {
         // Check if user is admin - more robust check
@@ -103,10 +110,28 @@ const AdminDashboard = () => {
 
             setRecentActivity(activity)
 
+            // Fetch forum categories
+            try {
+                const catRes = await api.get('/forum/categories')
+                setForumCategories(catRes.data || [])
+            } catch (err) { console.error('Error fetching forum categories:', err) }
+
         } catch (error) {
             console.error('Error fetching admin data:', error)
         } finally {
             setLoading(false)
+        }
+    }
+
+    const handleCreateForumCategory = async (e) => {
+        e.preventDefault()
+        try {
+            const res = await api.post('/forum/categories', newForumCategory)
+            setForumCategories([...forumCategories, res.data])
+            setNewForumCategory({ name: '', description: '', icon: '💬', color: '#6366f1' })
+            alert('Category created successfully!')
+        } catch (error) {
+            alert(error.response?.data?.detail || 'Failed to create category')
         }
     }
 
@@ -604,69 +629,126 @@ const AdminDashboard = () => {
                 {activeTab === 'forum' && (
                     <div className="admin-section">
                         <div className="section-header">
-                            <h2>Forum Moderation ({discussions.length} Topics)</h2>
+                            <h2>Forum Management</h2>
                         </div>
-                        <div className="admin-table-container">
-                            <table className="admin-table">
-                                <thead>
-                                    <tr>
-                                        <th>Title</th>
-                                        <th>Author</th>
-                                        <th>Category</th>
-                                        <th>Engagement</th>
-                                        <th>Posted</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {discussions.map(d => (
-                                        <tr key={d.id}>
-                                            <td className="title-cell">
-                                                <div className="topic-title">{d.title}</div>
-                                                <small className="topic-meta">{d.reply_count} replies • {d.views} views</small>
-                                            </td>
-                                            <td>
-                                                <div className="author-info">
-                                                    <div>{d.user_name}</div>
-                                                    <small className="text-muted">{d.user_email}</small>
-                                                </div>
-                                            </td>
-                                            <td><span className="badge-category">{d.category_name}</span></td>
-                                            <td>
-                                                {d.is_featured ? (
-                                                    <span className="status-badge featured">Featured</span>
-                                                ) : (
-                                                    <span className="status-badge text-muted">Standard</span>
-                                                )}
-                                            </td>
-                                            <td>{d.created_at}</td>
-                                            <td>
-                                                <div className="action-row">
-                                                    <button
-                                                        onClick={() => handleToggleFeature(d.id)}
-                                                        className={`action-btn-mini ${d.is_featured ? 'active' : ''}`}
-                                                        title={d.is_featured ? "Unfeature" : "Feature"}
-                                                    >
-                                                        <Award size={16} />
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleDeleteDiscussion(d.id)}
-                                                        className="action-btn-mini delete"
-                                                        title="Delete Thread"
-                                                    >
-                                                        <Trash2 size={16} />
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                    {discussions.length === 0 && (
+
+                        {/* Summary Stats */}
+                        <div className="forum-admin-intro">
+                            <div className="intro-card">
+                                <h3>{discussions.length}</h3>
+                                <span>Total Discussions</span>
+                            </div>
+                            <div className="intro-card">
+                                <h3>{forumCategories.length}</h3>
+                                <span>Categories</span>
+                            </div>
+                        </div>
+
+                        {/* Category Creation Form */}
+                        <div className="admin-subsection">
+                            <h3>Add New Forum Category</h3>
+                            <form onSubmit={handleCreateForumCategory} className="admin-form forum-cat-form">
+                                <div className="form-row">
+                                    <input
+                                        type="text"
+                                        placeholder="Category Name (e.g. Community Support)"
+                                        value={newForumCategory.name}
+                                        onChange={e => setNewForumCategory({ ...newForumCategory, name: e.target.value })}
+                                        required
+                                    />
+                                    <div className="form-row-mini">
+                                        <input
+                                            type="text"
+                                            placeholder="Emoji (Icon)"
+                                            value={newForumCategory.icon}
+                                            onChange={e => setNewForumCategory({ ...newForumCategory, icon: e.target.value })}
+                                            className="icon-input"
+                                        />
+                                        <input
+                                            type="color"
+                                            value={newForumCategory.color}
+                                            onChange={e => setNewForumCategory({ ...newForumCategory, color: e.target.value })}
+                                            title="Choose category color"
+                                        />
+                                    </div>
+                                </div>
+                                <textarea
+                                    placeholder="Brief description..."
+                                    value={newForumCategory.description}
+                                    onChange={e => setNewForumCategory({ ...newForumCategory, description: e.target.value })}
+                                />
+                                <button type="submit" className="btn-scan">Create Category</button>
+                            </form>
+                        </div>
+
+                        <div className="admin-subsection">
+                            <h3>Recent Discussions</h3>
+                            <div className="admin-table-container">
+                                <table className="admin-table">
+                                    <thead>
                                         <tr>
-                                            <td colSpan="6" className="text-center py-4">No forum discussions yet.</td>
+                                            <th>Title</th>
+                                            <th>Author</th>
+                                            <th>Category</th>
+                                            <th>Engagement</th>
+                                            <th>Posted</th>
+                                            <th>Actions</th>
                                         </tr>
-                                    )}
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody>
+                                        {discussions.map(d => (
+                                            <tr key={d.id}>
+                                                <td className="title-cell">
+                                                    <div className="topic-title">{d.title}</div>
+                                                    <small className="topic-meta">{d.reply_count} replies • {d.views} views</small>
+                                                </td>
+                                                <td>
+                                                    <div className="author-info">
+                                                        <div>{d.user_name}</div>
+                                                        <small className="text-muted">{d.user_email}</small>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <span className="badge-category" style={{ backgroundColor: `${d.category_color}22`, color: d.category_color }}>
+                                                        {d.category_name}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    {d.is_featured ? (
+                                                        <span className="status-badge featured">Featured</span>
+                                                    ) : (
+                                                        <span className="status-badge text-muted">Standard</span>
+                                                    )}
+                                                </td>
+                                                <td>{d.created_at}</td>
+                                                <td>
+                                                    <div className="action-row">
+                                                        <button
+                                                            onClick={() => handleToggleFeature(d.id)}
+                                                            className={`action-btn-mini ${d.is_featured ? 'active' : ''}`}
+                                                            title={d.is_featured ? "Unfeature" : "Feature"}
+                                                        >
+                                                            <Award size={16} />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleDeleteDiscussion(d.id)}
+                                                            className="action-btn-mini delete"
+                                                            title="Delete Thread"
+                                                        >
+                                                            <Trash2 size={16} />
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                        {discussions.length === 0 && (
+                                            <tr>
+                                                <td colSpan="6" className="text-center py-4">No forum discussions yet.</td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 )}
