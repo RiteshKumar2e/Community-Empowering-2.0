@@ -76,11 +76,11 @@ const Navbar = () => {
                 <div className="navbar-links hide-mobile">
                     {isAuthenticated && location.pathname !== '/' ? (
                         <>
-                            <Link to="/dashboard" className={`nav-link ${isActive('/dashboard') ? 'active' : ''}`}>Dashboard</Link>
-                            <Link to="/assistant" className={`nav-link ${isActive('/assistant') ? 'active' : ''}`}>AI Assistant</Link>
-                            <Link to="/resources" className={`nav-link ${isActive('/resources') ? 'active' : ''}`}>Resources</Link>
-                            <Link to="/learning" className={`nav-link ${isActive('/learning') ? 'active' : ''}`}>Learning</Link>
-                            <Link to="/feedback" className={`nav-link ${isActive('/feedback') ? 'active' : ''}`}>Feedback</Link>
+                            <Link to="/dashboard" target="_blank" className={`nav-link ${isActive('/dashboard') ? 'active' : ''}`}>Dashboard</Link>
+                            <Link to="/assistant" target="_blank" className={`nav-link ${isActive('/assistant') ? 'active' : ''}`}>AI Assistant</Link>
+                            <Link to="/resources" target="_blank" className={`nav-link ${isActive('/resources') ? 'active' : ''}`}>Resources</Link>
+                            <Link to="/learning" target="_blank" className={`nav-link ${isActive('/learning') ? 'active' : ''}`}>Learning</Link>
+                            <Link to="/feedback" target="_blank" className={`nav-link ${isActive('/feedback') ? 'active' : ''}`}>Feedback</Link>
                             {isAdmin && (
                                 <Link to="/admin" className={`nav-link admin-link ${isActive('/admin') ? 'active' : ''}`}>
                                     <Shield size={16} /> Admin
@@ -128,23 +128,23 @@ const Navbar = () => {
 
                                         {profileMenuOpen && (
                                             <div className="profile-menu">
-                                                <Link to="/profile" className="menu-item" onClick={() => setProfileMenuOpen(false)}>
+                                                <Link to="/profile" target="_blank" className="menu-item" onClick={() => setProfileMenuOpen(false)}>
                                                     <User size={18} /> My Profile
                                                 </Link>
                                                 <div className="menu-divider"></div>
-                                                <Link to="/dashboard" className="menu-item" onClick={() => setProfileMenuOpen(false)}>
+                                                <Link to="/dashboard" target="_blank" className="menu-item" onClick={() => setProfileMenuOpen(false)}>
                                                     <LayoutDashboard size={18} /> Dashboard
                                                 </Link>
-                                                <Link to="/assistant" className="menu-item" onClick={() => setProfileMenuOpen(false)}>
+                                                <Link to="/assistant" target="_blank" className="menu-item" onClick={() => setProfileMenuOpen(false)}>
                                                     <MessageSquare size={18} /> AI Assistant
                                                 </Link>
-                                                <Link to="/resources" className="menu-item" onClick={() => setProfileMenuOpen(false)}>
+                                                <Link to="/resources" target="_blank" className="menu-item" onClick={() => setProfileMenuOpen(false)}>
                                                     <FileText size={18} /> Resources
                                                 </Link>
-                                                <Link to="/learning" className="menu-item" onClick={() => setProfileMenuOpen(false)}>
+                                                <Link to="/learning" target="_blank" className="menu-item" onClick={() => setProfileMenuOpen(false)}>
                                                     <Shield size={18} /> Learning
                                                 </Link>
-                                                <Link to="/feedback" className="menu-item" onClick={() => setProfileMenuOpen(false)}>
+                                                <Link to="/feedback" target="_blank" className="menu-item" onClick={() => setProfileMenuOpen(false)}>
                                                     <Star size={18} /> Feedback
                                                 </Link>
                                                 <div className="menu-divider"></div>

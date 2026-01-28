@@ -129,7 +129,7 @@ const Dashboard = () => {
                     <h2>Quick Actions</h2>
                     <div className="quick-actions-grid">
                         {quickActions.map((action, index) => (
-                            <Link to={action.link} key={index} className="quick-action-card">
+                            <Link to={action.link} target="_blank" key={index} className="quick-action-card">
                                 <div className="action-icon" style={{ color: action.color }}>
                                     {action.icon}
                                 </div>

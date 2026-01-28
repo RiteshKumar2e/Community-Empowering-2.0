@@ -215,7 +215,12 @@ const AIAssistant = () => {
                                 </div>
                                 <div className="message-content">
                                     <div className="markdown-content">
-                                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                        <ReactMarkdown
+                                            remarkPlugins={[remarkGfm]}
+                                            components={{
+                                                a: ({ node, ...props }) => <a {...props} target="_blank" rel="noopener noreferrer" />
+                                            }}
+                                        >
                                             {message.content}
                                         </ReactMarkdown>
                                     </div>
