@@ -7,7 +7,7 @@ import json
 
 from app.core.database import get_db
 from app.models.models import ForumCategory, ForumDiscussion, ForumReply, User
-from app.api.users import get_current_user
+from app.api.users import get_current_user, get_current_user_optional
 
 router = APIRouter(prefix="/api/forum", tags=["forum"])
 
@@ -89,8 +89,7 @@ def is_admin(user: User) -> bool:
 # Categories Endpoints
 @router.get("/categories", response_model=List[CategoryResponse])
 async def get_categories(
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    db: Session = Depends(get_db)
 ):
     """Get all forum categories"""
     categories = db.query(ForumCategory).all()
@@ -133,7 +132,7 @@ async def get_discussions(
     skip: int = 0,
     limit: int = 20,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: Optional[User] = Depends(get_current_user_optional)
 ):
     """Get all discussions with optional filtering"""
     query = db.query(ForumDiscussion)
@@ -327,7 +326,7 @@ async def create_reply(
 @router.get("/stats", response_model=ForumStats)
 async def get_forum_stats(
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: Optional[User] = Depends(get_current_user_optional)
 ):
     """Get forum statistics (Admin only sees full stats, users see limited)"""
     total_discussions = db.query(ForumDiscussion).count()
@@ -346,7 +345,7 @@ async def get_forum_stats(
     }
     
     # Only admins can see total user count
-    if is_admin(current_user):
+    if current_user and is_admin(current_user):
         total_users = db.query(User).count()
         stats["total_users"] = total_users
     

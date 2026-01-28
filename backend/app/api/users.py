@@ -44,6 +44,19 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
     
     return user
 
+async def get_current_user_optional(token: Optional[str] = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    """Optional authentication - returns None if token is missing or invalid instead of raising 401"""
+    if not token:
+        return None
+    try:
+        payload = decode_access_token(token)
+        if not payload:
+            return None
+        email = payload.get("sub")
+        return db.query(User).filter(User.email == email).first()
+    except:
+        return None
+
 @router.get("/stats", response_model=StatsResponse)
 async def get_user_stats(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Get user statistics"""
