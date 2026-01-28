@@ -174,3 +174,11 @@ class ForumReply(Base):
     
     # Relationships
     discussion = relationship("ForumDiscussion", back_populates="replies")
+
+class ForumLike(Base):
+    __tablename__ = "forum_likes"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    discussion_id = Column(Integer, ForeignKey("forum_discussions.id"))
+    user_id = Column(Integer, ForeignKey("users.id"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())

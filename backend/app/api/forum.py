@@ -7,7 +7,7 @@ from datetime import datetime
 import json
 
 from app.core.database import get_db
-from app.models.models import ForumCategory, ForumDiscussion, ForumReply, User
+from app.models.models import ForumCategory, ForumDiscussion, ForumReply, User, ForumLike
 from app.api.users import get_current_user, get_current_user_optional
 
 router = APIRouter(prefix="/api/forum", tags=["forum"])
@@ -37,6 +37,11 @@ class DiscussionCreate(BaseModel):
     category_id: int
     tags: Optional[List[str]] = []
 
+class LatestReplySchema(BaseModel):
+    content: str
+    user_name: str
+    created_at: datetime
+
 class DiscussionResponse(BaseModel):
     id: int
     title: str
@@ -54,6 +59,8 @@ class DiscussionResponse(BaseModel):
     status: str
     created_at: datetime
     updated_at: Optional[datetime]
+    latest_reply: Optional[LatestReplySchema] = None
+    is_liked: bool = False
 
     class Config:
         from_attributes = True
@@ -174,12 +181,36 @@ async def get_discussions(
             except:
                 tags = []
         
+        # Check if current user liked
+        is_liked = False
+        if current_user:
+            is_liked = db.query(ForumLike).filter(
+                ForumLike.discussion_id == disc.id,
+                ForumLike.user_id == current_user.id
+            ).first() is not None
+        
+        # Fetch latest reply
+        latest_reply = db.query(ForumReply).filter(
+            ForumReply.discussion_id == disc.id
+        ).order_by(ForumReply.created_at.desc()).first()
+        
+        latest_reply_info = None
+        if latest_reply:
+            reply_user = db.query(User).filter(User.id == latest_reply.user_id).first()
+            latest_reply_info = {
+                "content": latest_reply.content,
+                "user_name": reply_user.name if reply_user else "Unknown",
+                "created_at": latest_reply.created_at
+            }
+        
         result.append({
             **disc.__dict__,
             "user_name": user.name if user else "Unknown",
             "user_email": user.email if user else "",
             "tags": tags,
-            "reply_count": reply_count
+            "reply_count": reply_count,
+            "latest_reply": latest_reply_info,
+            "is_liked": is_liked
         })
     
     return result
@@ -188,7 +219,7 @@ async def get_discussions(
 async def get_discussion(
     discussion_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: Optional[User] = Depends(get_current_user_optional)
 ):
     """Get a specific discussion by ID"""
     discussion = db.query(ForumDiscussion).filter(
@@ -270,7 +301,7 @@ async def create_discussion(
 async def get_replies(
     discussion_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: Optional[User] = Depends(get_current_user_optional)
 ):
     """Get all replies for a discussion"""
     replies = db.query(ForumReply).filter(
@@ -370,10 +401,25 @@ async def like_discussion(
             detail="Discussion not found"
         )
     
-    discussion.likes += 1
-    db.commit()
+    # Check if user already liked
+    existing_like = db.query(ForumLike).filter(
+        ForumLike.discussion_id == discussion_id,
+        ForumLike.user_id == current_user.id
+    ).first()
     
-    return {"message": "Discussion liked", "likes": discussion.likes}
+    if existing_like:
+        # Unlike
+        db.delete(existing_like)
+        discussion.likes = max(0, discussion.likes - 1)
+        db.commit()
+        return {"message": "Discussion unliked", "likes": discussion.likes, "is_liked": False}
+    else:
+        # Like
+        new_like = ForumLike(discussion_id=discussion_id, user_id=current_user.id)
+        db.add(new_like)
+        discussion.likes += 1
+        db.commit()
+        return {"message": "Discussion liked", "likes": discussion.likes, "is_liked": True}
 
 # Like/Unlike Reply
 @router.post("/replies/{reply_id}/like")

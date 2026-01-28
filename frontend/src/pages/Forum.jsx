@@ -44,6 +44,11 @@ const Forum = () => {
         tags: ''
     })
 
+    const [selectedDiscussion, setSelectedDiscussion] = useState(null)
+    const [replies, setReplies] = useState([])
+    const [newReply, setNewReply] = useState('')
+    const [isPostingReply, setIsPostingReply] = useState(false)
+
     const [tagsOpen, setTagsOpen] = useState(false)
     const [tagList, setTagList] = useState(() => {
         const savedTags = localStorage.getItem('forum_tags');
@@ -114,6 +119,61 @@ const Forum = () => {
         } catch (error) {
             console.error('Error creating discussion:', error)
             alert(error.response?.data?.detail || 'Failed to post discussion')
+        }
+    }
+
+    const handleLike = async (discId, e) => {
+        if (e) e.stopPropagation()
+        try {
+            const res = await api.post(`/forum/discussions/${discId}/like`)
+            setDiscussions(discussions.map(d =>
+                d.id === discId ? { ...d, likes: res.data.likes, is_liked: res.data.is_liked } : d
+            ))
+            if (selectedDiscussion?.id === discId) {
+                setSelectedDiscussion({ ...selectedDiscussion, likes: res.data.likes, is_liked: res.data.is_liked })
+            }
+        } catch (error) {
+            alert('Login to like discussions')
+        }
+    }
+
+    const handleViewDiscussion = async (discId) => {
+        try {
+            const res = await api.get(`/forum/discussions/${discId}`)
+            setSelectedDiscussion(res.data)
+            const repliesRes = await api.get(`/forum/discussions/${discId}/replies`)
+            setReplies(repliesRes.data)
+            // Update the local list views count
+            setDiscussions(discussions.map(d =>
+                d.id === discId ? { ...d, views: res.data.views } : d
+            ))
+        } catch (error) {
+            console.error('Error fetching discussion details:', error)
+        }
+    }
+
+    const handlePostReply = async (e) => {
+        e.preventDefault()
+        if (!newReply.trim()) return
+        setIsPostingReply(true)
+        try {
+            const res = await api.post(`/forum/discussions/${selectedDiscussion.id}/replies`, {
+                content: newReply
+            })
+            setReplies([...replies, res.data])
+            setNewReply('')
+            // Update reply count in the list
+            setDiscussions(discussions.map(d =>
+                d.id === selectedDiscussion.id ? { ...d, reply_count: (d.reply_count || 0) + 1 } : d
+            ))
+            setSelectedDiscussion({
+                ...selectedDiscussion,
+                reply_count: (selectedDiscussion.reply_count || 0) + 1
+            })
+        } catch (error) {
+            alert('Failed to post reply. Please login.')
+        } finally {
+            setIsPostingReply(false)
         }
     }
 
@@ -386,7 +446,11 @@ const Forum = () => {
                             filteredDiscussions.map(discussion => {
                                 const category = getCategoryById(discussion.category_id)
                                 return (
-                                    <div key={discussion.id} className="discussion-card">
+                                    <div
+                                        key={discussion.id}
+                                        className="discussion-card"
+                                        onClick={() => handleViewDiscussion(discussion.id)}
+                                    >
                                         {discussion.is_featured && (
                                             <div className="featured-badge">Featured</div>
                                         )}
@@ -411,6 +475,17 @@ const Forum = () => {
                                         <p className="discussion-excerpt">
                                             {discussion.content.substring(0, 150)}...
                                         </p>
+
+                                        {discussion.latest_reply && (
+                                            <div className="latest-comment-preview">
+                                                <div className="preview-header">
+                                                    <MessageCircle size={12} />
+                                                    Latest reply from <strong>{discussion.latest_reply.user_name}</strong>
+                                                </div>
+                                                <p className="preview-content">{discussion.latest_reply.content.substring(0, 60)}...</p>
+                                            </div>
+                                        )}
+
                                         <div className="discussion-footer">
                                             <div className="discussion-author">
                                                 <div className="author-avatar">
@@ -424,18 +499,21 @@ const Forum = () => {
                                                 </div>
                                             </div>
                                             <div className="discussion-stats">
-                                                <span className="stat-item">
+                                                <button className="stat-item">
                                                     <MessageCircle size={16} />
                                                     {discussion.reply_count}
-                                                </span>
+                                                </button>
                                                 <span className="stat-item">
                                                     <Eye size={16} />
                                                     {discussion.views}
                                                 </span>
-                                                <span className="stat-item">
-                                                    <ThumbsUp size={16} />
+                                                <button
+                                                    className={`stat-item btn-like ${discussion.is_liked ? 'liked' : ''}`}
+                                                    onClick={(e) => handleLike(discussion.id, e)}
+                                                >
+                                                    <ThumbsUp size={16} fill={discussion.is_liked ? "currentColor" : "none"} />
                                                     {discussion.likes}
-                                                </span>
+                                                </button>
                                             </div>
                                         </div>
                                     </div>
@@ -554,6 +632,106 @@ const Forum = () => {
                                 </button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            )}
+            {/* Discussion Detail Modal */}
+            {selectedDiscussion && (
+                <div className="modal-overlay" onClick={() => setSelectedDiscussion(null)}>
+                    <div className="modal-content detail-modal" onClick={(e) => e.stopPropagation()}>
+                        <button
+                            className="modal-close-btn"
+                            onClick={() => setSelectedDiscussion(null)}
+                        >
+                            <X size={24} />
+                        </button>
+
+                        <div className="discussion-detail-header">
+                            <span
+                                className="discussion-category"
+                                style={{ backgroundColor: getCategoryById(selectedDiscussion.category_id)?.color }}
+                            >
+                                {getCategoryById(selectedDiscussion.category_id)?.icon} {getCategoryById(selectedDiscussion.category_id)?.name}
+                            </span>
+                            <h1>{selectedDiscussion.title}</h1>
+                            <div className="author-full-info">
+                                <div className="author-avatar-large">
+                                    {selectedDiscussion.user_name?.charAt(0).toUpperCase()}
+                                </div>
+                                <div>
+                                    <div className="author-name-bold">{selectedDiscussion.user_name}</div>
+                                    <div className="post-date">{new Date(selectedDiscussion.created_at).toLocaleString()}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="discussion-detail-body">
+                            <p className="full-content">{selectedDiscussion.content}</p>
+                            <div className="detail-tags">
+                                {selectedDiscussion.tags?.map((t, idx) => (
+                                    <span key={idx} className="tag-badge">#{t}</span>
+                                ))}
+                            </div>
+                            <div className="engagement-actions">
+                                <button
+                                    className={`action-btn ${selectedDiscussion.is_liked ? 'liked' : ''}`}
+                                    onClick={() => handleLike(selectedDiscussion.id)}
+                                >
+                                    <ThumbsUp size={20} fill={selectedDiscussion.is_liked ? "currentColor" : "none"} /> {selectedDiscussion.likes} Likes
+                                </button>
+                                <span className="action-info">
+                                    <Eye size={20} /> {selectedDiscussion.views} Views
+                                </span>
+                                <span className="action-info">
+                                    <MessageCircle size={20} /> {selectedDiscussion.reply_count} Replies
+                                </span>
+                            </div>
+                        </div>
+
+                        <div className="discussion-replies-section">
+                            <h3>Replies ({replies.length})</h3>
+
+                            <div className="replies-list">
+                                {replies.map(reply => (
+                                    <div key={reply.id} className="reply-card">
+                                        <div className="reply-author">
+                                            <div className="reply-avatar">
+                                                {reply.user_name?.charAt(0).toUpperCase()}
+                                            </div>
+                                            <div className="reply-meta">
+                                                <span className="reply-name">{reply.user_name}</span>
+                                                <span className="reply-time">{new Date(reply.created_at).toLocaleDateString()}</span>
+                                            </div>
+                                        </div>
+                                        <div className="reply-content">{reply.content}</div>
+                                    </div>
+                                ))}
+                                {replies.length === 0 && <p className="no-replies">No replies yet. Be the first to answer!</p>}
+                            </div>
+
+                            {user ? (
+                                <form className="reply-form" onSubmit={handlePostReply}>
+                                    <textarea
+                                        value={newReply}
+                                        onChange={(e) => setNewReply(e.target.value)}
+                                        placeholder="Write a helpful reply..."
+                                        rows={3}
+                                        required
+                                    />
+                                    <button
+                                        type="submit"
+                                        className="btn-submit"
+                                        disabled={isPostingReply}
+                                    >
+                                        {isPostingReply ? 'Posting...' : 'Post Reply'}
+                                    </button>
+                                </form>
+                            ) : (
+                                <div className="login-prompt">
+                                    Please <span className="highlight">Login</span> to join the conversation.
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             )}
