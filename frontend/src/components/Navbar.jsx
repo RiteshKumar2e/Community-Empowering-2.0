@@ -81,6 +81,7 @@ const Navbar = () => {
                             <Link to="/resources" className={`nav-link ${isActive('/resources') ? 'active' : ''}`}>Resources</Link>
                             <Link to="/learning" className={`nav-link ${isActive('/learning') ? 'active' : ''}`}>Learning Hub</Link>
                             <Link to="/feedback" className={`nav-link ${isActive('/feedback') ? 'active' : ''}`}>Feedback</Link>
+                            <Link to="/forum" className={`nav-link ${isActive('/forum') ? 'active' : ''}`}>Forum</Link>
                             {isAdmin && (
                                 <Link to="/admin" className={`nav-link admin-link ${isActive('/admin') ? 'active' : ''}`}>
                                     <Shield size={16} /> Admin
@@ -146,6 +147,9 @@ const Navbar = () => {
                                                 </Link>
                                                 <Link to="/feedback" className="menu-item" onClick={() => setProfileMenuOpen(false)}>
                                                     <Star size={18} /> Feedback
+                                                </Link>
+                                                <Link to="/forum" className="menu-item" onClick={() => setProfileMenuOpen(false)}>
+                                                    <MessageSquare size={18} /> Forum
                                                 </Link>
                                                 <div className="menu-divider"></div>
                                                 <button onClick={() => { logout(); setProfileMenuOpen(false); }} className="menu-item logout">
@@ -220,6 +224,9 @@ const Navbar = () => {
                                     </Link>
                                     <Link to="/feedback" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>
                                         <Star size={18} /> Feedback
+                                    </Link>
+                                    <Link to="/forum" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>
+                                        <MessageSquare size={18} /> Forum
                                     </Link>
                                     {isAdmin && (
                                         <Link to="/admin" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>

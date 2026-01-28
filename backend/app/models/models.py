@@ -125,3 +125,52 @@ class UserActivity(Base):
     activity_description = Column(Text)
     extra_data = Column(Text)  # JSON string for additional data (renamed from metadata)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+class ForumCategory(Base):
+    __tablename__ = "forum_categories"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False)
+    description = Column(Text)
+    icon = Column(String)  # Icon name or emoji
+    color = Column(String)  # Color code for the category
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    
+    # Relationships
+    discussions = relationship("ForumDiscussion", back_populates="category")
+
+class ForumDiscussion(Base):
+    __tablename__ = "forum_discussions"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, nullable=False)
+    content = Column(Text, nullable=False)
+    category_id = Column(Integer, ForeignKey("forum_categories.id"))
+    user_id = Column(Integer, ForeignKey("users.id"))
+    tags = Column(Text)  # JSON string of tags
+    views = Column(Integer, default=0)
+    likes = Column(Integer, default=0)
+    is_featured = Column(Boolean, default=False)
+    is_pinned = Column(Boolean, default=False)
+    status = Column(String, default="active")  # active, closed, archived
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    
+    # Relationships
+    category = relationship("ForumCategory", back_populates="discussions")
+    replies = relationship("ForumReply", back_populates="discussion")
+
+class ForumReply(Base):
+    __tablename__ = "forum_replies"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    discussion_id = Column(Integer, ForeignKey("forum_discussions.id"))
+    user_id = Column(Integer, ForeignKey("users.id"))
+    content = Column(Text, nullable=False)
+    likes = Column(Integer, default=0)
+    is_solution = Column(Boolean, default=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    
+    # Relationships
+    discussion = relationship("ForumDiscussion", back_populates="replies")
