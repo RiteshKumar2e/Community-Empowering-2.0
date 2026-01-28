@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from typing import List, Optional
 from app.core.database import get_db
-from app.models.models import User, Query, Enrollment, Course, Resource, LearningPlatform, Feedback
+from app.models.models import User, Query, Enrollment, Course, Resource, LearningPlatform, Feedback, ForumDiscussion, ForumReply, ForumCategory
 from app.services.market_scanner import market_scanner
 from app.api.users import get_current_user
 from datetime import timezone, timedelta
@@ -281,3 +281,64 @@ async def trigger_market_scan(
         "message": f"Scan completed. {len(new_items)} new items added.",
         "items": new_items
     }
+
+@router.get("/forum/discussions")
+async def get_all_discussions(
+    admin: User = Depends(verify_admin),
+    db: Session = Depends(get_db)
+):
+    """Get all forum discussions for admin management"""
+    discussions = db.query(ForumDiscussion).order_by(ForumDiscussion.created_at.desc()).all()
+    
+    result = []
+    for disc in discussions:
+        user = db.query(User).filter(User.id == disc.user_id).first()
+        category = db.query(ForumCategory).filter(ForumCategory.id == disc.category_id).first()
+        reply_count = db.query(ForumReply).filter(ForumReply.discussion_id == disc.id).count()
+        
+        result.append({
+            "id": disc.id,
+            "title": disc.title,
+            "content": disc.content,
+            "user_name": user.name if user else "Unknown",
+            "user_email": user.email if user else "N/A",
+            "category_name": category.name if category else "General",
+            "views": disc.views,
+            "likes": disc.likes,
+            "reply_count": reply_count,
+            "is_featured": disc.is_featured,
+            "created_at": disc.created_at.replace(tzinfo=timezone.utc).astimezone(IST).strftime("%d %b %Y, %I:%M %p") if disc.created_at else "N/A"
+        })
+    return result
+
+@router.delete("/forum/discussions/{discussion_id}")
+async def delete_discussion(
+    discussion_id: int,
+    admin: User = Depends(verify_admin),
+    db: Session = Depends(get_db)
+):
+    """Admin delete a forum discussion"""
+    discussion = db.query(ForumDiscussion).filter(ForumDiscussion.id == discussion_id).first()
+    if not discussion:
+        raise HTTPException(status_code=404, detail="Discussion not found")
+    
+    # Replies are usually handled by cascade delete if configured, or manually
+    db.query(ForumReply).filter(ForumReply.discussion_id == discussion_id).delete()
+    db.delete(discussion)
+    db.commit()
+    return {"message": "Discussion deleted successfully"}
+
+@router.post("/forum/discussions/{discussion_id}/feature")
+async def toggle_feature_discussion(
+    discussion_id: int,
+    admin: User = Depends(verify_admin),
+    db: Session = Depends(get_db)
+):
+    """Admin toggle featured status of a discussion"""
+    discussion = db.query(ForumDiscussion).filter(ForumDiscussion.id == discussion_id).first()
+    if not discussion:
+        raise HTTPException(status_code=404, detail="Discussion not found")
+    
+    discussion.is_featured = not discussion.is_featured
+    db.commit()
+    return {"message": "Featured status updated", "is_featured": discussion.is_featured}

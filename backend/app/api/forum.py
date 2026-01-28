@@ -7,7 +7,7 @@ import json
 
 from app.core.database import get_db
 from app.models.models import ForumCategory, ForumDiscussion, ForumReply, User
-from app.core.security import get_current_user
+from app.api.users import get_current_user
 
 router = APIRouter(prefix="/api/forum", tags=["forum"])
 

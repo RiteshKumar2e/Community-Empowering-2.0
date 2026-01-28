@@ -24,6 +24,7 @@ const AdminDashboard = () => {
     const [users, setUsers] = useState([])
     const [recentQueries, setRecentQueries] = useState([])
     const [recentEnrollments, setRecentEnrollments] = useState([])
+    const [discussions, setDiscussions] = useState([])
     const [activeTab, setActiveTab] = useState('overview')
     const [newResource, setNewResource] = useState({
         title: '',
@@ -65,15 +66,17 @@ const AdminDashboard = () => {
     const fetchAdminData = async () => {
         try {
             setLoading(true)
-            const [usersRes, queriesRes, statsRes, feedbackRes, resRes, platformsRes] = await Promise.all([
+            const [usersRes, queriesRes, statsRes, feedbackRes, resRes, platformsRes, discussionsRes] = await Promise.all([
                 api.get('/admin/users'),
                 api.get('/admin/queries'),
                 api.get('/admin/stats'),
                 api.get('/admin/feedback'),
                 api.get('/admin/resources'),
-                api.get('/admin/learning-platforms')
+                api.get('/admin/learning-platforms'),
+                api.get('/admin/forum/discussions')
             ])
 
+            setDiscussions(discussionsRes.data || [])
             setUsers(usersRes.data || [])
             setRecentQueries(queriesRes.data || [])
             setFeedback(feedbackRes.data || [])
@@ -132,6 +135,28 @@ const AdminDashboard = () => {
             await api.delete(`/admin/platforms/${id}`)
             setExistingPlatforms(existingPlatforms.filter(p => p.id !== id))
         } catch (error) { alert('Delete failed') }
+    }
+
+    const handleDeleteDiscussion = async (id) => {
+        if (!window.confirm('Are you sure you want to delete this discussion?')) return
+        try {
+            await api.delete(`/admin/forum/discussions/${id}`)
+            setDiscussions(discussions.filter(d => d.id !== id))
+            alert('Discussion deleted successfully')
+        } catch (error) {
+            alert('Delete failed')
+        }
+    }
+
+    const handleToggleFeature = async (id) => {
+        try {
+            const res = await api.post(`/admin/forum/discussions/${id}/feature`)
+            setDiscussions(discussions.map(d =>
+                d.id === id ? { ...d, is_featured: res.data.is_featured } : d
+            ))
+        } catch (error) {
+            alert('Feature toggle failed')
+        }
     }
 
     const formatDate = (dateString) => {
@@ -264,6 +289,12 @@ const AdminDashboard = () => {
                     >
                         Feedback
                     </button>
+                    <button
+                        className={`admin-tab ${activeTab === 'forum' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('forum')}
+                    >
+                        Forum
+                    </button>
                 </div>
 
                 {activeTab === 'overview' && (
@@ -292,10 +323,10 @@ const AdminDashboard = () => {
                                 </div>
                             </div>
                             <div className="admin-stat-card info">
-                                <div className="stat-icon"><Database size={32} /></div>
+                                <div className="stat-icon"><MessageSquare size={32} /></div>
                                 <div className="stat-details">
-                                    <div className="stat-value">{stats.totalResources}</div>
-                                    <div className="stat-label">Resources</div>
+                                    <div className="stat-value">{discussions.length}</div>
+                                    <div className="stat-label">Discussions</div>
                                 </div>
                             </div>
                         </div>
@@ -566,6 +597,76 @@ const AdminDashboard = () => {
                                 </div>
                             ))}
                             {feedback.length === 0 && <p className="empty-msg">No feedback received yet.</p>}
+                        </div>
+                    </div>
+                )}
+
+                {activeTab === 'forum' && (
+                    <div className="admin-section">
+                        <div className="section-header">
+                            <h2>Forum Moderation ({discussions.length} Topics)</h2>
+                        </div>
+                        <div className="admin-table-container">
+                            <table className="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>Title</th>
+                                        <th>Author</th>
+                                        <th>Category</th>
+                                        <th>Engagement</th>
+                                        <th>Posted</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {discussions.map(d => (
+                                        <tr key={d.id}>
+                                            <td className="title-cell">
+                                                <div className="topic-title">{d.title}</div>
+                                                <small className="topic-meta">{d.reply_count} replies • {d.views} views</small>
+                                            </td>
+                                            <td>
+                                                <div className="author-info">
+                                                    <div>{d.user_name}</div>
+                                                    <small className="text-muted">{d.user_email}</small>
+                                                </div>
+                                            </td>
+                                            <td><span className="badge-category">{d.category_name}</span></td>
+                                            <td>
+                                                {d.is_featured ? (
+                                                    <span className="status-badge featured">Featured</span>
+                                                ) : (
+                                                    <span className="status-badge text-muted">Standard</span>
+                                                )}
+                                            </td>
+                                            <td>{d.created_at}</td>
+                                            <td>
+                                                <div className="action-row">
+                                                    <button
+                                                        onClick={() => handleToggleFeature(d.id)}
+                                                        className={`action-btn-mini ${d.is_featured ? 'active' : ''}`}
+                                                        title={d.is_featured ? "Unfeature" : "Feature"}
+                                                    >
+                                                        <Award size={16} />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleDeleteDiscussion(d.id)}
+                                                        className="action-btn-mini delete"
+                                                        title="Delete Thread"
+                                                    >
+                                                        <Trash2 size={16} />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                    {discussions.length === 0 && (
+                                        <tr>
+                                            <td colSpan="6" className="text-center py-4">No forum discussions yet.</td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 )}
