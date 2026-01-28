@@ -57,7 +57,7 @@ const Resources = () => {
             category: "education",
             subCategory: "scholarship",
             eligibility: "OBC/EBC/DNT students, Family income < ₹2.5 lakh/year",
-            link: "https://socialjustice.gov.in/schemes/pm-yasasvi",
+            link: "https://scholarships.gov.in/",
             provider: "Ministry of Social Justice & Empowerment",
             isNew: true
         },
