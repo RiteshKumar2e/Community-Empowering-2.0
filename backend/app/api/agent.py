@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from typing import Optional, Dict, Any
 from app.core.database import get_db
+from app.api.auth import oauth2_scheme
 from app.models.models import User
 from app.api.users import get_current_user
 from app.services.ai_service import AIService
@@ -23,18 +24,23 @@ class AgentChatResponse(BaseModel):
 @router.post("/chat", response_model=AgentChatResponse)
 async def agent_chat(
     request: AgentChatRequest,
+    token: Optional[str] = Depends(oauth2_scheme),
     db: Session = Depends(get_db)
 ):
     """
     Advanced agent chat endpoint that returns response and metadata.
-    This can be used without auth for guest users as well, 
-    but can take current_user as optional if needed.
+    Logs activity if user is authenticated.
     """
     
-    # In a real scenario, we would use a more advanced prompt to get JSON output
-    # For now, we'll use the ai_service and manually structure the meta
-    # or improve the ai_service to support agent features.
-    
+    # Try to get current user if token is provided
+    current_user = None
+    if token:
+        from app.api.users import get_current_user
+        try:
+            current_user = await get_current_user(token, db)
+        except:
+            pass
+
     prompt = f"""
     The following is a message from a user on our Community Empowering platform.
     Analyze the message and provide:
@@ -69,14 +75,49 @@ async def agent_chat(
             # Fallback if no JSON found
             data = {"response": raw_response, "meta": {"type": "inquiry", "category": "general", "priority": "low"}}
             
+        final_response = data.get("response", "I'm here to help.")
+        final_meta = data.get("meta", {"type": "inquiry", "category": "general", "priority": "low"})
+
+        # Log to database if user is authenticated
+        if current_user:
+            from app.models.models import Query
+            from app.services.activity_tracker import ActivityTracker
+            
+            # Save to Query table
+            query = Query(
+                user_id=current_user.id,
+                message=request.message,
+                response=final_response,
+                language=request.language
+            )
+            db.add(query)
+            
+            # Log activity
+            ActivityTracker.log_ai_query(
+                db=db,
+                user_id=current_user.id,
+                query_text=request.message,
+                language=request.language
+            )
+            
+            db.commit()
+
         return AgentChatResponse(
-            response=data.get("response", "I'm here to help."),
-            meta=data.get("meta", {"type": "inquiry", "category": "general", "priority": "low"})
+            response=final_response,
+            meta=final_meta
         )
     except Exception as e:
-        # Fallback if AI fails to return proper JSON
+        # Fallback if AI fails
         print(f"Agent Chat Error: {e}")
+        fallback_text = await ai_service.get_chat_response(request.message, language=request.language)
+        
+        if current_user:
+            from app.models.models import Query
+            query = Query(user_id=current_user.id, message=request.message, response=fallback_text, language=request.language)
+            db.add(query)
+            db.commit()
+
         return AgentChatResponse(
-            response=await ai_service.get_chat_response(request.message, language=request.language),
+            response=fallback_text,
             meta={"type": "inquiry", "category": "general", "priority": "low"}
         )

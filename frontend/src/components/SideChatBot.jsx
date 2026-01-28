@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { MessageSquare, Send, Mic, MicOff, X, Bot, User, Hash, Tag, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import axios from 'axios';
+import api from '../services/api';
 import '../styles/SideChatBot.css';
 import chatbotIcon from '../assets/chatbot.jpg';
 
@@ -21,7 +21,7 @@ const SideChatBot = () => {
     const [isRecording, setIsRecording] = useState(false);
     const messagesEndRef = useRef(null);
 
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+    // Base URL is managed by api service
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -85,7 +85,7 @@ const SideChatBot = () => {
         setIsLoading(true);
 
         try {
-            const response = await axios.post(`${API_URL}/agent/chat`, {
+            const response = await api.post('/agent/chat', {
                 message: inputText,
                 language: 'en'
             });

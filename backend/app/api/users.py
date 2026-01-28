@@ -52,20 +52,22 @@ async def get_user_stats(current_user: User = Depends(get_current_user), db: Ses
     queries_count = db.query(Query).filter(Query.user_id == current_user.id).count()
     courses_enrolled = db.query(Enrollment).filter(Enrollment.user_id == current_user.id).count()
     
-    # Count resource views from UserActivity
+    # Count resource views AND platform visits from UserActivity
     resources_viewed = db.query(UserActivity).filter(
         UserActivity.user_id == current_user.id,
-        UserActivity.activity_type == 'resource_view'
+        UserActivity.activity_type.in_(['resource_view', 'platform_visit'])
     ).count()
     
-    # Calculate achievements (basic implementation)
+    # Calculate achievements (dynamic based on activity)
     achievements = 0
     if queries_count >= 5:
         achievements += 1
-    if courses_enrolled >= 3:
+    if courses_enrolled >= 1 or resources_viewed >= 5:
         achievements += 1
-    if resources_viewed >= 10:
+    if resources_viewed >= 15:
         achievements += 1
+    if queries_count >= 20:
+        achievements += 2
     
     return {
         "queriesCount": queries_count,
