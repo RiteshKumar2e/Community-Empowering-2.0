@@ -180,6 +180,30 @@ const LearningHub = () => {
             isOfficial: false
         },
         {
+            title: "FreeCodeCamp",
+            description: "Learn to code for free with interactive lessons and thousands of hours of content in Web Dev, JS, Machine Learning.",
+            category: "digital",
+            provider: "freeCodeCamp.org",
+            duration: "Self-paced",
+            students: "40M+",
+            level: "Beginner/Intermediate",
+            link: "https://www.freecodecamp.org/",
+            features: ["Certifications", "Interactive", "Completely Free"],
+            isOfficial: false
+        },
+        {
+            title: "MDN Web Docs",
+            description: "The most trusted resource for web developers. Comprehensive documentation for HTML, CSS, and JavaScript.",
+            category: "digital",
+            provider: "Mozilla Foundation",
+            duration: "Reference",
+            students: "Millions",
+            level: "All Levels",
+            link: "https://developer.mozilla.org/",
+            features: ["Official Docs", "Try-it editors", "Modern Standards"],
+            isOfficial: false
+        },
+        {
             title: "Spoken Tutorial (IIT-B)",
             description: "Learn Linux, Python, LaTeX, and more through audio-video tutorials in various Indian languages.",
             category: "digital",
@@ -375,6 +399,18 @@ const LearningHub = () => {
             features: ["Traditional", "Vedic Research", "Credits"],
             isOfficial: true
         },
+        {
+            title: "OpenLearn (Open University)",
+            description: "Over 1,000 free courses on a wide range of subjects. Get a free Statement of Participation upon completion.",
+            category: "language",
+            provider: "The Open University",
+            duration: "Flexible",
+            students: "10M+",
+            level: "Beginner",
+            link: "https://www.open.edu/openlearn/free-courses",
+            features: ["Free Statement", "Academic Quality", "Diverse Subjects"],
+            isOfficial: false
+        },
 
         // --- COMPETITIVE EXAMS ---
         {
@@ -436,6 +472,18 @@ const LearningHub = () => {
             link: "https://ssc.nic.in/",
             features: ["Exam Schedule", "Pattern Info", "Result portal"],
             isOfficial: true
+        },
+        {
+            title: "Jagran Josh (Exam Prep)",
+            description: "Free study material, current affairs and practice questions for various competitive exams in India.",
+            category: "exams",
+            provider: "Jagran Media",
+            duration: "Daily",
+            students: "10M+",
+            level: "All Competitive",
+            link: "https://www.jagranjosh.com/",
+            features: ["Current Affairs", "GK Updates", "Free Material"],
+            isOfficial: false
         },
 
         // --- ENTREPRENEURSHIP ---
@@ -499,6 +547,18 @@ const LearningHub = () => {
             features: ["Grants", "Marketing Help", "SHG Link"],
             isOfficial: true
         },
+        {
+            title: "Y Combinator Startup School",
+            description: "A free online course and community for founders. Learn how to starting a company from the world's best.",
+            category: "startup",
+            provider: "Y Combinator",
+            duration: "10 weeks",
+            students: "200K+",
+            level: "Aspiring Founders",
+            link: "https://www.startupschool.org/",
+            features: ["Founder Network", "Curated Lessons", "Free"],
+            isOfficial: false
+        },
 
         // --- SCHOOL K-12 ---
         {
@@ -561,6 +621,18 @@ const LearningHub = () => {
             features: ["Virtual Labs", "Recorded class", "Accredited"],
             isOfficial: true
         },
+        {
+            title: "Vedantu Free Resources",
+            description: "Access to free NCERT solutions, previous year papers and live sessions for K-12 students.",
+            category: "school",
+            provider: "Vedantu",
+            duration: "Ongoing",
+            students: "5M+",
+            level: "Class 1-12",
+            link: "https://www.vedantu.com/free-classes",
+            features: ["NCERT Solutions", "Live Help", "Free Quizzes"],
+            isOfficial: false
+        },
 
         // --- HEALTH & WELLNESS ---
         {
@@ -622,6 +694,18 @@ const LearningHub = () => {
             link: "https://nimhans.ac.in/",
             features: ["Psychological", "Support Info", "Guides"],
             isOfficial: true
+        },
+        {
+            title: "MedlinePlus (Health Info)",
+            description: "Trusted medical information from the US National Library of Medicine. Easy to understand health topics.",
+            category: "health",
+            provider: "NIH",
+            duration: "Reference",
+            students: "Global",
+            level: "General Public",
+            link: "https://medlineplus.gov/",
+            features: ["Scientific", "Ad-free", "Videos"],
+            isOfficial: false
         },
 
         // Remaining items added to fill up to 60+ (adding more to specific categories)

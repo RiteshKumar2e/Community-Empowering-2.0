@@ -187,6 +187,34 @@ const Resources = () => {
             link: "https://dsel.education.gov.in/scheme/nmms",
             provider: "Department of Education"
         },
+        {
+            title: "Atal Tinkering Labs (ATL)",
+            description: "Establishing labs in schools to foster curiosity, creativity and imagination in young minds and inculcate skills such as design mindset, computational thinking and physical computing.",
+            category: "education",
+            subCategory: "age",
+            eligibility: "Schools and students from Class 6 to 12",
+            link: "https://aim.gov.in/atal-tinkering-labs.php",
+            provider: "NITI Aayog",
+            isNew: true
+        },
+        {
+            title: "NEAT 3.0 Portal",
+            description: "National Educational Alliance for Technology - A public-private partnership model between the Government and Education Technology companies.",
+            category: "education",
+            subCategory: "higher",
+            eligibility: "Students from marginalized sections and general students",
+            link: "https://neat.aicte-india.org/",
+            provider: "AICTE / Ministry of Education"
+        },
+        {
+            title: "STARS Project",
+            description: "Strengthening Teaching-Learning and Results for States. Aimed at improving the quality and governance of school education.",
+            category: "education",
+            subCategory: "age",
+            eligibility: "Teachers and students in participating states",
+            link: "https://stars.education.gov.in/",
+            provider: "Ministry of Education"
+        },
 
         // --- HEALTHCARE ---
         {
@@ -268,6 +296,30 @@ const Resources = () => {
             eligibility: "Bank account holders aged 18-70",
             link: "https://jansuraksha.gov.in/",
             provider: "Ministry of Finance"
+        },
+        {
+            title: "PM National Dialysis Program",
+            description: "Providing free dialysis services to the poor through Pradhan Mantri National Dialysis Programme (PMNDP) in Public Private Partnership (PPP) mode.",
+            category: "healthcare",
+            eligibility: "BPL patients (Free), Non-BPL (at discounted rates)",
+            link: "https://nhm.gov.in/index1.php?lang=1&level=3&sublinkid=1073&lid=636",
+            provider: "Ministry of Health"
+        },
+        {
+            title: "Rashtriya Arogya Nidhi (RAN)",
+            description: "Financial assistance to patients living below the poverty line who are suffering from major life-threatening diseases to receive treatment at Government hospitals.",
+            category: "healthcare",
+            eligibility: "BPL family patients",
+            link: "https://main.mohfw.gov.in/Major-Programmes/poor-patients-financial-assistance/rashtriya-arogya-nidhi",
+            provider: "Ministry of Health & Family Welfare"
+        },
+        {
+            title: "National Health Portal (NHP)",
+            description: "Single point of access to authenticated health information for citizens, healthcare professionals and researchers.",
+            category: "healthcare",
+            eligibility: "All citizens",
+            link: "https://www.nhp.gov.in/",
+            provider: "Ministry of Health"
         },
 
         // --- AGRICULTURE ---
@@ -351,6 +403,22 @@ const Resources = () => {
             link: "https://pmmsy.dof.gov.in/",
             provider: "Department of Fisheries"
         },
+        {
+            title: "National Food Security Mission",
+            description: "Increasing production of rice, wheat, pulses, coarse cereals and commercial crops through area expansion and productivity enhancement.",
+            category: "agriculture",
+            eligibility: "Farmers across various states",
+            link: "https://www.nfsm.gov.in/",
+            provider: "Ministry of Agriculture"
+        },
+        {
+            title: "Pradhan Mantri Annadata Aay Sanraksan Abhiyan (PM-AASHA)",
+            description: "Ensuring remunerative prices to the farmers for their produce as announced in the Union Budget.",
+            category: "agriculture",
+            eligibility: "Farmers producing Oilseeds, Pulses and Copra",
+            link: "https://pib.gov.in/PressNoteDetails.aspx?NoteId=151590",
+            provider: "Ministry of Agriculture"
+        },
 
         // --- EMPLOYMENT & BUSINESS ---
         {
@@ -433,6 +501,22 @@ const Resources = () => {
             link: "https://www.skillindia.gov.in/",
             provider: "MSDE"
         },
+        {
+            title: "Aatmanirbhar Bharat Rojgar Yojana",
+            description: "Incentivizing employers for creation of new employment and restoration of loss of employment during COVID-19 pandemic.",
+            category: "jobs",
+            eligibility: "EPFO registered establishments and new employees",
+            link: "https://www.epfindia.gov.in/",
+            provider: "Ministry of Labour"
+        },
+        {
+            title: "Garib Kalyan Rojgar Abhiyaan",
+            description: "A massive rural public works scheme to provide livelihood opportunities to returnee migrant workers and rural citizens.",
+            category: "jobs",
+            eligibility: "Migrant workers and rural youth in 116 selective districts",
+            link: "https://gkr.mord.gov.in/",
+            provider: "Ministry of Rural Development"
+        },
 
         // --- HOUSING & INFRA ---
         {
@@ -474,6 +558,22 @@ const Resources = () => {
             eligibility: "Residential consumers",
             link: "https://solarrooftop.gov.in/",
             provider: "Ministry of New & Renewable Energy"
+        },
+        {
+            title: "Swachh Bharat Mission (Gramin)",
+            description: "Making rural India Open Defecation Free (ODF) and ensuring door to door waste collection and treatment.",
+            category: "housing",
+            eligibility: "Rural households",
+            link: "https://swachhbharatmission.gov.in/",
+            provider: "Ministry of Jal Shakti"
+        },
+        {
+            title: "AMRUT 2.0",
+            description: "Atal Mission for Rejuvenation and Urban Transformation aimed at providing universal coverage of water supply through functional taps to all households.",
+            category: "housing",
+            eligibility: "Urban households in 4700+ ULBs",
+            link: "https://amrut.gov.in/",
+            provider: "Ministry of Housing & Urban Affairs"
         },
 
         // --- SOCIAL WELFARE / OTHER ---
@@ -615,6 +715,22 @@ const Resources = () => {
             link: "https://wcd.nic.in/",
             provider: "Ministry of Women & Child Development"
         },
+        {
+            title: "Poshan Abhiyaan",
+            description: "Prime Minister’s Overarching Scheme for Holistic Nourishment, aimed at reducing malnutrition and stunted growth in children.",
+            category: "women",
+            eligibility: "Children (0-6 years), Pregnant and Lactating Mothers",
+            link: "https://poshanabhiyaan.gov.in/",
+            provider: "Ministry of Women & Child Development"
+        },
+        {
+            title: "SABLA Scheme",
+            description: "Rajiv Gandhi Scheme for Empowerment of Adolescent Girls to provide them with life skills and vocational training.",
+            category: "women",
+            eligibility: "Adolescent girls (11-18 years)",
+            link: "https://wcd.nic.in/schemes/rgseag-sabla",
+            provider: "Ministry of Women & Child Development"
+        },
 
         // --- DISABILITY SUPPORT ---
         {
@@ -664,6 +780,14 @@ const Resources = () => {
             eligibility: "Persons with disabilities aged 18-60",
             link: "https://www.nhfdc.org/",
             provider: "National Handicapped Finance and Development Corp"
+        },
+        {
+            title: "Sugamya Pustakalaya",
+            description: "An online library where books are available in accessible formats for people with visual impairment or other print disabilities.",
+            category: "disability",
+            eligibility: "Persons with print disabilities",
+            link: "https://library.daisyindia.org/",
+            provider: "Ministry of Electronics & IT"
         },
 
         // --- STARTUPS & BUSINESS ---
@@ -722,6 +846,22 @@ const Resources = () => {
             eligibility: "Small businesses and entrepreneurs",
             link: "https://www.mudra.org.in/",
             provider: "MUDRA Bank"
+        },
+        {
+            title: "TIDE 2.0 Scheme",
+            description: "Technology Incubation and Development of Entrepreneurs aimed at promoting tech startups through 51 TIDE centers across India.",
+            category: "startup",
+            eligibility: "Tech Entrepreneurs and Startups",
+            link: "https://meity.gov.in/content/tide-20",
+            provider: "MeitY"
+        },
+        {
+            title: "MSME Champion Portal",
+            description: "A unified portal for MSMEs to resolve grievances, seek guidance and access multiple schemes under one umbrella.",
+            category: "startup",
+            eligibility: "All MSMEs and Entrepreneurs",
+            link: "https://champions.gov.in/",
+            provider: "Ministry of MSME"
         },
 
         // --- ADDITIONAL RESOURCES ---
