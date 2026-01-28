@@ -237,7 +237,7 @@ const LearningHub = () => {
             duration: "1 year",
             students: "1.5M+",
             level: "Graduate",
-            link: "http://www.mhrdnats.gov.in/",
+            link: "https://nats.education.gov.in/",
             features: ["Paid Training", "Exp Certificate", "Industry Tie-ups"],
             isOfficial: true
         },
@@ -309,7 +309,7 @@ const LearningHub = () => {
             duration: "Modular",
             students: "100K+",
             level: "Professional",
-            link: "http://nirdpr.org.in/",
+            link: "https://nirdpr.org.in/",
             features: ["Govt Policy", "Rural Tech", "Leadership"],
             isOfficial: true
         },
@@ -323,7 +323,7 @@ const LearningHub = () => {
             duration: "Self-paced",
             students: "1M+",
             level: "Beginner",
-            link: "https://www.bhashasangam.in/",
+            link: "https://ebsb.aicte-india.org/",
             features: ["22 Langs", "Daily Use", "Audio Support"],
             isOfficial: true
         },
@@ -359,7 +359,7 @@ const LearningHub = () => {
             duration: "1 year",
             students: "50K+",
             level: "Academic",
-            link: "http://chd.nic.in/",
+            link: "https://chd.education.gov.in/",
             features: ["Certificate", "Academic", "Postal support"],
             isOfficial: true
         },
@@ -459,7 +459,7 @@ const LearningHub = () => {
             duration: "2-4 weeks",
             students: "800K+",
             level: "Intermediate",
-            link: "http://www.dcmsme.gov.in/",
+            link: "https://msme.gov.in/training-institutions",
             features: ["Incubation", "Govt Loans", "Technical Help"],
             isOfficial: true
         },
@@ -471,7 +471,7 @@ const LearningHub = () => {
             duration: "Modular",
             students: "500K+",
             level: "All Levels",
-            link: "http://www.ediindia.org/",
+            link: "https://www.ediindia.org/",
             features: ["Expert faculty", "Field work", "Funding help"],
             isOfficial: true
         },
@@ -521,7 +521,7 @@ const LearningHub = () => {
             duration: "Daily",
             students: "Millions",
             level: "School",
-            link: "https://www.pm-evidya.education.gov.in/",
+            link: "https://pmevidya.education.gov.in/",
             features: ["TV Lessons", "Online exams", "Integrated"],
             isOfficial: true
         },
@@ -583,7 +583,7 @@ const LearningHub = () => {
             duration: "Self-paced",
             students: "5M+",
             level: "Beginner",
-            link: "https://www.ayush.gov.in/",
+            link: "https://ayush.gov.in/",
             features: ["Traditional Tech", "Daily Routine", "Wellness Guide"],
             isOfficial: true
         },

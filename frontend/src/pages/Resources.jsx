@@ -139,8 +139,8 @@ const Resources = () => {
             category: "education",
             subCategory: "scholarship",
             eligibility: "Students from NER region only",
-            link: "https://www.ugc.ac.in/ishi_uday/",
-            provider: "University Grants Commission (UGC)"
+            link: "https://scholarships.gov.in/",
+            provider: "National Scholarship Portal"
         },
         {
             title: "PM-Poshan (Mid Day Meal)",
@@ -175,7 +175,7 @@ const Resources = () => {
             category: "education",
             subCategory: "age",
             eligibility: "Girls from marginalized communities",
-            link: "https://samagra.education.gov.in/kgbv.html",
+            link: "https://samagra.education.gov.in/",
             provider: "Ministry of Education"
         },
         {
@@ -202,7 +202,7 @@ const Resources = () => {
             description: "Providing quality generic medicines at affordable prices to all through special outlets.",
             category: "healthcare",
             eligibility: "All citizens (especially poor)",
-            link: "http://janaushadhi.gov.in/",
+            link: "https://janaushadhi.gov.in/",
             provider: "Department of Pharmaceuticals"
         },
         {
@@ -284,8 +284,8 @@ const Resources = () => {
             description: "Short term credit for farmers to meet their financial requirements for cultivation.",
             category: "agriculture",
             eligibility: "Farmers, tenant farmers, sharecroppers",
-            link: "https://www.india.gov.in/",
-            provider: "Various Banks"
+            link: "https://pmkisan.gov.in/",
+            provider: "Ministry of Agriculture"
         },
         {
             title: "PM Fasal Bima Yojana",
@@ -490,8 +490,8 @@ const Resources = () => {
             description: "Small deposit scheme for the girl child with high interest rate.",
             category: "schemes",
             eligibility: "Girl child aged < 10 years",
-            link: "https://www.india.gov.in/",
-            provider: "Ministry of Finance"
+            link: "https://www.indiapost.gov.in/",
+            provider: "Department of Posts"
         },
         {
             title: "One Nation One Ration Card",
@@ -622,7 +622,7 @@ const Resources = () => {
             description: "Assistance to Disabled Persons for Purchase/Fitting of Aids and Appliances (ADIP).",
             category: "disability",
             eligibility: "Persons with 40% or more disability, monthly income < ₹20,000",
-            link: "https://depwd.gov.in/",
+            link: "https://disabilityaffairs.gov.in/content/page/adip.php",
             provider: "Department of Empowerment of Persons with Disabilities"
         },
         {
@@ -630,7 +630,7 @@ const Resources = () => {
             description: "Fellowship for students with disabilities to pursue M.Phil and Ph.D. programs.",
             category: "disability",
             eligibility: "Students with disabilities pursuing higher education",
-            link: "https://www.ugc.ac.in/",
+            link: "https://scholarships.gov.in/",
             provider: "UGC / Ministry of Social Justice"
         },
         {
@@ -638,7 +638,7 @@ const Resources = () => {
             description: "Financial assistance to NGOs for providing education, vocational training and rehabilitation of persons with disabilities.",
             category: "disability",
             eligibility: "NGOs and PwD beneficiaries",
-            link: "https://socialjustice.gov.in/",
+            link: "https://disabilityaffairs.gov.in/",
             provider: "Ministry of Social Justice"
         },
         {
@@ -662,7 +662,7 @@ const Resources = () => {
             description: "Concessional loans for persons with disabilities for starting small businesses or professional education.",
             category: "disability",
             eligibility: "Persons with disabilities aged 18-60",
-            link: "http://www.nhfdc.nic.in/",
+            link: "https://www.nhfdc.org/",
             provider: "National Handicapped Finance and Development Corp"
         },
 
@@ -712,7 +712,7 @@ const Resources = () => {
             description: "Startup Accelerator of MeitY for Product Innovation, Development and growth.",
             category: "startup",
             eligibility: "Startups and Accelerators",
-            link: "https://www.meity.gov.in/",
+            link: "https://samridh.meity.gov.in/",
             provider: "Ministry of Electronics & IT"
         },
         {
@@ -738,7 +738,7 @@ const Resources = () => {
             description: "Production Linked Incentive scheme for large scale electronics manufacturing in India.",
             category: "startup",
             eligibility: "Manufacturing companies",
-            link: "https://www.meity.gov.in/",
+            link: "https://www.meity.gov.in/esdm/pli",
             provider: "Ministry of IT"
         },
         {
@@ -850,7 +850,7 @@ const Resources = () => {
             description: "Small savings scheme for women with attractive interest rates and partial withdrawal options.",
             category: "women",
             eligibility: "Women and Girl Child",
-            link: "https://www.indiapost.gov.in/",
+            link: "https://www.indiapost.gov.in/Financial/Pages/Content/MSSC.aspx",
             provider: "Department of Posts"
         },
         {
@@ -858,7 +858,7 @@ const Resources = () => {
             description: "Mangrove Initiative for Shoreline Habitats & Tangible Incomes for mangrove plantation along coastline.",
             category: "schemes",
             eligibility: "Coastal communities and environmental agencies",
-            link: "https://moef.gov.in/",
+            link: "https://moef.gov.in/en/resource/mangrove-initiative-for-shoreline-habitats-tangible-incomes-mishti/",
             provider: "Ministry of Environment & Forests"
         },
         {
@@ -866,7 +866,7 @@ const Resources = () => {
             description: "Modernization of railway stations across the country with enhanced passenger amenities.",
             category: "housing",
             eligibility: "Rail passengers",
-            link: "https://indianrailways.gov.in/",
+            link: "https://indianrailways.gov.in/railwayboard/view_section.jsp?lang=0&id=0,1,304,366,533,2693",
             provider: "Ministry of Railways"
         },
         {
