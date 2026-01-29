@@ -51,10 +51,14 @@ async def agent_chat(
         print(f"🌐 Triggering Web Search for: {request.message}")
         search_results = search_service.search(request.message)
 
+    search_block = ""
+    if search_results:
+        search_block = f"REAL-TIME WEB SEARCH RESULTS (Use this to answer if relevant):\n{search_results}"
+
     prompt = f"""
     The following is a message from a user on our Community Empowering platform.
     
-    {f"REAL-TIME WEB SEARCH RESULTS (Use this to answer if relevant):\n{search_results}" if search_results else ""}
+    {search_block}
 
     Analyze the message and provide:
     1. A helpful response. (If search results were provided, use them to give accurate info).
