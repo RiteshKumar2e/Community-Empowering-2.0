@@ -7,6 +7,7 @@ from app.api.auth import oauth2_scheme
 from app.models.models import User
 from app.api.users import get_current_user
 from app.services.ai_service import AIService
+from app.services.search_service import search_service
 import json
 
 router = APIRouter()
@@ -41,10 +42,22 @@ async def agent_chat(
         except:
             pass
 
+    # NEW: Search Integration
+    search_triggers = ["search", "google", "latest", "find", "current", "news", "scheme", "update", "browser", "chrome"]
+    needs_search = any(trigger in request.message.lower() for trigger in search_triggers)
+    
+    search_results = ""
+    if needs_search:
+        print(f"🌐 Triggering Web Search for: {request.message}")
+        search_results = search_service.search(request.message)
+
     prompt = f"""
     The following is a message from a user on our Community Empowering platform.
+    
+    {f"REAL-TIME WEB SEARCH RESULTS (Use this to answer if relevant):\n{search_results}" if search_results else ""}
+
     Analyze the message and provide:
-    1. A helpful response.
+    1. A helpful response. (If search results were provided, use them to give accurate info).
     2. Categorize it (complaint, inquiry, feedback, or greeting).
     3. Identify the specific category (education, health, finance, etc.).
     4. Determine the priority (high, medium, low).

@@ -3,6 +3,7 @@ from typing import Optional, Dict, List
 from groq import Groq
 import google.generativeai as genai
 from app.core.config import settings
+from app.services.search_service import search_service
 
 class AIService:
     """AI Service with cascading fallback: Groq → Gemini"""
