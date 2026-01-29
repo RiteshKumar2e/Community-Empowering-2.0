@@ -164,20 +164,17 @@ async def google_login(google_data: GoogleLogin, db: Session = Depends(get_db)):
                 detail="Email not provided by Google"
             )
         
-        # Check if user exists, if not create a temporary user record
+        # Check if user exists
         user = db.query(User).filter(User.email == email).first()
         
         if not user:
             # Create new user with Google account (not yet verified)
             print(f"📝 Creating new user for: {email}")
-            # Use os.urandom for a raw string instead of hex if possible, or just a shorter random string
-            # to make hashing slightly faster, though bcrypt handles arbitrary length.
-            # More importantly, ensure the DB operation is efficient.
             user = User(
                 name=name,
                 email=email,
                 phone="", 
-                password_hash="google_authenticated_user", # Don't need slow bcrypt for oauth-only users
+                password_hash="google_authenticated_user", 
                 location="",
                 language="en",
                 community_type="general",
@@ -185,21 +182,21 @@ async def google_login(google_data: GoogleLogin, db: Session = Depends(get_db)):
                 google_email_verified=False
             )
             db.add(user)
-            db.commit()
-            db.refresh(user)
         
         # Generate OTP
         otp = email_service.generate_otp()
         otp_expiry = email_service.get_otp_expiry()
         
-        # Store OTP in database
+        # Update user with OTP in one go
         user.google_otp = otp
         user.google_otp_expiry = otp_expiry
+        
+        # Single commit for all changes
         db.commit()
+        if not user.id: # If newly added
+            db.refresh(user)
         
         # INSTANT FIRE-AND-FORGET EMAIL
-        # We start the thread BEFORE returning to ensure no delay, 
-        # but we don't wait for any API response from Brevo.
         email_service.send_otp(email, otp)
         
         print(f"📧 OTP Dispatch Initiated for {email}")

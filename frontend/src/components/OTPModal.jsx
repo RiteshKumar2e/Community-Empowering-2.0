@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import api from "../services/api";
 import "../styles/OTPModal.css";
 
 export default function OTPModal({ isOpen, onClose, email, onVerify, loading }) {
@@ -155,7 +156,22 @@ export default function OTPModal({ isOpen, onClose, email, onVerify, loading }) 
 
                         <div className="otp-footer">
                             <p>Didn't receive the code?</p>
-                            <button className="otp-resend" type="button">
+                            <button
+                                className="otp-resend"
+                                type="button"
+                                onClick={async () => {
+                                    try {
+                                        setError("");
+                                        const res = await api.post('/auth/resend-google-otp', { email });
+                                        if (res.data.success) {
+                                            alert("A new OTP has been sent to your email!");
+                                        }
+                                    } catch (err) {
+                                        setError("Failed to resend OTP. Please try again.");
+                                    }
+                                }}
+                                disabled={loading}
+                            >
                                 Resend OTP
                             </button>
                         </div>

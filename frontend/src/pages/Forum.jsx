@@ -117,23 +117,20 @@ const Forum = () => {
 
     const fetchDiscussionsAndStats = async () => {
         try {
-            // Fetch discussions
+            // Build the URL for discussions
             let url = `/forum/discussions?filter_type=${filterType}`
-            if (selectedCategory) {
-                url += `&category_id=${selectedCategory}`
-            }
-            if (selectedTags.length > 0) {
-                url += `&tags=${encodeURIComponent(selectedTags.join(','))}`
-            }
-            const discussionsRes = await api.get(url)
+            if (selectedCategory) url += `&category_id=${selectedCategory}`
+            if (selectedTags.length > 0) url += `&tags=${encodeURIComponent(selectedTags.join(','))}`
+
+            // Fetch discussions, stats, and contributors in parallel for speed
+            const [discussionsRes, statsRes, contributorsRes] = await Promise.all([
+                api.get(url),
+                api.get('/forum/stats'),
+                api.get('/forum/top-contributors')
+            ]);
+
             setDiscussions(Array.isArray(discussionsRes.data) ? discussionsRes.data : [])
-
-            // Fetch stats
-            const statsRes = await api.get('/forum/stats')
             setStats(statsRes.data)
-
-            // Fetch top contributors
-            const contributorsRes = await api.get('/forum/top-contributors')
             setContributors(contributorsRes.data || [])
         } catch (error) {
             console.error('Error fetching dynamic data:', error)
@@ -143,13 +140,16 @@ const Forum = () => {
     const fetchData = async () => {
         try {
             setLoading(true)
-            // Fetch categories once
+            
+            // 1. Fetch categories
             const categoriesRes = await api.get('/forum/categories')
             if (Array.isArray(categoriesRes.data) && categoriesRes.data.length > 0) {
                 setCategories(categoriesRes.data)
             }
-            // Fetch the rest
+            
+            // 2. Fetch the dynamic data in parallel
             await fetchDiscussionsAndStats()
+            
         } catch (error) {
             console.error('Error fetching forum base data:', error)
             setDiscussions([])

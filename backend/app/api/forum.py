@@ -106,16 +106,26 @@ def is_admin(user: User) -> bool:
 async def get_categories(
     db: Session = Depends(get_db)
 ):
-    """Get all forum categories"""
+    """Get all forum categories with discussion counts in one go"""
+    # Optimized query using group_by to avoid N+1
+    counts = db.query(
+        ForumDiscussion.category_id, 
+        func.count(ForumDiscussion.id).label('count')
+    ).group_by(ForumDiscussion.category_id).all()
+    
+    count_map = {c_id: count for c_id, count in counts}
     categories = db.query(ForumCategory).all()
+    
     result = []
     for cat in categories:
-        discussion_count = db.query(ForumDiscussion).filter(
-            ForumDiscussion.category_id == cat.id
-        ).count()
         result.append({
-            **cat.__dict__,
-            "discussion_count": discussion_count
+            "id": cat.id,
+            "name": cat.name,
+            "description": cat.description,
+            "icon": cat.icon,
+            "color": cat.color,
+            "created_at": cat.created_at,
+            "discussion_count": count_map.get(cat.id, 0)
         })
     return result
 
@@ -149,8 +159,11 @@ async def get_discussions(
     db: Session = Depends(get_db),
     current_user: Optional[User] = Depends(get_current_user_optional)
 ):
-    """Get all discussions with optional filtering"""
-    query = db.query(ForumDiscussion)
+    """Optimized discussions fetch using batching and joinedload"""
+    from sqlalchemy.orm import joinedload
+    
+    # Use joinedload to get user info in the same query
+    query = db.query(ForumDiscussion).options(joinedload(ForumDiscussion.user))
     
     if category_id:
         query = query.filter(ForumDiscussion.category_id == category_id)
@@ -163,7 +176,6 @@ async def get_discussions(
     if filter_type == "featured":
         query = query.filter(ForumDiscussion.is_featured == True)
     elif filter_type == "unanswered":
-        # Get discussions with no replies
         query = query.outerjoin(ForumReply).group_by(ForumDiscussion.id).having(
             func.count(ForumReply.id) == 0
         )
@@ -174,40 +186,52 @@ async def get_discussions(
     
     discussions = query.offset(skip).limit(limit).all()
     
+    if not discussions:
+        return []
+
+    disc_ids = [d.id for d in discussions]
+    
+    # Batch fetch reply counts
+    reply_counts = db.query(
+        ForumReply.discussion_id, 
+        func.count(ForumReply.id).label('count')
+    ).filter(ForumReply.discussion_id.in_(disc_ids)).group_by(ForumReply.discussion_id).all()
+    reply_count_map = {d_id: count for d_id, count in reply_counts}
+    
+    # Batch fetch likes status
+    liked_ids = set()
+    if current_user:
+        likes = db.query(ForumLike.discussion_id).filter(
+            ForumLike.discussion_id.in_(disc_ids),
+            ForumLike.user_id == current_user.id
+        ).all()
+        liked_ids = {l.discussion_id for l in likes}
+        
+    # Batch fetch latest replies in ONE query
+    subq = db.query(
+        ForumReply.discussion_id,
+        func.max(ForumReply.created_at).label('max_created')
+    ).filter(ForumReply.discussion_id.in_(disc_ids)).group_by(ForumReply.discussion_id).subquery()
+    
+    latest_replies = db.query(ForumReply).join(
+        subq, (ForumReply.discussion_id == subq.c.discussion_id) & (ForumReply.created_at == subq.c.max_created)
+    ).options(joinedload(ForumReply.user)).all()
+    latest_reply_map = {r.discussion_id: r for r in latest_replies}
+
     result = []
     for disc in discussions:
-        user = db.query(User).filter(User.id == disc.user_id).first()
-        reply_count = db.query(ForumReply).filter(
-            ForumReply.discussion_id == disc.id
-        ).count()
-        
-        tags = []
+        tag_list = []
         if disc.tags:
-            try:
-                tags = json.loads(disc.tags)
-            except:
-                tags = []
+            try: tag_list = json.loads(disc.tags)
+            except: tag_list = []
         
-        # Check if current user liked
-        is_liked = False
-        if current_user:
-            is_liked = db.query(ForumLike).filter(
-                ForumLike.discussion_id == disc.id,
-                ForumLike.user_id == current_user.id
-            ).first() is not None
-        
-        # Fetch latest reply
-        latest_reply = db.query(ForumReply).filter(
-            ForumReply.discussion_id == disc.id
-        ).order_by(ForumReply.created_at.desc()).first()
-        
-        latest_reply_info = None
-        if latest_reply:
-            reply_user = db.query(User).filter(User.id == latest_reply.user_id).first()
-            latest_reply_info = {
-                "content": latest_reply.content,
-                "user_name": reply_user.name if reply_user else "Unknown",
-                "created_at": latest_reply.created_at
+        reply = latest_reply_map.get(disc.id)
+        latest_info = None
+        if reply:
+            latest_info = {
+                "content": reply.content,
+                "user_name": reply.user.name if reply.user else "Unknown",
+                "created_at": reply.created_at
             }
         
         result.append({
@@ -223,12 +247,12 @@ async def get_discussions(
             "status": disc.status,
             "created_at": disc.created_at,
             "updated_at": disc.updated_at,
-            "user_name": user.name if user else "Unknown",
-            "user_email": user.email if user else "",
-            "tags": tags,
-            "reply_count": reply_count,
-            "latest_reply": latest_reply_info,
-            "is_liked": is_liked
+            "user_name": disc.user.name if disc.user else "Unknown",
+            "user_email": disc.user.email if disc.user else "",
+            "tags": tag_list,
+            "reply_count": reply_count_map.get(disc.id, 0),
+            "latest_reply": latest_info,
+            "is_liked": disc.id in liked_ids
         })
     
     return result
@@ -503,30 +527,52 @@ async def get_forum_stats(
 
 @router.get("/top-contributors", response_model=List[ContributorResponse])
 async def get_top_contributors(db: Session = Depends(get_db)):
-    """Get top 3 contributors based on activity and likes received"""
-    users = db.query(User).all()
-    results = []
+    """Get top 3 contributors using high-performance SQL aggregation"""
+    # Points: Discussion (10), Reply (5), Like Received (2)
     
-    for user in users:
-        # Points: Discussion (10), Reply (5), Like Received (2)
-        disc_count = db.query(ForumDiscussion).filter(ForumDiscussion.user_id == user.id).count()
-        reply_count = db.query(ForumReply).filter(ForumReply.user_id == user.id).count()
+    # Discussions points
+    disc_p = db.query(
+        ForumDiscussion.user_id.label('u_id'),
+        (func.count(ForumDiscussion.id) * 10).label('pts')
+    ).group_by(ForumDiscussion.user_id).subquery()
+     
+    # Replies points
+    reply_p = db.query(
+        ForumReply.user_id.label('u_id'),
+        (func.count(ForumReply.id) * 5).label('pts')
+    ).group_by(ForumReply.user_id).subquery()
+
+    # Likes received subqueries
+    disc_l = db.query(
+        ForumDiscussion.user_id.label('u_id'),
+        (func.sum(ForumDiscussion.likes) * 2).label('pts')
+    ).group_by(ForumDiscussion.user_id).subquery()
+    
+    reply_l = db.query(
+        ForumReply.user_id.label('u_id'),
+        (func.sum(ForumReply.likes) * 2).label('pts')
+    ).group_by(ForumReply.user_id).subquery()
+
+    # Get maps of users who have points
+    d_map = dict(db.query(disc_p.c.u_id, disc_p.c.pts).all())
+    r_map = dict(db.query(reply_p.c.u_id, reply_p.c.pts).all())
+    dl_map = dict(db.query(disc_l.c.u_id, disc_l.c.pts).all())
+    rl_map = dict(db.query(reply_l.c.u_id, reply_l.c.pts).all())
+
+    # Get set of all user IDs who have any points to avoid looping over all users
+    active_uids = set(d_map.keys()) | set(r_map.keys()) | set(dl_map.keys()) | set(rl_map.keys())
+    
+    if not active_uids:
+        return []
         
-        # Likes received on discussions
-        disc_likes = db.query(func.sum(ForumDiscussion.likes)).filter(ForumDiscussion.user_id == user.id).scalar() or 0
-        # Likes received on replies
-        reply_likes = db.query(func.sum(ForumReply.likes)).filter(ForumReply.user_id == user.id).scalar() or 0
-        
-        points = (disc_count * 10) + (reply_count * 5) + ((disc_likes + reply_likes) * 2)
-        
-        if points > 0:
-            results.append({
-                "user_id": user.id,
-                "name": user.name,
-                "points": points
-            })
+    # Only fetch names for active users
+    active_users = db.query(User.id, User.name).filter(User.id.in_(active_uids)).all()
+
+    results = []
+    for u_id, name in active_users:
+        total = d_map.get(u_id, 0) + r_map.get(u_id, 0) + int(dl_map.get(u_id, 0) or 0) + int(rl_map.get(u_id, 0) or 0)
+        results.append({"user_id": u_id, "name": name, "points": total})
             
-    # Sort by points desc and take top 3
     results.sort(key=lambda x: x["points"], reverse=True)
     return results[:3]
 
