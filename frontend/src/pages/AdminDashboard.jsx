@@ -60,6 +60,8 @@ const AdminDashboard = () => {
         color: '#6366f1'
     })
     const [detailedActivities, setDetailedActivities] = useState([])
+    const [selectedActivities, setSelectedActivities] = useState([])
+    const [selectedQueries, setSelectedQueries] = useState([])
 
     useEffect(() => {
         // Check if user is admin - more robust check
@@ -107,9 +109,15 @@ const AdminDashboard = () => {
 
             const activity = [
                 ...(usersRes.data || []).map(u => ({ type: 'user', name: u.name, time: u.created_at })),
-                ...(queriesRes.data || []).map(q => ({ type: 'query', name: 'Anonymous', time: q.created_at })),
-                ...(feedbackRes.data || []).map(f => ({ type: 'feedback', name: f.user_name || 'User', time: f.created_at }))
-            ].sort((a, b) => new Date(b.time) - new Date(a.time)).slice(0, 8)
+                ...(feedbackRes.data || []).map(f => ({ type: 'feedback', name: f.user_name || 'User', time: f.created_at })),
+                ...(activitiesRes.data || []).map(a => ({
+                    id: a.id,
+                    type: a.type === 'ai_query' ? 'ai_query' : a.type,
+                    name: a.user_name,
+                    time: a.created_at,
+                    title: a.title
+                }))
+            ].sort((a, b) => new Date(b.time || b.created_at) - new Date(a.time || a.created_at)).slice(0, 10)
 
             setRecentActivity(activity)
 
@@ -154,6 +162,7 @@ const AdminDashboard = () => {
         try {
             await api.delete(`/admin/activities/${id}`)
             setDetailedActivities(detailedActivities.filter(a => a.id !== id))
+            setRecentActivity(recentActivity.filter(a => a.id !== id))
         } catch (error) { alert('Delete failed') }
     }
 
@@ -162,8 +171,83 @@ const AdminDashboard = () => {
         try {
             await api.delete('/admin/activities/clear-all/logs')
             setDetailedActivities([])
+            setRecentActivity(recentActivity.filter(a => !a.id)) // Keep system join/feedback items if they don't have DB IDs, but clear tracked ones
+            setSelectedActivities([])
             alert('All activity logs cleared')
         } catch (error) { alert('Clear failed') }
+    }
+
+    const handleToggleSelect = (id) => {
+        setSelectedActivities(prev =>
+            prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
+        )
+    }
+
+    const handleSelectAll = (e) => {
+        if (e.target.checked) {
+            setSelectedActivities(detailedActivities.map(a => a.id).filter(id => id))
+        } else {
+            setSelectedActivities([])
+        }
+    }
+
+    const handleDeleteSelectedActivities = async () => {
+        if (selectedActivities.length === 0) return
+        if (!window.confirm(`Delete ${selectedActivities.length} selected activities?`)) return
+
+        try {
+            await api.post('/admin/activities/bulk-delete', { ids: selectedActivities })
+            setDetailedActivities(prev => prev.filter(a => !selectedActivities.includes(a.id)))
+            setRecentActivity(prev => prev.filter(a => !selectedActivities.includes(a.id)))
+            setSelectedActivities([])
+            alert('Selected activities deleted')
+        } catch (error) {
+            alert('Bulk delete failed')
+        }
+    }
+
+    const handleDeleteQuery = async (id) => {
+        if (!window.confirm('Delete this query?')) return
+        try {
+            await api.delete(`/admin/queries/${id}`)
+            setRecentQueries(recentQueries.filter(q => q.id !== id))
+            setSelectedQueries(selectedQueries.filter(qId => qId !== id))
+        } catch (error) { alert('Delete failed') }
+    }
+
+    const handleClearAllQueries = async () => {
+        if (!window.confirm('Clear ALL AI queries?')) return
+        try {
+            await api.delete('/admin/queries/clear-all/all')
+            setRecentQueries([])
+            setSelectedQueries([])
+            alert('All queries cleared')
+        } catch (error) { alert('Clear failed') }
+    }
+
+    const handleToggleSelectQuery = (id) => {
+        setSelectedQueries(prev =>
+            prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
+        )
+    }
+
+    const handleSelectAllQueries = (e) => {
+        if (e.target.checked) {
+            setSelectedQueries(recentQueries.map(q => q.id))
+        } else {
+            setSelectedQueries([])
+        }
+    }
+
+    const handleDeleteSelectedQueries = async () => {
+        if (selectedQueries.length === 0) return
+        if (!window.confirm(`Delete ${selectedQueries.length} selected queries?`)) return
+        try {
+            await api.post('/admin/queries/bulk-delete', { ids: selectedQueries })
+            setRecentQueries(prev => prev.filter(q => !selectedQueries.includes(q.id)))
+            setSelectedQueries([])
+            alert('Selected queries deleted')
+        } catch (error) { alert('Bulk delete failed') }
     }
 
     const handleDeleteResource = async (id) => {
@@ -387,6 +471,9 @@ const AdminDashboard = () => {
                             <div className="admin-section">
                                 <div className="section-header">
                                     <h2><Activity size={20} /> Latest Activity</h2>
+                                    <button className="btn-delete-small secondary" onClick={handleClearAllActivities}>
+                                        <Trash2 size={16} /> Clear All
+                                    </button>
                                 </div>
                                 <div className="activity-feed">
                                     {recentActivity.map((act, idx) => (
@@ -398,13 +485,25 @@ const AdminDashboard = () => {
                                             </div>
                                             <div className="activity-info">
                                                 <p>
-                                                    <strong>{act.name}</strong>
+                                                    <strong>{act.user_name || act.name || 'Anonymous'}</strong>
                                                     {act.type === 'user' ? ' joined the community' :
                                                         act.type === 'feedback' ? ' shared their feedback' :
-                                                            ' consulted the AI Assistant'}
+                                                            act.type === 'ai_query' ? ' consulted the AI Assistant' :
+                                                                act.type === 'resource_view' ? ' viewed a resource' :
+                                                                    act.type === 'course_enroll' ? ' enrolled in a course' :
+                                                                        ` performed ${act.type}`}
                                                 </p>
-                                                <span>{new Date(act.time).toLocaleString()}</span>
+                                                <span>{act.created_at || new Date(act.time).toLocaleString()}</span>
                                             </div>
+                                            {act.id && (
+                                                <button
+                                                    onClick={() => handleDeleteActivity(act.id)}
+                                                    className="btn-delete-small transparent"
+                                                    title="Delete"
+                                                >
+                                                    <Trash2 size={14} />
+                                                </button>
+                                            )}
                                         </div>
                                     ))}
                                     {recentActivity.length === 0 && <p className="text-muted">No recent activity detected.</p>}
@@ -415,13 +514,39 @@ const AdminDashboard = () => {
                             <div className="admin-section">
                                 <div className="section-header">
                                     <h2><MessageSquare size={20} /> Recent AI Queries</h2>
+                                    <div className="section-actions">
+                                        {selectedQueries.length > 0 && (
+                                            <button className="btn-delete-small danger" onClick={handleDeleteSelectedQueries}>
+                                                <Trash2 size={16} /> Delete Selected ({selectedQueries.length})
+                                            </button>
+                                        )}
+                                        <button className="btn-delete-small secondary" onClick={handleClearAllQueries}>
+                                            <Trash2 size={16} /> Clear All
+                                        </button>
+                                    </div>
                                 </div>
                                 <div className="queries-list">
-                                    {recentQueries.slice(0, 4).map((query, index) => (
-                                        <div key={index} className="query-card-compact">
+                                    {recentQueries.slice(0, 6).map((query, index) => (
+                                        <div key={index} className={`query-card-compact ${selectedQueries.includes(query.id) ? 'selected-row' : ''}`}>
                                             <div className="query-meta-top">
-                                                <span className="query-lang">{query.language?.toUpperCase()}</span>
-                                                <span className="query-date">{new Date(query.created_at).toLocaleTimeString()}</span>
+                                                <div className="flex items-center gap-2">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={selectedQueries.includes(query.id)}
+                                                        onChange={() => handleToggleSelectQuery(query.id)}
+                                                    />
+                                                    <span className="query-lang">{query.language?.toUpperCase()}</span>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="query-date">{query.created_at || new Date(query.created_at).toLocaleTimeString()}</span>
+                                                    <button
+                                                        onClick={() => handleDeleteQuery(query.id)}
+                                                        className="btn-delete-small transparent"
+                                                        title="Delete Query"
+                                                    >
+                                                        <Trash2 size={14} />
+                                                    </button>
+                                                </div>
                                             </div>
                                             <p className="query-text">"{query.message}"</p>
                                         </div>
@@ -438,6 +563,11 @@ const AdminDashboard = () => {
                         <div className="section-header">
                             <h2><Activity size={20} /> Detailed User Activity Log</h2>
                             <div className="section-actions">
+                                {selectedActivities.length > 0 && (
+                                    <button className="btn-delete-small danger" onClick={handleDeleteSelectedActivities}>
+                                        <Trash2 size={16} /> Delete Selected ({selectedActivities.length})
+                                    </button>
+                                )}
                                 <button className="btn-delete-small secondary" onClick={handleClearAllActivities}>
                                     <Trash2 size={16} /> Clear All Logs
                                 </button>
@@ -448,6 +578,13 @@ const AdminDashboard = () => {
                             <table className="admin-table">
                                 <thead>
                                     <tr>
+                                        <th style={{ width: '40px' }}>
+                                            <input
+                                                type="checkbox"
+                                                onChange={handleSelectAll}
+                                                checked={selectedActivities.length > 0 && selectedActivities.length === detailedActivities.filter(a => a.id).length}
+                                            />
+                                        </th>
                                         <th>User</th>
                                         <th>Action Type</th>
                                         <th>Details</th>
@@ -457,7 +594,15 @@ const AdminDashboard = () => {
                                 </thead>
                                 <tbody>
                                     {detailedActivities.map((act, idx) => (
-                                        <tr key={idx}>
+                                        <tr key={idx} className={selectedActivities.includes(act.id) ? 'selected-row' : ''}>
+                                            <td>
+                                                <input
+                                                    type="checkbox"
+                                                    checked={selectedActivities.includes(act.id)}
+                                                    onChange={() => handleToggleSelect(act.id)}
+                                                    disabled={!act.id}
+                                                />
+                                            </td>
                                             <td>
                                                 <div className="user-cell">
                                                     <div className="user-icon small">

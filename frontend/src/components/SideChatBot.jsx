@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { MessageSquare, Send, Mic, MicOff, X, Bot, User, Hash, Tag, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../services/api';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import '../styles/SideChatBot.css';
 import chatbotIcon from '../assets/chatbot.jpg';
 
@@ -148,8 +150,16 @@ const SideChatBot = () => {
                         <div className="chatbot-messages">
                             {messages.map((msg) => (
                                 <div key={msg.id} className={`message ${msg.sender}`}>
-                                    {msg.text}
-                                    <div style={{ fontSize: '0.7rem', opacity: 0.5, marginTop: '4px', textAlign: msg.sender === 'user' ? 'right' : 'left' }}>
+                                    <div className="message-content">
+                                        {msg.sender === 'bot' ? (
+                                            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                                {msg.text}
+                                            </ReactMarkdown>
+                                        ) : (
+                                            msg.text
+                                        )}
+                                    </div>
+                                    <div className="message-time">
                                         {msg.timestamp}
                                     </div>
                                 </div>

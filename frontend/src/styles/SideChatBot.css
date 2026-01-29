@@ -216,6 +216,10 @@ body:not(.light-theme) .chatbot-messages {
     line-height: 1.6;
     position: relative;
     transition: transform 0.2s;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    white-space: pre-wrap;
 }
 
 .message:hover {
@@ -250,6 +254,50 @@ body:not(.light-theme) .message.user {
     color: #f1f5f9;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
     border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.message-content {
+    margin-bottom: 4px;
+}
+
+.message-content p {
+    margin: 0 0 8px 0;
+}
+
+.message-content p:last-child {
+    margin-bottom: 0;
+}
+
+.message-content a {
+    color: inherit;
+    text-decoration: underline;
+    font-weight: 600;
+}
+
+.message.bot .message-content a {
+    color: #ffffff;
+    opacity: 0.9;
+}
+
+.message-content ul,
+.message-content ol {
+    margin: 8px 0;
+    padding-left: 1.25rem;
+}
+
+.message-time {
+    font-size: 0.7rem;
+    opacity: 0.6;
+    margin-top: 6px;
+}
+
+.message.user .message-time {
+    text-align: right;
+}
+
+.message.bot .message-time {
+    text-align: left;
+    color: rgba(255, 255, 255, 0.8);
 }
 
 .message-meta {

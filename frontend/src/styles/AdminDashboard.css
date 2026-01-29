@@ -5,6 +5,22 @@
     background: var(--bg-primary);
 }
 
+.flex {
+    display: flex;
+}
+
+.items-center {
+    align-items: center;
+}
+
+.gap-2 {
+    gap: 0.5rem;
+}
+
+.gap-3 {
+    gap: 0.75rem;
+}
+
 .admin-loading {
     min-height: 100vh;
     display: flex;
@@ -601,6 +617,17 @@ body.light-theme .btn-icon:hover {
     margin-bottom: 0;
 }
 
+.query-meta-top .query-meta-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.query-card-compact.selected-row {
+    background: rgba(99, 102, 241, 0.05);
+    border-color: var(--primary-500);
+}
+
 /* New Management Styles */
 .content-manage-list {
     display: flex;
@@ -671,6 +698,32 @@ body.light-theme .btn-icon:hover {
 .btn-delete-small:hover {
     background: var(--error-500);
     color: white;
+}
+
+.btn-delete-small.danger {
+    background: var(--error-600);
+    color: white;
+    padding: 6px 12px;
+    font-weight: 600;
+}
+
+.btn-delete-small.danger:hover {
+    background: var(--error-700);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.btn-delete-small.secondary {
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+}
+
+.selected-row {
+    background: rgba(239, 68, 68, 0.05) !important;
+}
+
+body.light-theme .selected-row {
+    background: rgba(239, 68, 68, 0.03) !important;
 }
 
 /* Feedback Grid Admin */

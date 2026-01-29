@@ -13,6 +13,9 @@ IST = timezone(timedelta(hours=5, minutes=30))
 
 router = APIRouter()
 
+class BulkDeleteRequest(BaseModel):
+    ids: List[int]
+
 class ResourceCreate(BaseModel):
     title: str
     description: str
@@ -148,6 +151,41 @@ async def get_all_queries(
         })
     
     return query_list
+
+@router.delete("/queries/{query_id}")
+async def delete_query(
+    query_id: int,
+    admin: User = Depends(verify_admin),
+    db: Session = Depends(get_db)
+):
+    """Delete an AI query"""
+    query = db.query(Query).filter(Query.id == query_id).first()
+    if not query:
+        raise HTTPException(status_code=404, detail="Query not found")
+    db.delete(query)
+    db.commit()
+    return {"message": "Query deleted successfully"}
+
+@router.delete("/queries/clear-all/all")
+async def clear_all_queries(
+    admin: User = Depends(verify_admin),
+    db: Session = Depends(get_db)
+):
+    """Clear all AI queries"""
+    db.query(Query).delete()
+    db.commit()
+    return {"message": "All queries cleared"}
+
+@router.post("/queries/bulk-delete")
+async def bulk_delete_queries(
+    request: BulkDeleteRequest,
+    admin: User = Depends(verify_admin),
+    db: Session = Depends(get_db)
+):
+    """Bulk delete AI queries"""
+    db.query(Query).filter(Query.id.in_(request.ids)).delete(synchronize_session=False)
+    db.commit()
+    return {"message": f"{len(request.ids)} queries deleted"}
 
 @router.get("/enrollments")
 async def get_all_enrollments(
@@ -407,3 +445,14 @@ async def clear_all_activities(
     db.query(UserActivity).delete()
     db.commit()
     return {"message": "All activity logs cleared successfully"}
+
+@router.post("/activities/bulk-delete")
+async def bulk_delete_activities(
+    request: BulkDeleteRequest,
+    admin: User = Depends(verify_admin),
+    db: Session = Depends(get_db)
+):
+    """Admin delete multiple selected activity logs"""
+    db.query(UserActivity).filter(UserActivity.id.in_(request.ids)).delete(synchronize_session=False)
+    db.commit()
+    return {"message": f"{len(request.ids)} activities deleted"}
