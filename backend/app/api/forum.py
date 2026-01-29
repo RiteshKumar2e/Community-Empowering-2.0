@@ -206,7 +206,18 @@ async def get_discussions(
             }
         
         result.append({
-            **disc.__dict__,
+            "id": disc.id,
+            "title": disc.title,
+            "content": disc.content,
+            "category_id": disc.category_id,
+            "user_id": disc.user_id,
+            "views": disc.views,
+            "likes": disc.likes,
+            "is_featured": disc.is_featured,
+            "is_pinned": disc.is_pinned,
+            "status": disc.status,
+            "created_at": disc.created_at,
+            "updated_at": disc.updated_at,
             "user_name": user.name if user else "Unknown",
             "user_email": user.email if user else "",
             "tags": tags,
@@ -271,13 +282,32 @@ async def get_discussion(
             tags = json.loads(discussion.tags)
         except:
             tags = []
+
+    is_liked = False
+    if current_user:
+        is_liked = db.query(ForumLike).filter(
+            ForumLike.discussion_id == discussion_id,
+            ForumLike.user_id == current_user.id
+        ).first() is not None
     
     return {
-        **discussion.__dict__,
+        "id": discussion.id,
+        "title": discussion.title,
+        "content": discussion.content,
+        "category_id": discussion.category_id,
+        "user_id": discussion.user_id,
+        "views": discussion.views,
+        "likes": discussion.likes,
+        "is_featured": discussion.is_featured,
+        "is_pinned": discussion.is_pinned,
+        "status": discussion.status,
+        "created_at": discussion.created_at,
+        "updated_at": discussion.updated_at,
         "user_name": user.name if user else "Unknown",
         "user_email": user.email if user else "",
         "tags": tags,
-        "reply_count": reply_count
+        "reply_count": reply_count,
+        "is_liked": is_liked if current_user else False
     }
 
 @router.post("/discussions", response_model=DiscussionResponse)
@@ -320,7 +350,18 @@ async def create_discussion(
         print(f"Error logging forum activity: {str(e)}")
         
     return {
-        **new_discussion.__dict__,
+        "id": new_discussion.id,
+        "title": new_discussion.title,
+        "content": new_discussion.content,
+        "category_id": new_discussion.category_id,
+        "user_id": new_discussion.user_id,
+        "views": new_discussion.views,
+        "likes": new_discussion.likes,
+        "is_featured": new_discussion.is_featured,
+        "is_pinned": new_discussion.is_pinned,
+        "status": new_discussion.status,
+        "created_at": new_discussion.created_at,
+        "updated_at": new_discussion.updated_at,
         "user_name": current_user.name,
         "user_email": current_user.email,
         "tags": discussion.tags,
@@ -366,7 +407,15 @@ async def get_replies(
             ).first() is not None
         
         result.append({
-            **reply.__dict__,
+            "id": reply.id,
+            "discussion_id": reply.discussion_id,
+            "user_id": reply.user_id,
+            "content": reply.content,
+            "likes": reply.likes,
+            "views": reply.views,
+            "is_solution": reply.is_solution,
+            "created_at": reply.created_at,
+            "updated_at": reply.updated_at,
             "user_name": user.name if user else "Unknown",
             "user_email": user.email if user else "",
             "is_liked": is_liked
@@ -404,9 +453,18 @@ async def create_reply(
     db.refresh(new_reply)
     
     return {
-        **new_reply.__dict__,
+        "id": new_reply.id,
+        "discussion_id": new_reply.discussion_id,
+        "user_id": new_reply.user_id,
+        "content": new_reply.content,
+        "likes": new_reply.likes,
+        "views": new_reply.views,
+        "is_solution": new_reply.is_solution,
+        "created_at": new_reply.created_at,
+        "updated_at": new_reply.updated_at,
         "user_name": current_user.name,
-        "user_email": current_user.email
+        "user_email": current_user.email,
+        "is_liked": False
     }
 
 # Admin Stats Endpoint

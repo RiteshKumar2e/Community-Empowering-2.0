@@ -1409,23 +1409,120 @@ body.light-theme .category-dropdown-select option {
         position: static;
         order: -1;
     }
+
+    .forum-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
 @media (max-width: 600px) {
-    .forum-hero {
-        padding: 40px 20px;
+    .forum-hero h1 {
+        font-size: 2.2rem;
+    }
+
+    .forum-hero p {
+        font-size: 1rem;
+    }
+
+    .forum-stats {
+        grid-template-columns: 1fr;
+        gap: 15px;
     }
 
     .stat-card {
-        padding: 16px;
+        padding: 20px;
     }
 
     .discussion-card {
         padding: 20px;
     }
 
+    .discussion-header {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .featured-badge {
+        position: static;
+        width: fit-content;
+        margin-bottom: 12px;
+        border-radius: 8px;
+    }
+
     .modal-content {
-        padding: 24px;
+        padding: 20px;
+        border-radius: 20px;
+        width: 100%;
+        margin: 0;
+        max-height: 95vh;
+    }
+
+    .modal-content h2 {
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+    }
+
+    .author-full-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
+    }
+
+    .btn-contact-author {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .engagement-actions {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .action-btn,
+    .action-info {
+        flex: 1;
+        min-width: 100px;
+        justify-content: center;
+        padding: 10px 12px;
+        font-size: 0.8rem;
+    }
+
+    .replies-list-modern {
+        gap: 15px;
+    }
+
+    .comment-item {
+        gap: 10px;
+    }
+
+    .comment-body {
+        padding: 15px;
+    }
+
+    .comment-footer {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .comment-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .forum-search-bar {
+        padding: 0 15px;
+        margin-bottom: 20px;
+    }
+
+    .forum-search-inner input {
+        padding: 14px 15px 14px 45px;
+        font-size: 1rem;
+    }
+
+    .btn-start-discussion {
+        width: 100%;
+        justify-content: center;
     }
 }
 

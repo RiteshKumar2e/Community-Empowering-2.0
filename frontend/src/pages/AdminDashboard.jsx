@@ -438,22 +438,27 @@ const AdminDashboard = () => {
                                             <td>
                                                 <div className="user-cell">
                                                     <div className="user-icon small">
-                                                        {(act.username || 'U').charAt(0).toUpperCase()}
+                                                        {(act.user_name || 'U').charAt(0).toUpperCase()}
                                                     </div>
-                                                    <span>{act.username || 'Anonymous'}</span>
+                                                    <span>{act.user_name || 'Anonymous'}</span>
                                                 </div>
                                             </td>
                                             <td>
-                                                <span className={`badge badge-${act.activity_type === 'search_query' ? 'info' :
-                                                    act.activity_type === 'resource_view' ? 'success' :
-                                                        act.activity_type === 'platform_visit' ? 'warning' :
-                                                            act.activity_type === 'forum_post' ? 'primary' : 'secondary'
+                                                <span className={`badge badge-${act.type === 'search_query' ? 'info' :
+                                                    act.type === 'resource_view' ? 'success' :
+                                                        act.type === 'platform_visit' ? 'warning' :
+                                                            act.type === 'forum_post' ? 'primary' : 'secondary'
                                                     }`}>
-                                                    {act.activity_type.replace('_', ' ').toUpperCase()}
+                                                    {(act.type || 'ACTIVITY').replace('_', ' ').toUpperCase()}
                                                 </span>
                                             </td>
-                                            <td>{act.details}</td>
-                                            <td>{new Date(act.created_at).toLocaleString()}</td>
+                                            <td>
+                                                <div className="activity-detail-cell">
+                                                    <strong>{act.title}</strong>
+                                                    <p>{act.description}</p>
+                                                </div>
+                                            </td>
+                                            <td>{act.created_at}</td>
                                         </tr>
                                     ))}
                                     {detailedActivities.length === 0 && (
