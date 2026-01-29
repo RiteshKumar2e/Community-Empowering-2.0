@@ -604,3 +604,33 @@ async def like_reply(
         db.commit()
         return {"message": "Reply liked", "likes": reply.likes, "is_liked": True}
 
+@router.post("/replies/{reply_id}/pin")
+async def pin_reply(
+    reply_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Mark a reply as solution (pinned)"""
+    reply = db.query(ForumReply).filter(ForumReply.id == reply_id).first()
+    if not reply:
+        raise HTTPException(status_code=404, detail="Reply not found")
+        
+    discussion = db.query(ForumDiscussion).filter(ForumDiscussion.id == reply.discussion_id).first()
+    
+    # Authorized if admin or discussion author
+    if not (is_admin(current_user) or discussion.user_id == current_user.id):
+        raise HTTPException(status_code=403, detail="Not authorized to pin this reply")
+        
+    # Toggle solution status
+    reply.is_solution = not reply.is_solution
+    
+    # Optional: If you only want ONE pinned reply per discussion, unpin others
+    if reply.is_solution:
+        db.query(ForumReply).filter(
+            ForumReply.discussion_id == discussion.id,
+            ForumReply.id != reply_id
+        ).update({"is_solution": False})
+        
+    db.commit()
+    return {"message": "Reply pin status updated", "is_pinned": reply.is_solution}
+

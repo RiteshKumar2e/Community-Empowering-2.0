@@ -149,6 +149,23 @@ const AdminDashboard = () => {
         }
     }
 
+    const handleDeleteActivity = async (id) => {
+        if (!window.confirm('Delete this activity log?')) return
+        try {
+            await api.delete(`/admin/activities/${id}`)
+            setDetailedActivities(detailedActivities.filter(a => a.id !== id))
+        } catch (error) { alert('Delete failed') }
+    }
+
+    const handleClearAllActivities = async () => {
+        if (!window.confirm('Are you SURE you want to clear ALL activity logs? This cannot be undone.')) return
+        try {
+            await api.delete('/admin/activities/clear-all/logs')
+            setDetailedActivities([])
+            alert('All activity logs cleared')
+        } catch (error) { alert('Clear failed') }
+    }
+
     const handleDeleteResource = async (id) => {
         if (!window.confirm('Delete this resource?')) return
         try {
@@ -420,8 +437,13 @@ const AdminDashboard = () => {
                     <div className="admin-section">
                         <div className="section-header">
                             <h2><Activity size={20} /> Detailed User Activity Log</h2>
-                            <p className="text-muted">Tracking searches, course enrollments, resource views, and platform visits.</p>
+                            <div className="section-actions">
+                                <button className="btn-delete-small secondary" onClick={handleClearAllActivities}>
+                                    <Trash2 size={16} /> Clear All Logs
+                                </button>
+                            </div>
                         </div>
+                        <p className="text-muted mb-3">Tracking searches, course enrollments, resource views, and platform visits.</p>
                         <div className="users-table-container">
                             <table className="admin-table">
                                 <thead>
@@ -430,6 +452,7 @@ const AdminDashboard = () => {
                                         <th>Action Type</th>
                                         <th>Details</th>
                                         <th>Time</th>
+                                        <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -459,6 +482,15 @@ const AdminDashboard = () => {
                                                 </div>
                                             </td>
                                             <td>{act.created_at}</td>
+                                            <td>
+                                                <button
+                                                    onClick={() => handleDeleteActivity(act.id)}
+                                                    className="btn-delete-small"
+                                                    title="Delete Log"
+                                                >
+                                                    <Trash2 size={16} />
+                                                </button>
+                                            </td>
                                         </tr>
                                     ))}
                                     {detailedActivities.length === 0 && (

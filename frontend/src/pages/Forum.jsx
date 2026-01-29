@@ -15,8 +15,11 @@ import {
     BarChart3,
     Star,
     X,
-    ChevronDown
+    ChevronDown,
+    Pin,
+    CheckCircle2
 } from 'lucide-react'
+import { useRef } from 'react'
 import '../styles/Forum.css'
 
 const Forum = () => {
@@ -49,6 +52,7 @@ const Forum = () => {
     const [newReply, setNewReply] = useState('')
     const [isPostingReply, setIsPostingReply] = useState(false)
     const [contributors, setContributors] = useState([])
+    const repliesEndRef = useRef(null)
 
     const [tagsOpen, setTagsOpen] = useState(false)
     const [tagList, setTagList] = useState(() => {
@@ -97,6 +101,18 @@ const Forum = () => {
             if (repliesInterval) clearInterval(repliesInterval)
         }
     }, [selectedDiscussion, replies.length])
+
+    const scrollToBottom = () => {
+        setTimeout(() => {
+            repliesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" })
+        }, 100)
+    }
+
+    useEffect(() => {
+        if (selectedDiscussion) {
+            scrollToBottom()
+        }
+    }, [replies.length])
 
     const fetchDiscussionsAndStats = async () => {
         try {
@@ -213,6 +229,8 @@ const Forum = () => {
             })
             // Force refresh discussions list to update "latest_reply" on the card
             fetchDiscussionsAndStats()
+            // Scroll to the new comment
+            scrollToBottom()
         } catch (error) {
             alert('Failed to post reply. Please login.')
         } finally {
@@ -220,15 +238,15 @@ const Forum = () => {
         }
     }
 
-    const handleReplyLike = async (replyId, e) => {
+    const handlePinReply = async (replyId, e) => {
         if (e) e.stopPropagation()
         try {
-            const res = await api.post(`/forum/replies/${replyId}/like`)
-            setReplies(replies.map(r =>
-                r.id === replyId ? { ...r, likes: res.data.likes, is_liked: res.data.is_liked } : r
-            ))
+            await api.post(`/forum/replies/${replyId}/pin`)
+            // Refresh replies to show the change
+            const repliesRes = await api.get(`/forum/discussions/${selectedDiscussion.id}/replies`)
+            setReplies(repliesRes.data)
         } catch (error) {
-            alert('Login to like replies')
+            alert('Not authorized to pin this reply')
         }
     }
 
@@ -778,14 +796,21 @@ const Forum = () => {
                             )}
 
                             <div className="replies-list-modern">
-                                {replies.map(reply => (
-                                    <div key={reply.id} className="comment-item">
+                                {[...replies].sort((a, b) => (b.is_solution ? 1 : 0) - (a.is_solution ? 1 : 0)).map(reply => (
+                                    <div key={reply.id} className={`comment-item ${reply.is_solution ? 'is-pinned' : ''}`}>
                                         <div className="comment-avatar">
                                             {reply.user_name?.charAt(0).toUpperCase()}
                                         </div>
                                         <div className="comment-body">
                                             <div className="comment-header">
-                                                <span className="comment-author">{reply.user_name}</span>
+                                                <div className="comment-author-info">
+                                                    <span className="comment-author">{reply.user_name}</span>
+                                                    {reply.is_solution && (
+                                                        <span className="pinned-badge">
+                                                            <Pin size={12} /> Solution
+                                                        </span>
+                                                    )}
+                                                </div>
                                                 <span className="comment-date">
                                                     {new Date(reply.created_at).toLocaleString('en-US', {
                                                         month: 'short',
@@ -800,7 +825,14 @@ const Forum = () => {
                                             <div className="comment-actions">
                                                 <button
                                                     className={`comment-action-btn ${reply.is_liked ? 'liked' : ''}`}
-                                                    onClick={(e) => handleReplyLike(reply.id, e)}
+                                                    onClick={(e) => {
+                                                        if (e) e.stopPropagation()
+                                                        api.post(`/forum/replies/${reply.id}/like`).then(res => {
+                                                            setReplies(replies.map(r =>
+                                                                r.id === reply.id ? { ...r, likes: res.data.likes, is_liked: res.data.is_liked } : r
+                                                            ))
+                                                        }).catch(() => alert('Login to like replies'))
+                                                    }}
                                                 >
                                                     <ThumbsUp size={14} fill={reply.is_liked ? "currentColor" : "none"} />
                                                     <span>{reply.likes || 0}</span>
@@ -809,11 +841,24 @@ const Forum = () => {
                                                     <Eye size={14} />
                                                     <span>{reply.views || 0}</span>
                                                 </span>
+
+                                                {/* Pin/Unpin button for author or admin */}
+                                                {(isAdmin || selectedDiscussion.user_id === user?.id) && (
+                                                    <button
+                                                        className={`comment-action-btn pin-btn ${reply.is_solution ? 'active' : ''}`}
+                                                        onClick={(e) => handlePinReply(reply.id, e)}
+                                                        title={reply.is_solution ? "Unpin Solution" : "Mark as Solution"}
+                                                    >
+                                                        <Pin size={14} fill={reply.is_solution ? "currentColor" : "none"} />
+                                                        <span>{reply.is_solution ? 'Pinned' : 'Pin'}</span>
+                                                    </button>
+                                                )}
                                             </div>
                                         </div>
                                     </div>
                                 ))}
                                 {replies.length === 0 && <p className="no-replies-subtle">No thoughts yet. Be the first!</p>}
+                                <div ref={repliesEndRef} />
                             </div>
                         </div>
                     </div>

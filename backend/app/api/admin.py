@@ -382,3 +382,28 @@ async def get_user_activities(
         })
     
     return result
+
+@router.delete("/activities/{activity_id}")
+async def delete_activity(
+    activity_id: int,
+    admin: User = Depends(verify_admin),
+    db: Session = Depends(get_db)
+):
+    """Admin delete a specific activity log entry"""
+    act = db.query(UserActivity).filter(UserActivity.id == activity_id).first()
+    if not act:
+        raise HTTPException(status_code=404, detail="Activity not found")
+    
+    db.delete(act)
+    db.commit()
+    return {"message": "Activity deleted successfully"}
+
+@router.delete("/activities/clear-all/logs")
+async def clear_all_activities(
+    admin: User = Depends(verify_admin),
+    db: Session = Depends(get_db)
+):
+    """Admin clear all activity logs"""
+    db.query(UserActivity).delete()
+    db.commit()
+    return {"message": "All activity logs cleared successfully"}
