@@ -5,7 +5,7 @@ import os
 from app.core.config import settings
 from app.core.database import engine, Base
 from app.models import models  # Import models to register them
-from app.api import auth, users, ai, resources, learning, admin, agent, feedback, tracking, forum
+from app.api import auth, users, ai, resources, learning, admin, agent, feedback, tracking, forum, chat
 from app.services.market_scanner import market_scanner
 import asyncio
 
@@ -44,6 +44,7 @@ app.include_router(agent.router, prefix="/api/agent", tags=["Agent"])
 app.include_router(feedback.router, prefix="/api/feedback", tags=["Feedback"])
 app.include_router(tracking.router, prefix="/api/tracking", tags=["Tracking"])
 app.include_router(forum.router, tags=["Forum"])
+app.include_router(chat.router, tags=["Chat"])
 
 async def seed_database():
     """Seed initial data if database is empty"""

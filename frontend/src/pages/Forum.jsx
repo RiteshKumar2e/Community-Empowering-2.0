@@ -20,6 +20,7 @@ import {
     CheckCircle2
 } from 'lucide-react'
 import { useRef } from 'react'
+import LiveChat from '../components/LiveChat'
 import '../styles/Forum.css'
 
 const Forum = () => {
@@ -632,6 +633,8 @@ const Forum = () => {
                             </div>
                         </div>
                     </div>
+
+                    <LiveChat />
                 </aside>
             </div>
 

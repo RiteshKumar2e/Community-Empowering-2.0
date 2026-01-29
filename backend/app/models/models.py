@@ -208,3 +208,17 @@ class ForumReplyView(Base):
     user_id = Column(Integer, ForeignKey("users.id"))
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
+class ChatMessage(Base):
+    __tablename__ = "chat_messages"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    sender_id = Column(Integer, ForeignKey("users.id"))
+    receiver_id = Column(Integer, ForeignKey("users.id"), nullable=True) # Null for public
+    message = Column(Text, nullable=False)
+    is_private = Column(Boolean, default=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    
+    # Optional relationships for easier querying
+    # sender = relationship("User", foreign_keys=[sender_id])
+    # receiver = relationship("User", foreign_keys=[receiver_id])
+

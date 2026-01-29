@@ -28,7 +28,8 @@ const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "951248037202-
 
 const ChatBotCondition = () => {
     const location = useLocation();
-    if (location.pathname === '/assistant') return null;
+    // Hide floating chatbot on assistant page and forum page (due to live chat)
+    if (location.pathname === '/assistant' || location.pathname === '/forum') return null;
     return <SideChatBot />;
 };
 
