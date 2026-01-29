@@ -691,46 +691,54 @@ const Forum = () => {
                         <div className="discussion-replies-section">
                             <h3>Replies ({replies.length})</h3>
 
-                            <div className="replies-list">
-                                {replies.map(reply => (
-                                    <div key={reply.id} className="reply-card">
-                                        <div className="reply-author">
-                                            <div className="reply-avatar">
-                                                {reply.user_name?.charAt(0).toUpperCase()}
-                                            </div>
-                                            <div className="reply-meta">
-                                                <span className="reply-name">{reply.user_name}</span>
-                                                <span className="reply-time">{new Date(reply.created_at).toLocaleDateString()}</span>
-                                            </div>
-                                        </div>
-                                        <div className="reply-content">{reply.content}</div>
-                                    </div>
-                                ))}
-                                {replies.length === 0 && <p className="no-replies">No replies yet. Be the first to answer!</p>}
-                            </div>
-
+                            {/* Reply Form - Moved to Top */}
                             {user ? (
-                                <form className="reply-form" onSubmit={handlePostReply}>
-                                    <textarea
-                                        value={newReply}
-                                        onChange={(e) => setNewReply(e.target.value)}
-                                        placeholder="Write a helpful reply..."
-                                        rows={3}
-                                        required
-                                    />
-                                    <button
-                                        type="submit"
-                                        className="btn-submit"
-                                        disabled={isPostingReply}
-                                    >
-                                        {isPostingReply ? 'Posting...' : 'Post Reply'}
-                                    </button>
-                                </form>
+                                <div className="reply-input-area">
+                                    <div className="current-user-avatar">
+                                        {(user.name || user.email)?.charAt(0).toUpperCase()}
+                                    </div>
+                                    <form className="reply-form-modern" onSubmit={handlePostReply}>
+                                        <textarea
+                                            value={newReply}
+                                            onChange={(e) => setNewReply(e.target.value)}
+                                            placeholder="What are your thoughts?"
+                                            rows={2}
+                                            required
+                                        />
+                                        <div className="reply-form-actions">
+                                            <button
+                                                type="submit"
+                                                className="btn-submit-reply"
+                                                disabled={isPostingReply}
+                                            >
+                                                {isPostingReply ? <div className="spinner-small"></div> : 'Reply'}
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
                             ) : (
-                                <div className="login-prompt">
-                                    Please <span className="highlight">Login</span> to join the conversation.
+                                <div className="login-prompt-compact">
+                                    <Link to="/login" className="highlight">Log in</Link> to share your thoughts.
                                 </div>
                             )}
+
+                            <div className="replies-list-modern">
+                                {replies.map(reply => (
+                                    <div key={reply.id} className="comment-item">
+                                        <div className="comment-avatar">
+                                            {reply.user_name?.charAt(0).toUpperCase()}
+                                        </div>
+                                        <div className="comment-body">
+                                            <div className="comment-header">
+                                                <span className="comment-author">{reply.user_name}</span>
+                                                <span className="comment-date">{new Date(reply.created_at).toLocaleDateString()}</span>
+                                            </div>
+                                            <div className="comment-text">{reply.content}</div>
+                                        </div>
+                                    </div>
+                                ))}
+                                {replies.length === 0 && <p className="no-replies-subtle">No thoughts yet. Be the first!</p>}
+                            </div>
                         </div>
                     </div>
                 </div>

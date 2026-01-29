@@ -276,6 +276,10 @@ async def create_discussion(
     
     tags_json = json.dumps(discussion.tags) if discussion.tags else "[]"
     
+    new_discussion = ForumDiscussion(
+        title=discussion.title,
+        content=discussion.content,
+        category_id=discussion.category_id,
         user_id=current_user.id,
         tags=tags_json
     )
