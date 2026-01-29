@@ -7,7 +7,7 @@ from datetime import datetime
 import json
 
 from app.core.database import get_db
-from app.models.models import ForumCategory, ForumDiscussion, ForumReply, User, ForumLike
+from app.models.models import ForumCategory, ForumDiscussion, ForumReply, User, ForumLike, ForumView, ForumReplyLike, ForumReplyView
 from app.api.users import get_current_user, get_current_user_optional
 
 router = APIRouter(prefix="/api/forum", tags=["forum"])
@@ -76,7 +76,9 @@ class ReplyResponse(BaseModel):
     user_email: Optional[str] = None
     content: str
     likes: int
+    views: int = 0
     is_solution: bool
+    is_liked: bool = False
     created_at: datetime
     updated_at: Optional[datetime]
 
@@ -232,9 +234,31 @@ async def get_discussion(
             detail="Discussion not found"
         )
     
-    # Increment view count
-    discussion.views += 1
-    db.commit()
+    # Increment view count (Unique for logged-in users)
+    if current_user:
+        # Check if user already viewed
+        existing_view = db.query(ForumView).filter(
+            ForumView.discussion_id == discussion_id,
+            ForumView.user_id == current_user.id
+        ).first()
+        
+        if not existing_view:
+            # Add view record
+            new_view = ForumView(discussion_id=discussion_id, user_id=current_user.id)
+            db.add(new_view)
+            
+            # Increment discussion view count
+            discussion.views += 1
+            db.commit()
+    else:
+        # For guests, we can blindly increment or choose not to. 
+        # Requirement says "ek user ka ek he view count". 
+        # To avoid inflation, let's NOT increment for guests, or increment blindly? 
+        # Standard practice: Increment blindly for guests (cookies are better but harder).
+        # But "one user one view" implies strictness. 
+        # I will Increment for guests to keep traffic visible, but logged in is unique.
+        discussion.views += 1
+        db.commit()
     
     user = db.query(User).filter(User.id == discussion.user_id).first()
     reply_count = db.query(ForumReply).filter(
@@ -319,10 +343,33 @@ async def get_replies(
     result = []
     for reply in replies:
         user = db.query(User).filter(User.id == reply.user_id).first()
+        
+        # Track view for logged-in users (one user one view)
+        if current_user:
+            existing_view = db.query(ForumReplyView).filter(
+                ForumReplyView.reply_id == reply.id,
+                ForumReplyView.user_id == current_user.id
+            ).first()
+            
+            if not existing_view:
+                new_view = ForumReplyView(reply_id=reply.id, user_id=current_user.id)
+                db.add(new_view)
+                reply.views += 1
+                db.commit()
+        
+        # Check if current user liked this reply
+        is_liked = False
+        if current_user:
+            is_liked = db.query(ForumReplyLike).filter(
+                ForumReplyLike.reply_id == reply.id,
+                ForumReplyLike.user_id == current_user.id
+            ).first() is not None
+        
         result.append({
             **reply.__dict__,
             "user_name": user.name if user else "Unknown",
-            "user_email": user.email if user else ""
+            "user_email": user.email if user else "",
+            "is_liked": is_liked
         })
     
     return result
@@ -436,7 +483,7 @@ async def like_reply(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Like a reply"""
+    """Like/Unlike a reply"""
     reply = db.query(ForumReply).filter(ForumReply.id == reply_id).first()
     
     if not reply:
@@ -445,7 +492,23 @@ async def like_reply(
             detail="Reply not found"
         )
     
-    reply.likes += 1
-    db.commit()
+    # Check if user already liked
+    existing_like = db.query(ForumReplyLike).filter(
+        ForumReplyLike.reply_id == reply_id,
+        ForumReplyLike.user_id == current_user.id
+    ).first()
     
-    return {"message": "Reply liked", "likes": reply.likes}
+    if existing_like:
+        # Unlike
+        db.delete(existing_like)
+        reply.likes = max(0, reply.likes - 1)
+        db.commit()
+        return {"message": "Reply unliked", "likes": reply.likes, "is_liked": False}
+    else:
+        # Like
+        new_like = ForumReplyLike(reply_id=reply_id, user_id=current_user.id)
+        db.add(new_like)
+        reply.likes += 1
+        db.commit()
+        return {"message": "Reply liked", "likes": reply.likes, "is_liked": True}
+

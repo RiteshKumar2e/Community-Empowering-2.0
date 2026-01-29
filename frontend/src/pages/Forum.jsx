@@ -177,6 +177,18 @@ const Forum = () => {
         }
     }
 
+    const handleReplyLike = async (replyId, e) => {
+        if (e) e.stopPropagation()
+        try {
+            const res = await api.post(`/forum/replies/${replyId}/like`)
+            setReplies(replies.map(r =>
+                r.id === replyId ? { ...r, likes: res.data.likes, is_liked: res.data.is_liked } : r
+            ))
+        } catch (error) {
+            alert('Login to like replies')
+        }
+    }
+
 
 
     const getCategoryById = (id) => {
@@ -470,6 +482,17 @@ const Forum = () => {
                                                     ))}
                                                 </div>
                                             </div>
+                                            <div className="discussion-author">
+                                                <div className="author-avatar">
+                                                    {discussion.user_name?.charAt(0).toUpperCase() || 'U'}
+                                                </div>
+                                                <div className="author-info">
+                                                    <span className="author-name">{discussion.user_name}</span>
+                                                    <span className="discussion-time">
+                                                        {new Date(discussion.created_at).toLocaleDateString()}
+                                                    </span>
+                                                </div>
+                                            </div>
                                         </div>
                                         <h3 className="discussion-title">{discussion.title}</h3>
                                         <p className="discussion-excerpt">
@@ -487,22 +510,11 @@ const Forum = () => {
                                         )}
 
                                         <div className="discussion-footer">
-                                            <div className="discussion-author">
-                                                <div className="author-avatar">
-                                                    {discussion.user_name?.charAt(0).toUpperCase() || 'U'}
-                                                </div>
-                                                <div className="author-info">
-                                                    <span className="author-name">{discussion.user_name}</span>
-                                                    <span className="discussion-time">
-                                                        {new Date(discussion.created_at).toLocaleDateString()}
-                                                    </span>
-                                                </div>
-                                            </div>
                                             <div className="discussion-stats">
-                                                <button className="stat-item">
+                                                <span className="stat-item">
                                                     <MessageCircle size={16} />
                                                     {discussion.reply_count}
-                                                </button>
+                                                </span>
                                                 <span className="stat-item">
                                                     <Eye size={16} />
                                                     {discussion.views}
@@ -655,13 +667,19 @@ const Forum = () => {
                             </span>
                             <h1>{selectedDiscussion.title}</h1>
                             <div className="author-full-info">
-                                <div className="author-avatar-large">
-                                    {selectedDiscussion.user_name?.charAt(0).toUpperCase()}
+                                <div className="author-details-wrapper">
+                                    <div className="author-avatar-large">
+                                        {selectedDiscussion.user_name?.charAt(0).toUpperCase()}
+                                    </div>
+                                    <div>
+                                        <div className="author-name-bold">{selectedDiscussion.user_name}</div>
+                                        <div className="post-date">Posted on {new Date(selectedDiscussion.created_at).toLocaleDateString()}</div>
+                                    </div>
                                 </div>
-                                <div>
-                                    <div className="author-name-bold">{selectedDiscussion.user_name}</div>
-                                    <div className="post-date">{new Date(selectedDiscussion.created_at).toLocaleString()}</div>
-                                </div>
+                                <button className="btn-contact-author">
+                                    <MessageSquare size={16} />
+                                    Message
+                                </button>
                             </div>
                         </div>
 
@@ -731,9 +749,30 @@ const Forum = () => {
                                         <div className="comment-body">
                                             <div className="comment-header">
                                                 <span className="comment-author">{reply.user_name}</span>
-                                                <span className="comment-date">{new Date(reply.created_at).toLocaleDateString()}</span>
+                                                <span className="comment-date">
+                                                    {new Date(reply.created_at).toLocaleString('en-US', {
+                                                        month: 'short',
+                                                        day: 'numeric',
+                                                        year: 'numeric',
+                                                        hour: '2-digit',
+                                                        minute: '2-digit'
+                                                    })}
+                                                </span>
                                             </div>
                                             <div className="comment-text">{reply.content}</div>
+                                            <div className="comment-actions">
+                                                <button
+                                                    className={`comment-action-btn ${reply.is_liked ? 'liked' : ''}`}
+                                                    onClick={(e) => handleReplyLike(reply.id, e)}
+                                                >
+                                                    <ThumbsUp size={14} fill={reply.is_liked ? "currentColor" : "none"} />
+                                                    <span>{reply.likes || 0}</span>
+                                                </button>
+                                                <span className="comment-stat">
+                                                    <Eye size={14} />
+                                                    <span>{reply.views || 0}</span>
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
                                 ))}

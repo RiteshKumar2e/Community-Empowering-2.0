@@ -168,6 +168,7 @@ class ForumReply(Base):
     user_id = Column(Integer, ForeignKey("users.id"))
     content = Column(Text, nullable=False)
     likes = Column(Integer, default=0)
+    views = Column(Integer, default=0)
     is_solution = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
@@ -182,3 +183,28 @@ class ForumLike(Base):
     discussion_id = Column(Integer, ForeignKey("forum_discussions.id"))
     user_id = Column(Integer, ForeignKey("users.id"))
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+class ForumView(Base):
+    __tablename__ = "forum_views"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    discussion_id = Column(Integer, ForeignKey("forum_discussions.id"))
+    user_id = Column(Integer, ForeignKey("users.id"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+class ForumReplyLike(Base):
+    __tablename__ = "forum_reply_likes"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    reply_id = Column(Integer, ForeignKey("forum_replies.id"))
+    user_id = Column(Integer, ForeignKey("users.id"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+class ForumReplyView(Base):
+    __tablename__ = "forum_reply_views"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    reply_id = Column(Integer, ForeignKey("forum_replies.id"))
+    user_id = Column(Integer, ForeignKey("users.id"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
