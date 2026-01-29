@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { BookOpen, Play, ExternalLink, Clock, Award, Users, GraduationCap, Code, Briefcase, Languages, Heart } from 'lucide-react'
+import { BookOpen, Play, ExternalLink, Clock, Award, Users, GraduationCap, Code, Briefcase, Languages, Heart, Search } from 'lucide-react'
 import api from '../services/api'
 import '../styles/LearningHub.css'
 
@@ -8,6 +8,8 @@ const LearningHub = () => {
     const [selectedCategory, setSelectedCategory] = useState('all')
     const [selectedSubCategory, setSelectedSubCategory] = useState('all')
     const [selectedSkillSubCategory, setSelectedSkillSubCategory] = useState('all')
+
+    const [searchQuery, setSearchQuery] = useState('')
     const [showAll, setShowAll] = useState(false)
     const [loading, setLoading] = useState(true)
 
@@ -47,6 +49,20 @@ const LearningHub = () => {
         }
         fetchPlatforms()
     }, [])
+
+    // Log search queries (Debounced)
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (searchQuery.trim().length > 2) {
+                api.post('/tracking/log/search', {
+                    query: searchQuery,
+                    context: 'learning'
+                }).catch(err => console.error(err))
+            }
+        }, 2000)
+
+        return () => clearTimeout(timer)
+    }, [searchQuery])
 
     const categories = [
         { value: 'all', label: 'All Courses', icon: <BookOpen size={18} /> },
@@ -2317,6 +2333,15 @@ const LearningHub = () => {
 
 
     const filteredPlatforms = platforms.filter(p => {
+        // Search Filter
+        if (searchQuery) {
+            const query = searchQuery.toLowerCase()
+            const match = p.title.toLowerCase().includes(query) ||
+                p.provider.toLowerCase().includes(query) ||
+                p.description.toLowerCase().includes(query)
+            if (!match) return false
+        }
+
         if (selectedCategory === 'all') return true;
         if (p.category !== selectedCategory) return false;
         if (selectedCategory === 'internship' && selectedSubCategory !== 'all') {
@@ -2367,6 +2392,19 @@ const LearningHub = () => {
                             <div className="stat-number">1000+</div>
                             <div className="stat-label">Certifications</div>
                         </div>
+                    </div>
+                </div>
+
+                {/* Search Box */}
+                <div className="search-filter-section" style={{ marginBottom: '30px' }}>
+                    <div className="search-box">
+                        <Search size={20} />
+                        <input
+                            type="text"
+                            placeholder="Search courses, platforms, or skills..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                        />
                     </div>
                 </div>
 

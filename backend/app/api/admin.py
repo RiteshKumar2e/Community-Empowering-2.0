@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from typing import List, Optional
 from app.core.database import get_db
-from app.models.models import User, Query, Enrollment, Course, Resource, LearningPlatform, Feedback, ForumDiscussion, ForumReply, ForumCategory
+from app.models.models import User, Query, Enrollment, Course, Resource, LearningPlatform, Feedback, ForumDiscussion, ForumReply, ForumCategory, UserActivity
 from app.services.market_scanner import market_scanner
 from app.api.users import get_current_user
 from datetime import timezone, timedelta
@@ -342,3 +342,31 @@ async def toggle_feature_discussion(
     discussion.is_featured = not discussion.is_featured
     db.commit()
     return {"message": "Featured status updated", "is_featured": discussion.is_featured}
+
+@router.get("/activities")
+async def get_user_activities(
+    admin: User = Depends(verify_admin),
+    db: Session = Depends(get_db)
+):
+    """Get comprehensive user activity logs"""
+    activities = db.query(UserActivity).order_by(UserActivity.created_at.desc()).limit(100).all()
+    
+    result = []
+    for act in activities:
+        user = db.query(User).filter(User.id == act.user_id).first()
+        
+        created_at_ist = None
+        if act.created_at:
+            created_at_ist = act.created_at.replace(tzinfo=timezone.utc).astimezone(IST).strftime("%d %b %Y, %I:%M %p")
+            
+        result.append({
+            "id": act.id,
+            "user_id": act.user_id,
+            "user_name": user.name if user else "Unknown",
+            "type": act.activity_type,
+            "title": act.activity_title,
+            "description": act.activity_description,
+            "created_at": created_at_ist
+        })
+    
+    return result

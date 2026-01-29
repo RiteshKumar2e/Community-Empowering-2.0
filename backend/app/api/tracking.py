@@ -45,3 +45,23 @@ async def log_platform_visit(
         platform_url=data.platform_url
     )
     return {"status": "logged"}
+
+class SearchLog(BaseModel):
+    query: str
+    context: str = "general" # 'resources', 'courses', 'forum', 'general'
+
+@router.post("/log/search")
+async def log_search(
+    data: SearchLog,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Log what user searched for"""
+    ActivityTracker.log_activity(
+        db=db,
+        user_id=current_user.id,
+        activity_type="search",
+        activity_title=f"Searched for: {data.query}",
+        activity_description=f"Context: {data.context}"
+    )
+    return {"status": "logged"}

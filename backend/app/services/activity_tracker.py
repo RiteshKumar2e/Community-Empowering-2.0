@@ -91,3 +91,15 @@ class ActivityTracker:
             activity_description=f"Visited learning platform: {platform_name}",
             extra_data={'url': platform_url} if platform_url else None
         )
+
+    @staticmethod
+    def log_forum_post(db: Session, user_id: int, discussion_title: str, discussion_id: int):
+        """Log when user creates a forum discussion"""
+        return ActivityTracker.log_activity(
+            db=db,
+            user_id=user_id,
+            activity_type='forum_post',
+            activity_title=discussion_title,
+            activity_description=f"Posted discussion: {discussion_title}",
+            extra_data={'discussion_id': discussion_id}
+        )

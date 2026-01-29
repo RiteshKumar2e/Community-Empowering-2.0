@@ -1068,7 +1068,22 @@ const Resources = () => {
             }
         }
         fetchResources()
+        fetchResources()
     }, [])
+
+    // Log search queries (Debounced)
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (searchQuery.trim().length > 2) {
+                api.post('/tracking/log/search', {
+                    query: searchQuery,
+                    context: 'resources'
+                }).catch(err => console.error(err))
+            }
+        }, 2000)
+
+        return () => clearTimeout(timer)
+    }, [searchQuery])
 
     useEffect(() => {
         filterResources()

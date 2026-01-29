@@ -276,10 +276,6 @@ async def create_discussion(
     
     tags_json = json.dumps(discussion.tags) if discussion.tags else "[]"
     
-    new_discussion = ForumDiscussion(
-        title=discussion.title,
-        content=discussion.content,
-        category_id=discussion.category_id,
         user_id=current_user.id,
         tags=tags_json
     )
@@ -288,12 +284,20 @@ async def create_discussion(
     db.commit()
     db.refresh(new_discussion)
     
+    # Log activity
+    try:
+        from app.services.activity_tracker import ActivityTracker
+        ActivityTracker.log_forum_post(db, current_user.id, new_discussion.title, new_discussion.id)
+    except Exception as e:
+        print(f"Error logging forum activity: {str(e)}")
+        
     return {
         **new_discussion.__dict__,
         "user_name": current_user.name,
         "user_email": current_user.email,
         "tags": discussion.tags,
-        "reply_count": 0
+        "reply_count": 0,
+        "is_liked": False
     }
 
 # Replies Endpoints
