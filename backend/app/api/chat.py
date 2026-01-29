@@ -5,7 +5,7 @@ import json
 import datetime
 from app.core.database import get_db
 from app.models.models import ChatMessage, User
-from app.api.auth import get_current_user_socket, get_current_user
+from app.api.users import get_current_user
 
 router = APIRouter()
 

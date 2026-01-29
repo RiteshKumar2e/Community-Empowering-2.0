@@ -47,9 +47,19 @@ const LiveChat = () => {
         };
         fetchData();
 
+        // WebSocket setup with robust host detection
+        const apiUrl = import.meta.env.VITE_API_URL || '';
+        let wsHost = window.location.host;
+        
+        if (apiUrl.startsWith('http')) {
+            // Extract host from absolute URL
+            wsHost = apiUrl.split('://')[1].split('/')[0];
+        } else if (window.location.hostname === 'localhost') {
+            wsHost = 'localhost:8000';
+        }
+
         const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-        const host = window.location.host === 'localhost:5173' ? 'localhost:8000' : window.location.host;
-        ws.current = new WebSocket(`${protocol}://${host}/ws/chat/${user.id}`);
+        ws.current = new WebSocket(`${protocol}://${wsHost}/ws/chat/${user.id}`);
 
         ws.current.onmessage = (event) => {
             try {
