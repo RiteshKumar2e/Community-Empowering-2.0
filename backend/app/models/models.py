@@ -24,8 +24,8 @@ class User(Base):
     google_otp_expiry = Column(DateTime(timezone=True), nullable=True)
     google_email_verified = Column(Boolean, default=False)
     
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), index=True)
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now(), index=True)
     
     # Relationships
     queries = relationship("Query", back_populates="user")
@@ -42,8 +42,8 @@ class Resource(Base):
     provider = Column(String)
     link = Column(String)
     is_new = Column(Boolean, default=False)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), index=True)
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now(), index=True)
 
 class LearningPlatform(Base):
     __tablename__ = "learning_platforms"
@@ -124,7 +124,7 @@ class UserActivity(Base):
     activity_title = Column(String)
     activity_description = Column(Text)
     extra_data = Column(Text)  # JSON string for additional data (renamed from metadata)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), index=True)
 
 class ForumCategory(Base):
     __tablename__ = "forum_categories"
@@ -134,7 +134,7 @@ class ForumCategory(Base):
     description = Column(Text)
     icon = Column(String)  # Icon name or emoji
     color = Column(String)  # Color code for the category
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), index=True)
     
     # Relationships
     discussions = relationship("ForumDiscussion", back_populates="category")
@@ -153,12 +153,13 @@ class ForumDiscussion(Base):
     is_featured = Column(Boolean, default=False)
     is_pinned = Column(Boolean, default=False)
     status = Column(String, default="active")  # active, closed, archived
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), index=True)
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now(), index=True)
     
     # Relationships
     category = relationship("ForumCategory", back_populates="discussions")
     replies = relationship("ForumReply", back_populates="discussion")
+    user = relationship("User")
 
 class ForumReply(Base):
     __tablename__ = "forum_replies"
@@ -170,11 +171,12 @@ class ForumReply(Base):
     likes = Column(Integer, default=0)
     views = Column(Integer, default=0)
     is_solution = Column(Boolean, default=False)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), index=True)
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now(), index=True)
     
     # Relationships
     discussion = relationship("ForumDiscussion", back_populates="replies")
+    user = relationship("User")
 
 class ForumLike(Base):
     __tablename__ = "forum_likes"
@@ -219,6 +221,6 @@ class ChatMessage(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     
     # Optional relationships for easier querying
-    # sender = relationship("User", foreign_keys=[sender_id])
-    # receiver = relationship("User", foreign_keys=[receiver_id])
+    sender = relationship("User", foreign_keys=[sender_id])
+    receiver = relationship("User", foreign_keys=[receiver_id])
 

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, EmailStr
@@ -138,7 +138,7 @@ async def login(user_data: UserLogin, db: Session = Depends(get_db)):
     }
 
 @router.post("/google-login", response_model=dict)
-async def google_login(google_data: GoogleLogin, db: Session = Depends(get_db)):
+async def google_login(google_data: GoogleLogin, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     """
     Step 1: Verify Google token and send OTP to user's email
     Returns: Success message indicating OTP has been sent
@@ -193,13 +193,11 @@ async def google_login(google_data: GoogleLogin, db: Session = Depends(get_db)):
         
         # Single commit for all changes
         db.commit()
-        if not user.id: # If newly added
-            db.refresh(user)
         
-        # INSTANT FIRE-AND-FORGET EMAIL
-        email_service.send_otp(email, otp)
+        # INSTANT FIRE-AND-FORGET EMAIL via BackgroundTasks
+        background_tasks.add_task(email_service.send_otp, email, otp)
         
-        print(f"📧 OTP Dispatch Initiated for {email}")
+        print(f"📧 OTP Dispatch Queued for {email}")
         
         return {
             "success": True,
@@ -283,7 +281,6 @@ async def verify_google_otp(otp_data: GoogleOTPVerify, db: Session = Depends(get
         user.google_otp_expiry = None
         user.last_login = datetime.now(timezone.utc)
         db.commit()
-        db.refresh(user)
         
         # Check if user is active
         if not user.is_active:
@@ -297,18 +294,21 @@ async def verify_google_otp(otp_data: GoogleOTPVerify, db: Session = Depends(get
         
         print(f"🎉 Google login successful for: {user.email}")
         
+        # Build user data dict manually to avoid db.refresh or relationship loading delays
+        user_data_resp = {
+            "id": user.id,
+            "name": user.name,
+            "email": user.email,
+            "phone": user.phone or "",
+            "location": user.location or "",
+            "language": user.language or "en",
+            "communityType": user.community_type or "general",
+            "profileImage": user.profile_image
+        }
+        
         return {
             "token": access_token,
-            "user": {
-                "id": user.id,
-                "name": user.name,
-                "email": user.email,
-                "phone": user.phone,
-                "location": user.location,
-                "language": user.language,
-                "communityType": user.community_type,
-                "profileImage": user.profile_image
-            }
+            "user": user_data_resp
         }
         
     except HTTPException:
@@ -324,7 +324,7 @@ async def verify_google_otp(otp_data: GoogleOTPVerify, db: Session = Depends(get
 
 
 @router.post("/resend-google-otp", response_model=dict)
-async def resend_google_otp(email_data: dict, db: Session = Depends(get_db)):
+async def resend_google_otp(email_data: dict, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     """
     Resend OTP for Google login
     """
@@ -355,10 +355,10 @@ async def resend_google_otp(email_data: dict, db: Session = Depends(get_db)):
         user.google_otp_expiry = otp_expiry
         db.commit()
         
-        # Send OTP email
-        email_service.send_otp(email, otp)
+        # Send OTP email via BackgroundTasks
+        background_tasks.add_task(email_service.send_otp, email, otp)
         
-        print(f"🔄 OTP resent to {email}")
+        print(f"🔄 OTP resend queued for {email}")
         
         return {
             "success": True,
