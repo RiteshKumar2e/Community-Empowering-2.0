@@ -92,6 +92,11 @@ class ForumStats(BaseModel):
     total_views: int
     active_discussions: int
 
+class ContributorResponse(BaseModel):
+    user_id: int
+    name: str
+    points: int
+
 # Helper function to check if user is admin
 def is_admin(user: User) -> bool:
     return user.is_admin or user.email == "riteshkumar90359@gmail.com"
@@ -495,6 +500,35 @@ async def get_forum_stats(
         stats["total_users"] = total_users
     
     return stats
+
+@router.get("/top-contributors", response_model=List[ContributorResponse])
+async def get_top_contributors(db: Session = Depends(get_db)):
+    """Get top 3 contributors based on activity and likes received"""
+    users = db.query(User).all()
+    results = []
+    
+    for user in users:
+        # Points: Discussion (10), Reply (5), Like Received (2)
+        disc_count = db.query(ForumDiscussion).filter(ForumDiscussion.user_id == user.id).count()
+        reply_count = db.query(ForumReply).filter(ForumReply.user_id == user.id).count()
+        
+        # Likes received on discussions
+        disc_likes = db.query(func.sum(ForumDiscussion.likes)).filter(ForumDiscussion.user_id == user.id).scalar() or 0
+        # Likes received on replies
+        reply_likes = db.query(func.sum(ForumReply.likes)).filter(ForumReply.user_id == user.id).scalar() or 0
+        
+        points = (disc_count * 10) + (reply_count * 5) + ((disc_likes + reply_likes) * 2)
+        
+        if points > 0:
+            results.append({
+                "user_id": user.id,
+                "name": user.name,
+                "points": points
+            })
+            
+    # Sort by points desc and take top 3
+    results.sort(key=lambda x: x["points"], reverse=True)
+    return results[:3]
 
 # Like/Unlike Discussion
 @router.post("/discussions/{discussion_id}/like")

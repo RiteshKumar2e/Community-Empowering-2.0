@@ -48,6 +48,7 @@ const Forum = () => {
     const [replies, setReplies] = useState([])
     const [newReply, setNewReply] = useState('')
     const [isPostingReply, setIsPostingReply] = useState(false)
+    const [contributors, setContributors] = useState([])
 
     const [tagsOpen, setTagsOpen] = useState(false)
     const [tagList, setTagList] = useState(() => {
@@ -67,16 +68,38 @@ const Forum = () => {
 
     useEffect(() => {
         fetchData()
+
+        // Polling for discussions list and stats (Automatic updates for 'Last Replied', counts, etc.)
+        const discussionsInterval = setInterval(() => {
+            fetchDiscussionsAndStats()
+        }, 10000) // Every 10 seconds
+
+        return () => clearInterval(discussionsInterval)
     }, [selectedCategory, filterType, selectedTags])
 
-    const fetchData = async () => {
-        try {
-            // Fetch categories
-            const categoriesRes = await api.get('/forum/categories')
-            if (Array.isArray(categoriesRes.data) && categoriesRes.data.length > 0) {
-                setCategories(categoriesRes.data)
-            }
+    // Polling for replies when a discussion is open (Live comments)
+    useEffect(() => {
+        let repliesInterval;
+        if (selectedDiscussion) {
+            repliesInterval = setInterval(async () => {
+                try {
+                    const repliesRes = await api.get(`/forum/discussions/${selectedDiscussion.id}/replies`)
+                    // Only update if count changed or content different to avoid flickering
+                    if (repliesRes.data.length !== replies.length) {
+                        setReplies(repliesRes.data)
+                    }
+                } catch (err) {
+                    console.error('Error polling replies:', err)
+                }
+            }, 5000) // Every 5 seconds for open conversations
+        }
+        return () => {
+            if (repliesInterval) clearInterval(repliesInterval)
+        }
+    }, [selectedDiscussion, replies.length])
 
+    const fetchDiscussionsAndStats = async () => {
+        try {
             // Fetch discussions
             let url = `/forum/discussions?filter_type=${filterType}`
             if (selectedCategory) {
@@ -92,8 +115,26 @@ const Forum = () => {
             const statsRes = await api.get('/forum/stats')
             setStats(statsRes.data)
 
+            // Fetch top contributors
+            const contributorsRes = await api.get('/forum/top-contributors')
+            setContributors(contributorsRes.data || [])
         } catch (error) {
-            console.error('Error fetching forum data:', error)
+            console.error('Error fetching dynamic data:', error)
+        }
+    }
+
+    const fetchData = async () => {
+        try {
+            setLoading(true)
+            // Fetch categories once
+            const categoriesRes = await api.get('/forum/categories')
+            if (Array.isArray(categoriesRes.data) && categoriesRes.data.length > 0) {
+                setCategories(categoriesRes.data)
+            }
+            // Fetch the rest
+            await fetchDiscussionsAndStats()
+        } catch (error) {
+            console.error('Error fetching forum base data:', error)
             setDiscussions([])
         } finally {
             setLoading(false)
@@ -170,6 +211,8 @@ const Forum = () => {
                 ...selectedDiscussion,
                 reply_count: (selectedDiscussion.reply_count || 0) + 1
             })
+            // Force refresh discussions list to update "latest_reply" on the card
+            fetchDiscussionsAndStats()
         } catch (error) {
             alert('Failed to post reply. Please login.')
         } finally {
@@ -540,27 +583,21 @@ const Forum = () => {
                     <div className="sidebar-section">
                         <h3>Top Contributors</h3>
                         <div className="contributors-list">
-                            <div className="contributor-item">
-                                <div className="contributor-avatar">P</div>
-                                <div className="contributor-info">
-                                    <span className="contributor-name">Priya Sharma</span>
-                                    <span className="contributor-points">⭐ 355</span>
-                                </div>
-                            </div>
-                            <div className="contributor-item">
-                                <div className="contributor-avatar">A</div>
-                                <div className="contributor-info">
-                                    <span className="contributor-name">Amit Patel</span>
-                                    <span className="contributor-points">⭐ 290</span>
-                                </div>
-                            </div>
-                            <div className="contributor-item">
-                                <div className="contributor-avatar">R</div>
-                                <div className="contributor-info">
-                                    <span className="contributor-name">Ravi Kumar</span>
-                                    <span className="contributor-points">⭐ 215</span>
-                                </div>
-                            </div>
+                            {contributors.length > 0 ? (
+                                contributors.map((contributor) => (
+                                    <div key={contributor.user_id} className="contributor-item">
+                                        <div className="contributor-avatar">
+                                            {(contributor.name || 'U').charAt(0).toUpperCase()}
+                                        </div>
+                                        <div className="contributor-info">
+                                            <span className="contributor-name">{contributor.name}</span>
+                                            <span className="contributor-points">⭐ {contributor.points}</span>
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <p className="text-muted" style={{ fontSize: '0.85rem' }}>No top contributors yet.</p>
+                            )}
                         </div>
                     </div>
 
