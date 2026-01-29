@@ -118,3 +118,28 @@ async def get_chat_users(db: Session = Depends(get_db)):
     """Get list of users for private messaging"""
     users = db.query(User).filter(User.is_active == True).all()
     return [{"id": u.id, "name": u.name} for u in users]
+@router.delete("/api/chat/message/{message_id}")
+async def delete_chat_message(
+    message_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Delete a chat message (only by sender)"""
+    msg = db.query(ChatMessage).filter(ChatMessage.id == message_id).first()
+    if not msg:
+        raise HTTPException(status_code=404, detail="Message not found")
+    
+    if msg.sender_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Can only delete your own messages")
+    
+    db.delete(msg)
+    db.commit()
+    
+    # Broadcast deletion to all connected clients
+    delete_data = json.dumps({
+        "type": "delete",
+        "message_id": message_id
+    })
+    await manager.broadcast(delete_data)
+    
+    return {"status": "deleted"}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, Hash, Lock, Users, Smile, MessageSquare } from 'lucide-react';
+import { Send, Hash, Lock, Users, Smile, MessageSquare, Trash2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../services/api';
@@ -50,7 +50,7 @@ const LiveChat = () => {
         // WebSocket setup with robust host detection
         const apiUrl = import.meta.env.VITE_API_URL || '';
         let wsHost = window.location.host;
-        
+
         if (apiUrl.startsWith('http')) {
             // Extract host from absolute URL
             wsHost = apiUrl.split('://')[1].split('/')[0];
@@ -63,8 +63,12 @@ const LiveChat = () => {
 
         ws.current.onmessage = (event) => {
             try {
-                const newMsg = JSON.parse(event.data);
-                setMessages(prev => [...prev, newMsg]);
+                const data = JSON.parse(event.data);
+                if (data.type === 'delete') {
+                    setMessages(prev => prev.filter(m => m.id !== data.message_id));
+                } else {
+                    setMessages(prev => [...prev, data]);
+                }
             } catch (err) {
                 console.error("Error parsing socket message:", err);
             }
@@ -102,6 +106,17 @@ const LiveChat = () => {
 
     const addEmoji = (emoji) => {
         setInputText(prev => prev + emoji);
+    };
+
+    const handleDeleteMessage = async (msgId) => {
+        if (!window.confirm('Are you sure you want to delete this message?')) return;
+        try {
+            await api.delete(`/chat/message/${msgId}`);
+            // Success: Local state update is handled by the WebSocket broadcast in onmessage
+        } catch (err) {
+            console.error('Error deleting message:', err);
+            alert('Failed to delete message');
+        }
     };
 
     const filteredUsers = users.filter(u =>
@@ -206,7 +221,14 @@ const LiveChat = () => {
                                 </div>
                                 {isSelf && (
                                     <div className="msg-sender-tag self-tag">
-                                        You
+                                        <button
+                                            className="delete-msg-btn"
+                                            onClick={() => handleDeleteMessage(msg.id)}
+                                            title="Delete Message"
+                                        >
+                                            <Trash2 size={12} />
+                                        </button>
+                                        <span>You</span>
                                     </div>
                                 )}
                             </div>
