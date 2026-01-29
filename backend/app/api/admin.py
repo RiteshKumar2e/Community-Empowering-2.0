@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from typing import List, Optional
 from app.core.database import get_db
-from app.models.models import User, Query, Enrollment, Course, Resource, LearningPlatform, Feedback, ForumDiscussion, ForumReply, ForumCategory, UserActivity
+from app.models.models import User, Query, Enrollment, Course, Resource, LearningPlatform, Feedback, ForumDiscussion, ForumReply, ForumCategory, UserActivity, ForumLike, ForumView, ForumReplyLike, ForumReplyView
 from app.services.market_scanner import market_scanner
 from app.api.users import get_current_user
 from datetime import timezone, timedelta
@@ -322,11 +322,23 @@ async def delete_discussion(
     if not discussion:
         raise HTTPException(status_code=404, detail="Discussion not found")
     
-    # Replies are usually handled by cascade delete if configured, or manually
+    # First, get all reply IDs to clean up reply-level interactions
+    replies = db.query(ForumReply).filter(ForumReply.discussion_id == discussion_id).all()
+    reply_ids = [r.id for r in replies]
+    
+    if reply_ids:
+        db.query(ForumReplyLike).filter(ForumReplyLike.reply_id.in_(reply_ids)).delete(synchronize_session=False)
+        db.query(ForumReplyView).filter(ForumReplyView.reply_id.in_(reply_ids)).delete(synchronize_session=False)
+    
+    # Delete discussion-level interactions and replies
+    db.query(ForumLike).filter(ForumLike.discussion_id == discussion_id).delete()
+    db.query(ForumView).filter(ForumView.discussion_id == discussion_id).delete()
     db.query(ForumReply).filter(ForumReply.discussion_id == discussion_id).delete()
+    
+    # Finally delete the discussion itself
     db.delete(discussion)
     db.commit()
-    return {"message": "Discussion deleted successfully"}
+    return {"message": "Discussion and all associated data deleted successfully"}
 
 @router.post("/forum/discussions/{discussion_id}/feature")
 async def toggle_feature_discussion(
