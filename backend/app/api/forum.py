@@ -148,6 +148,49 @@ async def create_category(
     db.refresh(new_category)
     return {**new_category.__dict__, "discussion_count": 0}
 
+@router.delete("/categories/{category_id}")
+async def delete_category(
+    category_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Delete a category and all its contents (Admin only)"""
+    if not is_admin(current_user):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only admins can delete categories"
+        )
+    
+    category = db.query(ForumCategory).filter(ForumCategory.id == category_id).first()
+    if not category:
+        raise HTTPException(status_code=404, detail="Category not found")
+    
+    # Cascade delete discussions and replies
+    discussions = db.query(ForumDiscussion).filter(ForumDiscussion.category_id == category_id).all()
+    disc_ids = [d.id for d in discussions]
+    
+    # 1. Delete reply likes/views for these discussions
+    if disc_ids:
+        # Get reply IDs
+        reply_ids = [r.id for r in db.query(ForumReply.id).filter(ForumReply.discussion_id.in_(disc_ids)).all()]
+        if reply_ids:
+            db.query(ForumReplyLike).filter(ForumReplyLike.reply_id.in_(reply_ids)).delete(synchronize_session=False)
+            db.query(ForumReplyView).filter(ForumReplyView.reply_id.in_(reply_ids)).delete(synchronize_session=False)
+            db.query(ForumReply).filter(ForumReply.discussion_id.in_(disc_ids)).delete(synchronize_session=False)
+
+        # 2. Delete discussion likes/views
+        db.query(ForumLike).filter(ForumLike.discussion_id.in_(disc_ids)).delete(synchronize_session=False)
+        db.query(ForumView).filter(ForumView.discussion_id.in_(disc_ids)).delete(synchronize_session=False)
+        
+        # 3. Delete discussions
+        db.query(ForumDiscussion).filter(ForumDiscussion.category_id == category_id).delete(synchronize_session=False)
+
+    # 4. Finally delete the category
+    db.delete(category)
+    db.commit()
+    
+    return {"message": f"Category '{category.name}' and all its content deleted successfully"}
+
 # Discussions Endpoints
 @router.get("/discussions", response_model=List[DiscussionResponse])
 async def get_discussions(

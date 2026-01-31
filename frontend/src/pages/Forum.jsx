@@ -17,7 +17,8 @@ import {
     X,
     ChevronDown,
     Pin,
-    CheckCircle2
+    CheckCircle2,
+    Trash2
 } from 'lucide-react'
 import { useRef } from 'react'
 import LiveChat from '../components/LiveChat'
@@ -140,16 +141,16 @@ const Forum = () => {
     const fetchData = async () => {
         try {
             setLoading(true)
-            
+
             // 1. Fetch categories
             const categoriesRes = await api.get('/forum/categories')
             if (Array.isArray(categoriesRes.data) && categoriesRes.data.length > 0) {
                 setCategories(categoriesRes.data)
             }
-            
+
             // 2. Fetch the dynamic data in parallel
             await fetchDiscussionsAndStats()
-            
+
         } catch (error) {
             console.error('Error fetching forum base data:', error)
             setDiscussions([])
@@ -248,6 +249,22 @@ const Forum = () => {
             setReplies(repliesRes.data)
         } catch (error) {
             alert('Not authorized to pin this reply')
+        }
+    }
+
+    const handleDeleteCategory = async (id, name, e) => {
+        if (e) e.stopPropagation();
+        if (window.confirm(`Are you sure you want to delete the category "${name}"? This will delete ALL discussions and replies inside it.`)) {
+            try {
+                await api.delete(`/forum/categories/${id}`);
+                setCategories(categories.filter(c => c.id !== id));
+                if (selectedCategory === id) setSelectedCategory(null);
+                alert('Category deleted successfully');
+                fetchData(); // Refresh stats and discussions
+            } catch (err) {
+                console.error('Error deleting category:', err);
+                alert(err.response?.data?.detail || 'Failed to delete category');
+            }
         }
     }
 
@@ -354,20 +371,30 @@ const Forum = () => {
                                 </div>
                             </button>
                             {categories.map(category => (
-                                <button
-                                    key={category.id}
-                                    className={`category-item ${selectedCategory === category.id ? 'active' : ''}`}
-                                    onClick={() => setSelectedCategory(category.id)}
-                                    style={{ '--category-color': category.color || '#3b82f6' }}
-                                >
-                                    <span className="category-icon">{category.icon || '💬'}</span>
-                                    <div className="category-info">
-                                        <span className="category-name">{category.name}</span>
-                                        <span className="category-count">
-                                            {category.discussion_count}
-                                        </span>
-                                    </div>
-                                </button>
+                                <div key={category.id} className="category-item-wrapper">
+                                    <button
+                                        className={`category-item ${selectedCategory === category.id ? 'active' : ''}`}
+                                        onClick={() => setSelectedCategory(category.id)}
+                                        style={{ '--category-color': category.color || '#3b82f6' }}
+                                    >
+                                        <span className="category-icon">{category.icon || '💬'}</span>
+                                        <div className="category-info">
+                                            <span className="category-name">{category.name}</span>
+                                            <span className="category-count">
+                                                {category.discussion_count}
+                                            </span>
+                                        </div>
+                                    </button>
+                                    {isAdmin && (
+                                        <button
+                                            className="category-delete-btn"
+                                            onClick={(e) => handleDeleteCategory(category.id, category.name, e)}
+                                            title="Delete Category"
+                                        >
+                                            <Trash2 size={14} />
+                                        </button>
+                                    )}
+                                </div>
                             ))}
                         </div>
                     </div>
