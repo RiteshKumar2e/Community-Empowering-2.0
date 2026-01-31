@@ -735,10 +735,10 @@ const Resources = () => {
         // --- DISABILITY SUPPORT ---
         {
             title: "ADIP Scheme",
-            description: "Assistance to Disabled Persons for Purchase/Fitting of Aids and Appliances (ADIP).",
+            description: "Assistance to Disabled Persons for Purchase/Fitting of Aids and Appliances (ADIP). Apply through ARJUN portal for assistive devices.",
             category: "disability",
-            eligibility: "Persons with 40% or more disability, monthly income < ₹20,000",
-            link: "https://disabilityaffairs.gov.in/content/page/adip.php",
+            eligibility: "Persons with 40% or more disability, monthly income < ₹30,000",
+            link: "https://adip.depwd.gov.in/",
             provider: "Department of Empowerment of Persons with Disabilities"
         },
         {
@@ -751,10 +751,10 @@ const Resources = () => {
         },
         {
             title: "Deendayal Disabled Rehabilitation Scheme",
-            description: "Financial assistance to NGOs for providing education, vocational training and rehabilitation of persons with disabilities.",
+            description: "Financial assistance to NGOs for providing education, vocational training and rehabilitation of persons with disabilities. Apply through e-Anudaan portal.",
             category: "disability",
             eligibility: "NGOs and PwD beneficiaries",
-            link: "https://disabilityaffairs.gov.in/",
+            link: "https://depwd.gov.in/",
             provider: "Ministry of Social Justice"
         },
         {
@@ -833,10 +833,10 @@ const Resources = () => {
         },
         {
             title: "SAMRIDH Scheme",
-            description: "Startup Accelerator of MeitY for Product Innovation, Development and growth.",
+            description: "Startup Accelerator of MeitY for Product Innovation, Development and growth. Financial aid up to ₹40 lakh for software startups.",
             category: "startup",
             eligibility: "Startups and Accelerators",
-            link: "https://samridh.meity.gov.in/",
+            link: "https://www.meity.gov.in/startups",
             provider: "Ministry of Electronics & IT"
         },
         {
@@ -849,10 +849,10 @@ const Resources = () => {
         },
         {
             title: "TIDE 2.0 Scheme",
-            description: "Technology Incubation and Development of Entrepreneurs aimed at promoting tech startups through 51 TIDE centers across India.",
+            description: "Technology Incubation and Development of Entrepreneurs aimed at promoting tech startups through 51 TIDE centers across India. Support for IoT, AI, blockchain startups.",
             category: "startup",
             eligibility: "Tech Entrepreneurs and Startups",
-            link: "https://meity.gov.in/content/tide-20",
+            link: "https://www.meity.gov.in/startups",
             provider: "MeitY"
         },
         {
@@ -875,11 +875,11 @@ const Resources = () => {
         },
         {
             title: "PLI for Electronics",
-            description: "Production Linked Incentive scheme for large scale electronics manufacturing in India.",
+            description: "Production Linked Incentive scheme for large scale electronics manufacturing in India including mobile phones, IT hardware, and electronic components.",
             category: "startup",
             eligibility: "Manufacturing companies",
             link: "https://www.meity.gov.in/esdm/pli",
-            provider: "Ministry of IT"
+            provider: "Ministry of Electronics & IT"
         },
         {
             title: "RKVY-RAFTAAR",
@@ -1035,10 +1035,10 @@ const Resources = () => {
         },
         {
             title: "National Logistics Policy",
-            description: "Reducing cost of logistics and improving efficiency for global competitiveness of Indian products.",
+            description: "Reducing cost of logistics and improving efficiency for global competitiveness through Unified Logistics Interface Platform (ULIP) and digital integration.",
             category: "startup",
             eligibility: "Logistics companies and entrepreneurs",
-            link: "https://logistics.gov.in/",
+            link: "https://www.goulip.in/",
             provider: "DPIIT"
         }
     ]
