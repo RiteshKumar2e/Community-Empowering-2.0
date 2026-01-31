@@ -37,48 +37,60 @@ async def websocket_endpoint(websocket: WebSocket, user_id: int, db: Session = D
     try:
         while True:
             data = await websocket.receive_text()
-            message_data = json.loads(data)
-            
-            # message_data format: {"text": "...", "receiver_id": int | None, "is_private": bool}
-            text = message_data.get("text")
-            receiver_id = message_data.get("receiver_id")
-            is_private = message_data.get("is_private", False)
-            
-            if not text:
+            try:
+                message_data = json.loads(data)
+                # message_data format: {"text": "...", "receiver_id": int | None, "is_private": bool}
+                text = message_data.get("text")
+                receiver_id = message_data.get("receiver_id")
+                is_private = message_data.get("is_private", False)
+                
+                # Force types to ensure DB and logic consistency
+                if receiver_id is not None:
+                    try:
+                        receiver_id = int(receiver_id)
+                    except (ValueError, TypeError):
+                        receiver_id = None
+                        is_private = False
+
+                if not text:
+                    continue
+
+                # Save to database
+                new_message = ChatMessage(
+                    sender_id=user_id,
+                    receiver_id=receiver_id if is_private else None,
+                    message=text,
+                    is_private=is_private
+                )
+                db.add(new_message)
+                db.commit()
+                db.refresh(new_message)
+
+                user = db.query(User).filter(User.id == user_id).first()
+                sender_name = user.name if user else "Anonymous"
+
+                broadcast_data = {
+                    "id": new_message.id,
+                    "sender_id": user_id,
+                    "sender_name": sender_name,
+                    "text": text,
+                    "is_private": is_private,
+                    "receiver_id": receiver_id,
+                    "created_at": new_message.created_at.isoformat()
+                }
+
+                if is_private and receiver_id:
+                    # Send to receiver and sender (self)
+                    msg_json = json.dumps(broadcast_data)
+                    await manager.send_personal_message(msg_json, receiver_id)
+                    if receiver_id != user_id: # Avoid double sending if someone chats with themselves
+                        await manager.send_personal_message(msg_json, user_id)
+                else:
+                    # Public broadcast
+                    await manager.broadcast(json.dumps(broadcast_data))
+            except Exception as e:
+                print(f"Error processing message: {e}")
                 continue
-
-            # Save to database
-            new_message = ChatMessage(
-                sender_id=user_id,
-                receiver_id=receiver_id if is_private else None,
-                message=text,
-                is_private=is_private
-            )
-            db.add(new_message)
-            db.commit()
-            db.refresh(new_message)
-
-            user = db.query(User).filter(User.id == user_id).first()
-            sender_name = user.name if user else "Anonymous"
-
-            broadcast_data = {
-                "id": new_message.id,
-                "sender_id": user_id,
-                "sender_name": sender_name,
-                "text": text,
-                "is_private": is_private,
-                "receiver_id": receiver_id,
-                "created_at": new_message.created_at.isoformat()
-            }
-
-            if is_private and receiver_id:
-                # Send to receiver and sender (self)
-                msg_json = json.dumps(broadcast_data)
-                await manager.send_personal_message(msg_json, receiver_id)
-                await manager.send_personal_message(msg_json, user_id)
-            else:
-                # Public broadcast
-                await manager.broadcast(json.dumps(broadcast_data))
 
     except WebSocketDisconnect:
         manager.disconnect(user_id)

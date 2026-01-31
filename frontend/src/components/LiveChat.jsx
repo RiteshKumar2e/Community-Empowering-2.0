@@ -180,14 +180,21 @@ const LiveChat = () => {
                 <div className="chat-controls">
                     <button
                         className={`mode-toggle ${!isPrivate ? 'active' : ''}`}
-                        onClick={() => { setIsPrivate(false); setRecipientId(null); }}
+                        onClick={() => {
+                            setIsPrivate(false);
+                            setRecipientId(null);
+                            setShowUserList(false);
+                        }}
                         title="Public Channel"
                     >
                         <Hash size={16} />
                     </button>
                     <button
                         className={`mode-toggle ${isPrivate ? 'active' : ''}`}
-                        onClick={() => setShowUserList(!showUserList)}
+                        onClick={() => {
+                            setShowUserList(!showUserList);
+                            if (!isPrivate) setIsPrivate(true); // Switch to private intent
+                        }}
                         title="Private Message"
                     >
                         <Lock size={16} />
@@ -196,7 +203,7 @@ const LiveChat = () => {
             </div>
 
             <AnimatePresence>
-                {isPrivate && showUserList && (
+                {showUserList && (
                     <motion.div
                         className="receiver-selector"
                         initial={{ opacity: 0, y: 10 }}
