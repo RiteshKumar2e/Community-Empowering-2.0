@@ -215,6 +215,105 @@ const Resources = () => {
             link: "https://stars.education.gov.in/",
             provider: "Ministry of Education"
         },
+        {
+            title: "PM SHRI Schools",
+            description: "Strengthening existing schools with modern facilities, green energy, and advanced teaching pedagogy.",
+            category: "education",
+            subCategory: "age",
+            eligibility: "Government and local body schools",
+            link: "https://pmshrischools.education.gov.in/",
+            provider: "Ministry of Education"
+        },
+        {
+            title: "One Nation One Subscription",
+            description: "Access to the world's best scientific research journals and publications through a single national license for Indian institutions.",
+            category: "education",
+            subCategory: "higher",
+            eligibility: "All academic and research institutions",
+            link: "https://www.education.gov.in/",
+            provider: "Government of India"
+        },
+        {
+            title: "Vidyanjali 2.0",
+            description: "School Volunteer Management Program to connect schools with community and private sector volunteers.",
+            category: "education",
+            subCategory: "age",
+            eligibility: "Citizens, professionals, NGOs, and Corporate sector",
+            link: "https://vidyanjali.education.gov.in/",
+            provider: "Ministry of Education"
+        },
+        {
+            title: "PRAGYATA Guidelines",
+            description: "Digital education guidelines for schools to ensure quality online learning and student well-being.",
+            category: "education",
+            subCategory: "age",
+            eligibility: "K-12 students and teachers",
+            link: "https://pmevidya.education.gov.in/",
+            provider: "NCERT"
+        },
+        {
+            title: "NISHTHA Training",
+            description: "National Initiative for School Heads' and Teachers' Holistic Advancement - world's largest teacher training program.",
+            category: "education",
+            subCategory: "age",
+            eligibility: "Elementary school teachers and heads",
+            link: "https://nishtha.ncert.gov.in/",
+            provider: "Ministry of Education"
+        },
+        {
+            title: "DAE Graduate Fellowship",
+            description: "Fellowship for graduates in science and engineering to pursue research in nuclear science and technology.",
+            category: "education",
+            subCategory: "research",
+            eligibility: "B.Sc/B.Tech graduates with high scores",
+            link: "https://www.dae.gov.in/",
+            provider: "Department of Atomic Energy"
+        },
+        {
+            title: "UP Post-Matric Scholarship",
+            description: "Financial assistance for SC/ST/OBC/General students of Uttar Pradesh pursuing higher education.",
+            category: "education",
+            subCategory: "scholarship",
+            eligibility: "UP Domicile students, Income < ₹2.5 lakh",
+            link: "https://scholarship.up.gov.in/",
+            provider: "UP State Government"
+        },
+        {
+            title: "MahaDBT (Post-Matric)",
+            description: "Direct Benefit Transfer portal for various scholarships and fellowships for students in Maharashtra.",
+            category: "education",
+            subCategory: "scholarship",
+            eligibility: "Maharashtra Domicile students",
+            link: "https://mahadbt.maharashtra.gov.in/",
+            provider: "Maharashtra State Government"
+        },
+        {
+            title: "Bihar Post-Matric Scholarship",
+            description: "Scholarship portal specifically for BC, EBC, SC and ST students of Bihar for post-matric studies.",
+            category: "education",
+            subCategory: "scholarship",
+            eligibility: "Bihar Domicile students",
+            link: "https://pmsonline.bih.nic.in/",
+            provider: "Bihar State Government"
+        },
+        {
+            title: "CSIR Research Fellowship",
+            description: "Junior and Senior Research Fellowships for PhD students in science and technology fields.",
+            category: "education",
+            subCategory: "research",
+            eligibility: "CSIR-NET qualified students",
+            link: "https://csirhrdg.res.in/",
+            provider: "CSIR"
+        },
+        {
+            title: "ICMR JRF Fellowship",
+            description: "Support for biomedical research enthusiasts to pursue PhD with financial assistance.",
+            category: "education",
+            subCategory: "research",
+            eligibility: "ICMR-JRF exam qualifiers",
+            link: "https://main.icmr.nic.in/content/junior-research-fellowship-jrf-0",
+            provider: "Indian Council of Medical Research"
+        },
 
         // --- HEALTHCARE ---
         {
@@ -321,6 +420,78 @@ const Resources = () => {
             link: "https://www.nhp.gov.in/",
             provider: "Ministry of Health"
         },
+        {
+            title: "PM-ABHIM",
+            description: "PM Ayushman Bharat Health Infrastructure Mission. Strengthening and integrating health service delivery across all levels.",
+            category: "healthcare",
+            eligibility: "Public Healthcare Systems",
+            link: "https://pmabhim.mohfw.gov.in/",
+            provider: "Ministry of Health"
+        },
+        {
+            title: "National Tele Mental Health Programme",
+            description: "Tele-MANAS provides free, round-the-clock mental health counseling and support services.",
+            category: "healthcare",
+            eligibility: "All citizens experiencing mental health issues",
+            link: "https://telemanas.mohfw.gov.in/",
+            provider: "Ministry of Health & Family Welfare"
+        },
+        {
+            title: "ABDM (Digital Mission)",
+            description: "Ayushman Bharat Digital Mission aims to develop a backbone for integrated digital health infrastructure.",
+            category: "healthcare",
+            eligibility: "Citizens, Doctors, Healthcare Facilities",
+            link: "https://abdm.gov.in/",
+            provider: "National Health Authority"
+        },
+        {
+            title: "National Health Stack",
+            description: "Digital health records and insurance processing framework for the entire country.",
+            category: "healthcare",
+            eligibility: "All healthcare stakeholders",
+            link: "https://nha.gov.in/",
+            provider: "NHA"
+        },
+        {
+            title: "India TB Elimination Program",
+            description: "Comprehensive care, diagnostic and nutritional support (Nikshay) for TB patients across India.",
+            category: "healthcare",
+            eligibility: "All TB patients in India",
+            link: "https://tbcindia.gov.in/",
+            provider: "Ministry of Health"
+        },
+        {
+            title: "National Leprosy Eradication",
+            description: "Free diagnosis, multidrug therapy treatment and physical rehabilitation for leprosy patients.",
+            category: "healthcare",
+            eligibility: "Patients affected by Leprosy",
+            link: "https://nlep.nic.in/",
+            provider: "Directorate General of Health Services"
+        },
+        {
+            title: "PM National Cancer Care Hub",
+            description: "Specialized cancer daycare centers and treatment support at district levels.",
+            category: "healthcare",
+            eligibility: "All cancer patients",
+            link: "https://main.mohfw.gov.in/",
+            provider: "Ministry of Health"
+        },
+        {
+            title: "National Blindness Control",
+            description: "Providing free cataract surgeries and distribution of spectacles to poor children.",
+            category: "healthcare",
+            eligibility: "Visually impaired citizens, especially BPL",
+            link: "https://npcbvi.mohfw.gov.in/",
+            provider: "Ministry of Health"
+        },
+        {
+            title: "Surakshit Matritva Aashwasan (SUMAN)",
+            description: "Dignified and quality healthcare for every woman and newborn visiting public health facilities at zero cost.",
+            category: "healthcare",
+            eligibility: "Pregnant women and newborns",
+            link: "https://suman.nhm.gov.in/",
+            provider: "Ministry of Health"
+        },
 
         // --- AGRICULTURE ---
         {
@@ -419,6 +590,86 @@ const Resources = () => {
             link: "https://pib.gov.in/PressNoteDetails.aspx?NoteId=151590",
             provider: "Ministry of Agriculture"
         },
+        {
+            title: "PM Dhan-Dhaanya Yojana",
+            description: "Umbrella scheme for crop diversification, productivity enhancement and modernization of irrigation in 100 districts.",
+            category: "agriculture",
+            eligibility: "Farmers in 100 selected districts",
+            link: "https://agricoop.nic.in/",
+            provider: "Ministry of Agriculture"
+        },
+        {
+            title: "Digital Public Infra (Agri)",
+            description: "Digital crop survey and JanSamarth-based Kisan Credit Cards for modern farm financing.",
+            category: "agriculture",
+            eligibility: "Kisan Credit Card holders",
+            link: "https://pmkisan.gov.in/",
+            provider: "Ministry of Agriculture"
+        },
+        {
+            title: "PM-PRANAM Scheme",
+            description: "Promotion of Alternate Nutrients for Agriculture Management to reduce chemical fertilizer usage.",
+            category: "agriculture",
+            eligibility: "State Governments and Farmer Groups",
+            link: "https://www.fert.nic.in/",
+            provider: "Ministry of Chemicals & Fertilizers"
+        },
+        {
+            title: "GOBARdhan Scheme",
+            description: "Galvanizing Organic Bio-Agro Resources Dhan for managing cattle waste and producing bio-gas.",
+            category: "agriculture",
+            eligibility: "Rural households and cooperatives",
+            link: "https://sbm.gov.in/gobardhan/",
+            provider: "Ministry of Jal Shakti"
+        },
+        {
+            title: "Krishi Udan 2.0",
+            description: "Assistance in transporting agricultural products by air to hilly, tribal and remote areas.",
+            category: "agriculture",
+            eligibility: "Agri-exporters and Farmer groups",
+            link: "https://www.civilaviation.gov.in/",
+            provider: "Ministry of Civil Aviation"
+        },
+        {
+            title: "Micro Irrigation Fund",
+            description: "Dedicated fund with NABARD to promote water efficiency through drip and sprinkler irrigation.",
+            category: "agriculture",
+            eligibility: "States and Community groups",
+            link: "https://www.nabard.org/",
+            provider: "NABARD"
+        },
+        {
+            title: "PM-Promotion of Makhana",
+            description: "Specific mission for Bihar's makhana farmers to improve cultivation and marketing.",
+            category: "agriculture",
+            eligibility: "Makhana growers in North Bihar",
+            link: "https://state.bihar.gov.in/krishi/",
+            provider: "Bihar State Govt"
+        },
+        {
+            title: "National Bee & Honey Mission",
+            description: "Support for 'Sweet Revolution' through scientific beekeeping and honey production.",
+            category: "agriculture",
+            eligibility: "Beekeepers and Farmer Cooperatives",
+            link: "https://nbhm.gov.in/",
+            provider: "National Bee Board"
+        },
+        {
+            title: "MISHTI (Mangrove Mission)",
+            description: "Mangrove Initiative for Shoreline Habitats & Tangible Incomes through coastal plantation.",
+            category: "agriculture",
+            eligibility: "Coastal communities",
+            link: "https://moef.gov.in/",
+            provider: "Ministry of Environment"
+        },
+        {
+            title: "Amrit Dharohar",
+            description: "Promoting conservation and sustainable use of Ramsar wetlands in India.",
+            category: "agriculture",
+            eligibility: "Wetland dependent communities",
+            link: "https://moef.gov.in/",
+            provider: "Ministry of Environment"
+        },
 
         // --- EMPLOYMENT & BUSINESS ---
         {
@@ -428,6 +679,70 @@ const Resources = () => {
             eligibility: "Adult members of rural households",
             link: "https://nrega.nic.in/",
             provider: "Ministry of Rural Development"
+        },
+        {
+            title: "SANKALP Program",
+            description: "Skill Acquisition and Knowledge Awareness for Livelihood Promotion. Strengthening institutional mechanisms for skill development.",
+            category: "jobs",
+            eligibility: "Youth and Skill Training Providers",
+            link: "https://msde.gov.in/",
+            provider: "Ministry of Skill Development"
+        },
+        {
+            title: "STRIVE Project",
+            description: "Skills Strengthening for Industrial Value Enhancement. Aiming for improved performance of ITIs and apprenticeship training.",
+            category: "jobs",
+            eligibility: "ITI students and industries",
+            link: "https://dgt.gov.in/STRIVE",
+            provider: "DGT / MSDE"
+        },
+        {
+            title: "PM-Kushal Program",
+            description: "Employment linked skill training specialized for future-ready vocations like drones and AI.",
+            category: "jobs",
+            eligibility: "Unemployed youth aged 18-35",
+            link: "https://www.skillindia.gov.in/",
+            provider: "MSDE"
+        },
+        {
+            title: "National Career Service (NCS) 2.0",
+            description: "Enhanced job matching portal with integrated career counseling and skill training modules.",
+            category: "jobs",
+            eligibility: "All job seekers and employers",
+            link: "https://www.ncs.gov.in/",
+            provider: "Ministry of Labour"
+        },
+        {
+            title: "State Employment Exchanges",
+            description: "Local platforms for registering for government jobs and state-specific employment assistance.",
+            category: "jobs",
+            eligibility: "Domicile of respective states",
+            link: "https://www.india.gov.in/topics/labour-employment/employment-exchange",
+            provider: "State Governments"
+        },
+        {
+            title: "Rozgar Mela Portal",
+            description: "Platform for organizing and tracking government job appointment letters distribution.",
+            category: "jobs",
+            eligibility: "Government job aspirants",
+            link: "https://www.upsc.gov.in/",
+            provider: "Government of India"
+        },
+        {
+            title: "NAPS 2.0 (Apprenticeship)",
+            description: "Improved National Apprenticeship Promotion Scheme with direct stipend transfer to candidates.",
+            category: "jobs",
+            eligibility: "Graduates, Diplomas, and ITI holders",
+            link: "https://www.apprenticeshipindia.gov.in/",
+            provider: "MSDE"
+        },
+        {
+            title: "PM-SURAJ Portal",
+            description: "Social Utthan and Rozgar Adharit Jankalyan. Credit support for marginalized sections like Safai Karamcharis.",
+            category: "jobs",
+            eligibility: "Scheduled Castes and Safai Karamcharis",
+            link: "https://pmsuraj.dosje.gov.in/",
+            provider: "Ministry of Social Justice"
         },
         {
             title: "PM Mudra Yojana",
@@ -602,6 +917,46 @@ const Resources = () => {
             provider: "Ministry of Consumer Affairs"
         },
         {
+            title: "PM-GKAY (Garib Kalyan Anna)",
+            description: "Free food grains to all NFSA beneficiaries. World's largest food security program.",
+            category: "schemes",
+            eligibility: "All Ration card holders",
+            link: "https://nfsa.gov.in/",
+            provider: "Ministry of Food"
+        },
+        {
+            title: "E-Shram National Card",
+            description: "Universal Account Number (UAN) for unorganized workers for social security portability.",
+            category: "schemes",
+            eligibility: "Workers in the unorganized sector",
+            link: "https://eshram.gov.in/",
+            provider: "Ministry of Labour"
+        },
+        {
+            title: "PM Shram Yogi Maandhan",
+            description: "Pension scheme for unorganized workers with a monthly pension of ₹3,000.",
+            category: "schemes",
+            eligibility: "Unorganized workers, Income < ₹15,000",
+            link: "https://maandhan.in/",
+            provider: "Ministry of Labour & LIC"
+        },
+        {
+            title: "PM Kisan Maandhan",
+            description: "Pension scheme for small and marginal farmers to ensure social security in old age.",
+            category: "schemes",
+            eligibility: "Farmers aged 18-40 years",
+            link: "https://maandhan.in/",
+            provider: "Ministry of Agriculture"
+        },
+        {
+            title: "PM Laghu Vyapari Maandhan",
+            description: "Pension scheme for retail traders, shopkeepers and self-employed persons.",
+            category: "schemes",
+            eligibility: "Shopkeepers with annual turnover < ₹1.5 Cr",
+            link: "https://maandhan.in/",
+            provider: "Ministry of Labour"
+        },
+        {
             title: "Ujjwala 2.0",
             description: "LPG connections for women from BPL families without deposit.",
             category: "schemes",
@@ -642,6 +997,166 @@ const Resources = () => {
             provider: "Ministry of Tribal Affairs"
         },
         {
+            title: "SVAMITVA Scheme",
+            description: "Providing property validation and 'Record of Rights' to village household owners through drone surveys.",
+            category: "schemes",
+            eligibility: "Rural property owners",
+            link: "https://svamitva.nic.in/",
+            provider: "Ministry of Panchayati Raj"
+        },
+        {
+            title: "PRASAD Scheme",
+            description: "Pilgrimage Rejuvenation and Spiritual Augmentation Drive for holistic development of identified pilgrimage destinations.",
+            category: "schemes",
+            eligibility: "Tourism stakeholders and pilgrims",
+            link: "https://tourism.gov.in/",
+            provider: "Ministry of Tourism"
+        },
+        {
+            title: "Swadesh Darshan",
+            description: "Integrated development of theme-based tourist circuits in the country.",
+            category: "schemes",
+            eligibility: "Tourism sector and public",
+            link: "https://swadeshdarshan.gov.in/",
+            provider: "Ministry of Tourism"
+        },
+        {
+            title: "PM-Vikas",
+            description: "Vishwakarma Kaushal Samman providing skilling and marketing support for traditional artisans.",
+            category: "jobs",
+            eligibility: "Traditional artisans and craftspeople",
+            link: "https://pmvishwakarma.gov.in/",
+            provider: "Ministry of MSME"
+        },
+        {
+            title: "Mission Vatsalya",
+            description: "The primary scheme for child protection and child welfare services in India.",
+            category: "schemes",
+            eligibility: "Children in need of care and protection",
+            link: "https://wcd.gov.in/",
+            provider: "Ministry of Women & Child Development"
+        },
+        {
+            title: "National Creche Scheme",
+            description: "Providing a safe and stimulating environment for children (6 months to 6 years) of working mothers.",
+            category: "schemes",
+            eligibility: "Children of working mothers",
+            link: "https://wcd.gov.in/",
+            provider: "Ministry of Women & Child Development"
+        },
+        {
+            title: "LADLI Scheme (States)",
+            description: "Financial incentive for the education and marriage of girls from poor families in multiple Indian states.",
+            category: "schemes",
+            eligibility: "Girl children from low-income families",
+            link: "https://www.india.gov.in/",
+            provider: "State Governments"
+        },
+        {
+            title: "Mukhyamantri Ladli Behna",
+            description: "Monthly financial assistance for women in states like MP and others to promote self-reliance.",
+            category: "schemes",
+            eligibility: "Married women of low-income families",
+            link: "https://cmladlibehna.mp.gov.in/",
+            provider: "State Governments"
+        },
+        {
+            title: "Vividha Portal",
+            description: "Centralized portal for women artisans to list and sell their handcrafted products.",
+            category: "women",
+            eligibility: "Women artisans and SHGs",
+            link: "https://wcd.gov.in/",
+            provider: "Ministry of Women"
+        },
+        {
+            title: "Nari Shakti Hub",
+            description: "One-stop digital resource for women's laws, rights, and empowerment schemes.",
+            category: "women",
+            eligibility: "All women in India",
+            link: "https://wcd.gov.in/",
+            provider: "Government of India"
+        },
+        {
+            title: "Kanya Sumangala Yojana",
+            description: "Conditional cash transfer to promote girl's health and education in Uttar Pradesh.",
+            category: "women",
+            eligibility: "Girl children in UP",
+            link: "https://mksy.up.gov.in/",
+            provider: "UP State Govt"
+        },
+        {
+            title: "Majhi Konya Bhagyashree",
+            description: "Assistance to the girl child and mother in Maharashtra to prevent female infanticide.",
+            category: "women",
+            eligibility: "Girl children in Maharashtra",
+            link: "https://maharashtra.gov.in/",
+            provider: "Maharashtra State Govt"
+        },
+        {
+            title: "PM-Awas Gramin (States)",
+            description: "State-specific top-up subsidies and monitoring for rural housing projects.",
+            category: "housing",
+            eligibility: "Rural BPL households",
+            link: "https://pmayg.nic.in/",
+            provider: "States & Central Govt"
+        },
+        {
+            title: "Affordable Rental Housing (ARHCs)",
+            description: "Rental housing for urban migrants and poor near their workplace.",
+            category: "housing",
+            eligibility: "Urban migrants and industrial workers",
+            link: "https://arhc.mohua.gov.in/",
+            provider: "Ministry of Housing"
+        },
+        {
+            title: "GRIHA Portal",
+            description: "Green Rating for Integrated Habitat Assessment - standards for sustainable housing in India.",
+            category: "housing",
+            eligibility: "Builders, Architects and Home owners",
+            link: "https://www.grihaindia.org/",
+            provider: "MNRE & TERI"
+        },
+        {
+            title: "RERA Portals",
+            description: "Real Estate Regulatory Authority links for every state to protect home-buyer interests.",
+            category: "housing",
+            eligibility: "Real estate buyers and developers",
+            link: "https://www.india.gov.in/topics/housing/rera",
+            provider: "State RERA Authorities"
+        },
+        {
+            title: "Bhuunaksha Portal",
+            description: "Digitized cadastral maps for checking land records and boundaries across Indian states.",
+            category: "agriculture",
+            eligibility: "Land owners and farmers",
+            link: "https://pib.gov.in/",
+            provider: "NIC / State Govts"
+        },
+        {
+            title: "Rainfed Area Development (RAD)",
+            description: "Component of NMSA focusing on Integrated Farming System (IFS) for enhancing productivity in rainfed areas.",
+            category: "agriculture",
+            eligibility: "Farmers in rainfed regions",
+            link: "https://nmsa.dac.gov.in/",
+            provider: "Ministry of Agriculture"
+        },
+        {
+            title: "Sub-Mission on Agroforestry (SMAF)",
+            description: "Encouraging farmers to plant multi-purpose trees on their farmlands along with agricultural crops.",
+            category: "agriculture",
+            eligibility: "Landholding farmers",
+            link: "https://nmsa.dac.gov.in/",
+            provider: "Ministry of Agriculture"
+        },
+        {
+            title: "National Project on Organic Farming",
+            description: "Promoting organic inputs and bio-fertilizers for sustainable agriculture through financial assistance.",
+            category: "agriculture",
+            eligibility: "Bio-fertilizer units and Organic farmers",
+            link: "https://ncof.dac.gov.in/",
+            provider: "Ministry of Agriculture"
+        },
+        {
             title: "SMILE Scheme",
             description: "Support for marginalized individuals for Livelihood and Enterprise.",
             category: "schemes",
@@ -656,6 +1171,70 @@ const Resources = () => {
             eligibility: "SC, OBC, EBC and Safai Karamcharis",
             link: "https://pmdaksh.dosje.gov.in/",
             provider: "Ministry of Social Justice"
+        },
+        {
+            title: "PM-VAYO SHREE",
+            description: "Providing physical aids and assisted-living devices for senior citizens belonging to BPL category.",
+            category: "schemes",
+            eligibility: "Senior citizens (60+) under BPL category",
+            link: "https://socialjustice.gov.in/",
+            provider: "Ministry of Social Justice"
+        },
+        {
+            title: "SHRESHTA Scheme",
+            description: "Residential education for SC students in high schools in targeted areas. Quality education for meritorious students.",
+            category: "schemes",
+            eligibility: "Meritorious SC students",
+            link: "https://shreshta.nsfdc.nic.in/",
+            provider: "Ministry of Social Justice"
+        },
+        {
+            title: "NAMASTE Scheme",
+            description: "National Action for Mechanised Sanitation Ecosystem to ensure safety and dignity of sanitation workers.",
+            category: "schemes",
+            eligibility: "Sanitation workers and municipalities",
+            link: "https://namaste.dosje.gov.in/",
+            provider: "Ministry of Social Justice / Housing"
+        },
+        {
+            title: "APY (Pension) Portal",
+            description: "Official portal for tracking your Atal Pension Yojana contributions and status.",
+            category: "schemes",
+            eligibility: "All APY subscribers",
+            link: "https://npscra.nsdl.co.in/scheme-details.php",
+            provider: "PFRDA"
+        },
+        {
+            title: "National Social Assistance (NSAP)",
+            description: "Pension for elderly, widows and disabled individuals from BPL households.",
+            category: "schemes",
+            eligibility: "BPL elderly, Windows, and PwDs",
+            link: "https://nsap.nic.in/",
+            provider: "Ministry of Rural Development"
+        },
+        {
+            title: "PM-DevINE",
+            description: "Prime Minister’s Development Initiative for North East Region to fund infrastructure and social projects.",
+            category: "schemes",
+            eligibility: "Projects in North Eastern States",
+            link: "https://mdoner.gov.in/",
+            provider: "Ministry of Development of North Eastern Region"
+        },
+        {
+            title: "Sansad Adarsh Gram Yojana",
+            description: "Development of model villages through community participation and convergence of schemes.",
+            category: "schemes",
+            eligibility: "Rural Panchayats",
+            link: "https://saanjhi.gov.in/",
+            provider: "Ministry of Rural Development"
+        },
+        {
+            title: "Antyodaya Anna Yojana",
+            description: "Providing highly subsidized food grains to the poorest of the poor families.",
+            category: "schemes",
+            eligibility: "Poorest of poor families (AAY card holders)",
+            link: "https://nfsa.gov.in/",
+            provider: "Department of Food & Public Distribution"
         },
 
         // --- WOMEN & CHILD ---
@@ -798,6 +1377,195 @@ const Resources = () => {
             eligibility: "Startups recognized by DPIIT",
             link: "https://seedfund.startupindia.gov.in/",
             provider: "Department for Promotion of Industry and Internal Trade"
+        },
+        {
+            title: "MAARG Portal",
+            description: "Mentorship, Advisory, Assistance, Resilience and Growth - platform for connects startups with mentors.",
+            category: "startup",
+            eligibility: "All startups and entrepreneurs",
+            link: "https://maarg.startupindia.gov.in/",
+            provider: "DPIIT"
+        },
+        {
+            title: "TIDE 2.0 (MeitY)",
+            description: "Technology Incubation and Development of Entrepreneurs. Support for tech startups using ICT, AI, etc.",
+            category: "startup",
+            eligibility: "Tech startups in selected centers",
+            link: "https://www.meitystartuphub.in/",
+            provider: "Ministry of Electronics & IT"
+        },
+        {
+            title: "SAMRIDH Scheme",
+            description: "MeitY's Startup Accelerator of MeitY for Product Innovation, Development, and Growth.",
+            category: "startup",
+            eligibility: "Early stage software startups",
+            link: "https://www.meitystartuphub.in/samridh",
+            provider: "MeitY Startup Hub"
+        },
+        {
+            title: "GENESIS Program",
+            description: "Gen-next Support for Innovative Startups by MeitY for deep-tech entrepreneurs.",
+            category: "startup",
+            eligibility: "Deep-tech startups in Tier 2/3 cities",
+            link: "https://www.meity.gov.in/",
+            provider: "MeitY"
+        },
+        {
+            title: "ASPIRE Scheme",
+            description: "A Scheme for Promotion of Innovation, Rural Industries and Entrepreneurship.",
+            category: "startup",
+            eligibility: "MSMEs and Rural Entrepreneurs",
+            link: "https://aspire.msme.gov.in/",
+            provider: "Ministry of MSME"
+        },
+        {
+            title: "PMEGP (KVIC)",
+            description: "Credit-linked subsidy program for setting up new micro-enterprises in non-farm sector.",
+            category: "startup",
+            eligibility: "Individuals above 18 years",
+            link: "https://www.kviconline.gov.in/",
+            provider: "KVIC / MSME"
+        },
+        {
+            title: "National Startup Awards",
+            description: "Recognizing and rewarding outstanding startups that exhibit high potential for employment and wealth creation.",
+            category: "startup",
+            eligibility: "DPIIT Recognized Startups",
+            link: "https://www.startupindia.gov.in/awards",
+            provider: "Government of India"
+        },
+        {
+            title: "Karnataka Startup Cell",
+            description: "Hub for various grants, incubation and funding for startups in Karnataka.",
+            category: "startup",
+            eligibility: "Karnataka based startups",
+            link: "https://startup.karnataka.gov.in/",
+            provider: "Karnataka State Govt"
+        },
+        {
+            title: "iStart Rajasthan",
+            description: "Flagship initiative for fostering innovation and startups in the state of Rajasthan.",
+            category: "startup",
+            eligibility: "Rajasthan based startups",
+            link: "https://istart.rajasthan.gov.in/",
+            provider: "Rajasthan State Govt"
+        },
+        {
+            title: "Startup Odisha Portal",
+            description: "Single window system for startups in Odisha to access incentives and mentorship.",
+            category: "startup",
+            eligibility: "Odisha based startups",
+            link: "https://startupodisha.gov.in/",
+            provider: "Odisha State Govt"
+        },
+        {
+            title: "Innovation Mission Punjab",
+            description: "Promoting innovation and culture of entrepreneurship across the state of Punjab.",
+            category: "startup",
+            eligibility: "Punjab based startups",
+            link: "https://impunjab.org/",
+            provider: "Punjab State Govt"
+        },
+        {
+            title: "Tamil Nadu Startup Mission",
+            description: "Support system for entrepreneurs in Tamil Nadu with grant and equity investments.",
+            category: "startup",
+            eligibility: "TAMIL NADU based startups",
+            link: "https://startuptn.in/",
+            provider: "TANSIM"
+        },
+        {
+            title: "Kerala Startup Mission",
+            description: "Nodal agency for the entrepreneurship development and startup activities in Kerala.",
+            category: "startup",
+            eligibility: "Kerala based startups",
+            link: "https://startupmission.kerala.gov.in/",
+            provider: "KSUM"
+        },
+        {
+            title: "Atal Community Innovation Centres",
+            description: "Nurturing community-focused innovation and startup ecosystem in underserved regions.",
+            category: "startup",
+            eligibility: "Universities, Institutions, Private sector",
+            link: "https://aim.gov.in/acic.php",
+            provider: "NITI Aayog"
+        },
+        {
+            title: "MSME Idea Hackathon",
+            description: "Platform for supporting and funding innovative ideas from students and entrepreneurs.",
+            category: "startup",
+            eligibility: "Students, MSMEs and Individuals",
+            link: "https://innovate.mygov.in/msme-idea-hackathon/",
+            provider: "Ministry of MSME"
+        },
+        {
+            title: "National Digital Library",
+            description: "A virtual repository of learning resources with a single-window search facility for researchers and students.",
+            category: "education",
+            subCategory: "research",
+            eligibility: "All learners and researchers",
+            link: "https://ndl.iitkgp.ac.in/",
+            provider: "IIT Kharagpur / Ministry of Education"
+        },
+        {
+            title: "Shodhganga",
+            description: "Reservoir of Indian theses and dissertations submitted to various universities in India.",
+            category: "education",
+            subCategory: "research",
+            eligibility: "Research scholars and academics",
+            link: "https://shodhganga.inflibnet.ac.in/",
+            provider: "INFLIBNET Centre"
+        },
+        {
+            title: "National Museum Portal",
+            description: "Digital access to the collections of various national museums across India.",
+            category: "education",
+            subCategory: "higher",
+            eligibility: "All citizens and researchers",
+            link: "https://museumsofindia.gov.in/",
+            provider: "Ministry of Culture"
+        },
+        {
+            title: "E-PG Pathshala",
+            description: "Curriculum-based, interactive e-content in 70 subjects across all disciplines of social sciences, arts, fine arts and humanities.",
+            category: "education",
+            subCategory: "higher",
+            eligibility: "Post-graduate students",
+            link: "https://epgp.inflibnet.ac.in/",
+            provider: "UGC"
+        },
+        {
+            title: "Bhasha Abhiyaan",
+            description: "Promotion and preservation of various Indian languages through digital resource creation.",
+            category: "education",
+            subCategory: "higher",
+            eligibility: "Language learners and researchers",
+            link: "https://www.education.gov.in/",
+            provider: "Ministry of Education"
+        },
+        {
+            title: "E-Amrit Portal",
+            description: "One-stop destination for all information on electric vehicles in India - policies, subsidies, and insurance.",
+            category: "schemes",
+            eligibility: "Prospective EV buyers and owners",
+            link: "https://e-amrit.niti.gov.in/",
+            provider: "NITI Aayog"
+        },
+        {
+            title: "FAME-II Subsidy",
+            description: "Faster Adoption and Manufacturing of Electric Vehicles - subsidy portal for EVs.",
+            category: "schemes",
+            eligibility: "EV buyers (2-wheelers, 3-wheelers, etc.)",
+            link: "https://fame2.heavyindustries.gov.in/",
+            provider: "Dept of Heavy Industry"
+        },
+        {
+            title: "PM-EBus Sewa",
+            description: "Initiative to augment city bus operations by deployment of 10,000 electric buses on PPP model.",
+            category: "schemes",
+            eligibility: "Urban commuters and municipalities",
+            link: "https://mohua.gov.in/",
+            provider: "Ministry of Housing & Urban Affairs"
         },
         {
             title: "ASPIRE Scheme",
