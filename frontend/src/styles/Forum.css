@@ -2237,7 +2237,9 @@ body.dark-theme .comment-item.is-pinned {
     .forum-stats {
         grid-template-columns: 1fr;
         gap: 12px;
-        margin-bottom: 30px;
+        margin-bottom: 25px;
+        padding: 0 10px;
+        /* Aligned with forum-main */
     }
 
     .stat-card {
@@ -2249,10 +2251,17 @@ body.dark-theme .comment-item.is-pinned {
     }
 
     .forum-main {
-        padding: 0 15px 40px;
+        padding: 0 10px 40px;
+        /* Reduced side padding to fill screen */
         display: flex;
         flex-direction: column;
-        gap: 20px;
+        gap: 16px;
+        width: 100%;
+        max-width: none;
+        /* Remove any desktop constraints */
+        align-items: stretch;
+        /* Force children to take full width */
+        box-sizing: border-box;
     }
 
     /* Transform Sidebar into Vertical Scrollable List on Mobile as requested */
@@ -2302,9 +2311,18 @@ body.dark-theme .comment-item.is-pinned {
         /* Hide count on mobile to save space */
     }
 
+    .forum-sidebar,
+    .forum-sidebar-right,
+    .discussions-feed {
+        width: 100% !important;
+        max-width: none !important;
+        box-sizing: border-box;
+    }
+
     .forum-controls {
         gap: 12px;
         padding: 0;
+        width: 100%;
     }
 
     .filter-buttons {
@@ -2325,11 +2343,12 @@ body.dark-theme .comment-item.is-pinned {
     }
 
     .discussion-card {
-        padding: 20px 15px;
+        padding: 16px 12px;
+        /* Denser padding for mobile */
         width: 100%;
         box-sizing: border-box;
         border-radius: 20px;
-        margin-bottom: 15px;
+        margin-bottom: 12px;
     }
 
     .discussion-title {
