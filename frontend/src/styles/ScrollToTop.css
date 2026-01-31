@@ -48,12 +48,17 @@
 
 @media (max-width: 768px) {
     .scroll-to-top {
-        bottom: 20px;
+        bottom: 110px;
+        /* Positioned above the chatbot toggle */
         right: 20px;
     }
 
     .scroll-btn {
-        width: 40px;
-        height: 40px;
+        width: 42px;
+        height: 42px;
+        background: rgba(79, 70, 229, 0.9);
+        /* Slightly different color to distinguish from chatbot */
+        backdrop-filter: blur(8px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     }
 }

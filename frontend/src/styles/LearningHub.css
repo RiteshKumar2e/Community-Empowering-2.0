@@ -358,21 +358,58 @@ body.light-theme .resource-link svg:first-child {
 
 /* Responsive */
 @media (max-width: 768px) {
+    .learning-hub-page {
+        padding: var(--space-4) 0;
+    }
+
+    .page-header {
+        margin-bottom: var(--space-6);
+    }
+
+    .page-header h1 {
+        font-size: 1.75rem;
+    }
+
     .platforms-grid {
         grid-template-columns: 1fr;
+        gap: var(--space-4);
     }
 
-    .category-filters {
-        flex-direction: column;
+    .category-filters,
+    .sub-category-filters {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding-bottom: var(--space-3);
+        margin: 0 calc(-1 * var(--space-4));
+        padding-left: var(--space-4);
+        padding-right: var(--space-4);
+        scrollbar-width: none;
+        width: auto;
     }
 
-    .filter-btn {
-        width: 100%;
-        justify-content: center;
+    .category-filters::-webkit-scrollbar,
+    .sub-category-filters::-webkit-scrollbar {
+        display: none;
+    }
+
+    .filter-btn,
+    .sub-filter-btn {
+        flex-shrink: 0;
+        padding: var(--space-2) var(--space-4);
+        font-size: 0.875rem;
     }
 
     .stats-grid {
         grid-template-columns: 1fr;
+        gap: var(--space-3);
+    }
+
+    .stat-card {
+        padding: var(--space-4);
+    }
+
+    .stat-number {
+        font-size: 1.75rem;
     }
 
     .meta-row {
@@ -383,11 +420,16 @@ body.light-theme .resource-link svg:first-child {
     .resource-link {
         flex-direction: column;
         text-align: center;
+        padding: var(--space-4);
     }
 
+    .platform-card {
+        padding: var(--space-4);
+    }
 
-    .resource-link svg:last-child {
-        margin-left: 0;
+    .additional-resources {
+        padding: var(--space-4);
+        margin-top: var(--space-8);
     }
 }
 
