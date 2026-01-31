@@ -485,7 +485,7 @@ const LearningHub = () => {
             duration: "Flexible",
             students: "4M+",
             level: "10+2 / Graduate",
-            link: "https://ssc.nic.in/",
+            link: "https://ssc.gov.in/",
             features: ["Exam Schedule", "Pattern Info", "Result portal"],
             isOfficial: true
         },
@@ -559,7 +559,7 @@ const LearningHub = () => {
             duration: "Ongoing",
             students: "1.2M+",
             level: "Beginner",
-            link: "https://wcd.nic.in/",
+            link: "https://wcd.gov.in/",
             features: ["Grants", "Marketing Help", "SHG Link"],
             isOfficial: true
         },
@@ -585,7 +585,7 @@ const LearningHub = () => {
             duration: "School Tier",
             students: "20M+",
             level: "K-12",
-            link: "https://epathshala.nic.in/",
+            link: "https://epathshala.gov.in/",
             features: ["Textbooks", "E-Books", "Audio Hub"],
             isOfficial: true
         },
@@ -621,7 +621,7 @@ const LearningHub = () => {
             duration: "Yearly",
             students: "20M+",
             level: "Secondary",
-            link: "https://cbseacademic.nic.in/",
+            link: "https://cbse.gov.in/",
             features: ["Official Info", "Exam Prep", "Teacher Support"],
             isOfficial: true
         },
@@ -890,7 +890,7 @@ const LearningHub = () => {
             duration: "1 Month",
             students: "1K+",
             level: "Law/Social",
-            link: "https://nhrc.nic.in/",
+            link: "https://nhrc.gov.in/",
             features: ["Human Rights", "Field Visits", "Exposure"],
             isOfficial: true
         },
@@ -1444,7 +1444,7 @@ const LearningHub = () => {
             duration: "Full Course",
             students: "2M+",
             level: "College",
-            link: "https://cec.nic.in/cec/",
+            link: "https://cec.gov.in/",
             features: ["UGC syllabus", "Recorded lectures", "Free"],
             isOfficial: true
         },

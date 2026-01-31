@@ -130,7 +130,7 @@ const Resources = () => {
             category: "education",
             subCategory: "backward",
             eligibility: "ST students, Family income < ₹2.5 lakh",
-            link: "https://tribal.nic.in/",
+            link: "https://tribal.gov.in/",
             provider: "Ministry of Tribal Affairs"
         },
         {
@@ -166,7 +166,7 @@ const Resources = () => {
             category: "education",
             subCategory: "age",
             eligibility: "Girl children from BPL families",
-            link: "https://wcd.nic.in/",
+            link: "https://wcd.gov.in/",
             provider: "Ministry of Women & Child Development"
         },
         {
@@ -422,8 +422,8 @@ const Resources = () => {
 
         // --- EMPLOYMENT & BUSINESS ---
         {
-            title: "MGNREGA",
-            description: "100 days of guaranteed wage employment to every rural household.",
+            title: "Viksit Bharat Rozgar Mission (VB-GRAM G)",
+            description: "Providing 125 days of guaranteed wage employment to rural households. Replaces the former MGNREGA scheme with enhanced livelihood support.",
             category: "jobs",
             eligibility: "Adult members of rural households",
             link: "https://nrega.nic.in/",
@@ -502,20 +502,20 @@ const Resources = () => {
             provider: "MSDE"
         },
         {
-            title: "Aatmanirbhar Bharat Rojgar Yojana",
-            description: "Incentivizing employers for creation of new employment and restoration of loss of employment during COVID-19 pandemic.",
+            title: "PM-DAKSH Scheme",
+            description: "Skill development training for marginalized groups including SCs, OBCs, and Safai Karamcharis. Free training with stipend support.",
             category: "jobs",
-            eligibility: "EPFO registered establishments and new employees",
-            link: "https://www.epfindia.gov.in/",
-            provider: "Ministry of Labour"
+            eligibility: "SCs, OBCs, EWS, and Safai Karamcharis aged 18-45",
+            link: "https://pmdaksh.dosje.gov.in/",
+            provider: "Ministry of Social Justice & Empowerment"
         },
         {
-            title: "Garib Kalyan Rojgar Abhiyaan",
-            description: "A massive rural public works scheme to provide livelihood opportunities to returnee migrant workers and rural citizens.",
+            title: "PM Vishwakarma Scheme",
+            description: "End-to-end support for traditional artisans and craftspeople. Includes toolkit incentives of ₹15,000 and collateral-free loans.",
             category: "jobs",
-            eligibility: "Migrant workers and rural youth in 116 selective districts",
-            link: "https://gkr.mord.gov.in/",
-            provider: "Ministry of Rural Development"
+            eligibility: "Traditional artisans (Carpenters, Potters, Smiths, etc.)",
+            link: "https://pmvishwakarma.gov.in/",
+            provider: "Ministry of MSME"
         },
 
         // --- HOUSING & INFRA ---
