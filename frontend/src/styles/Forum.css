@@ -2211,6 +2211,9 @@ body.dark-theme .comment-item.is-pinned {
 @media (max-width: 768px) {
     .forum-container {
         padding-top: 60px;
+        overflow-x: hidden;
+        /* Prevent any horizontal overflow */
+        width: 100%;
     }
 
     .forum-hero {
@@ -2252,24 +2255,34 @@ body.dark-theme .comment-item.is-pinned {
         gap: 20px;
     }
 
-    /* Transform Sidebar into Horizontal Lists on Mobile */
+    /* Transform Sidebar into Vertical Scrollable List on Mobile as requested */
     .sidebar-section {
-        padding: 15px;
+        padding: 12px;
         border-radius: 16px;
+        width: 100%;
+        box-sizing: border-box;
     }
 
     .category-list {
-        flex-direction: row;
-        overflow-x: auto;
-        padding-bottom: 10px;
-        scrollbar-width: none;
-        margin: 0 -15px;
-        padding-left: 15px;
-        padding-right: 15px;
+        flex-direction: column;
+        /* Changed to vertical */
+        max-height: 250px;
+        /* Constraints height */
+        overflow-y: auto;
+        /* Vertical scroll */
+        gap: 8px;
+        padding-right: 5px;
+        scrollbar-width: thin;
     }
 
     .category-list::-webkit-scrollbar {
-        display: none;
+        width: 4px;
+        display: block;
+    }
+
+    .category-list::-webkit-scrollbar-thumb {
+        background: var(--forum-glass-border);
+        border-radius: 10px;
     }
 
     .category-item {
@@ -2295,9 +2308,9 @@ body.dark-theme .comment-item.is-pinned {
 
     .filter-buttons {
         gap: 8px;
-        margin: 0 -15px;
-        padding-left: 15px;
-        padding-right: 15px;
+        overflow-x: auto;
+        padding-bottom: 8px;
+        width: 100%;
     }
 
     .filter-btn {
@@ -2332,12 +2345,23 @@ body.dark-theme .comment-item.is-pinned {
 
     /* Modal Adjustments */
     .modal-content {
-        width: 100%;
-        height: 100%;
-        max-height: 100vh;
-        border-radius: 0;
-        padding: 20px;
+        width: 95%;
+        /* Use almost full width but with safe margin */
+        margin: 10px auto;
+        height: auto;
+        max-height: 90vh;
+        border-radius: 20px;
+        padding: 15px;
         overflow-y: auto;
+        position: relative;
+        left: 0;
+        right: 0;
+        box-sizing: border-box;
+    }
+
+    .reply-form-modern textarea {
+        max-width: 100%;
+        box-sizing: border-box;
     }
 
     .modal-content h2 {
