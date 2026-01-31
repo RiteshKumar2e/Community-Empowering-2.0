@@ -669,10 +669,10 @@ const Resources = () => {
         },
         {
             title: "Mahila Coir Yojana",
-            description: "Skill development program for women artisans in the coir industry.",
+            description: "Skill development program for women artisans in the coir industry with 75% subsidy on machinery and training support.",
             category: "women",
-            eligibility: "Rural women and artisans",
-            link: "https://coirboard.gov.in/",
+            eligibility: "Rural women artisans who completed training",
+            link: "https://coirboard.gov.in/schemes-financial-assistance.php",
             provider: "Coir Board"
         },
         {
@@ -680,23 +680,23 @@ const Resources = () => {
             description: "Support to Training and Employment Programme for Women to provide skills that lead to employability.",
             category: "women",
             eligibility: "Women aged 16 years and above",
-            link: "https://wcd.nic.in/schemes/support-training-and-employment-programme-women-step",
+            link: "https://wcd.gov.in/schemes/support-training-and-employment-programme-women-step",
             provider: "Ministry of Women & Child Development"
         },
         {
-            title: "Mahila Shakti Kendra",
-            description: "Empowering rural women through community participation and providing convergence of government schemes.",
+            title: "Mission Shakti (Mahila Shakti Kendra)",
+            description: "Empowering rural women through community participation, skill development, employment, and providing convergence of government schemes. Includes Sambal (safety) and Samarthya (empowerment) sub-schemes.",
             category: "women",
-            eligibility: "Rural women in identified districts",
-            link: "https://wcd.nic.in/",
+            eligibility: "Rural women across India",
+            link: "https://missionshakti.wcd.gov.in/",
             provider: "Ministry of Women & Child Development"
         },
         {
             title: "One Stop Centre Scheme",
-            description: "Support for women affected by violence, in private and public spaces, within the family, community and at the workplace.",
+            description: "Integrated support for women affected by violence including medical aid, legal assistance, temporary shelter, police support, and psycho-social counseling.",
             category: "women",
             eligibility: "All women facing violence",
-            link: "https://wcd.nic.in/",
+            link: "https://missionshakti.wcd.gov.in/",
             provider: "Ministry of Women & Child Development"
         },
         {
@@ -708,11 +708,11 @@ const Resources = () => {
             provider: "Ministry of Women & Child Development"
         },
         {
-            title: "Working Women Hostel",
-            description: "Providing safe and affordable accommodation for working women with daycare facilities for their children.",
+            title: "Sakhi Niwas (Working Women Hostel)",
+            description: "Providing safe and affordable accommodation for working women with daycare facilities for their children in urban, semi-urban and rural areas.",
             category: "women",
             eligibility: "Working women, trainees under training for job",
-            link: "https://wcd.nic.in/",
+            link: "https://missionshakti.wcd.gov.in/",
             provider: "Ministry of Women & Child Development"
         },
         {
@@ -728,7 +728,7 @@ const Resources = () => {
             description: "Rajiv Gandhi Scheme for Empowerment of Adolescent Girls to provide them with life skills and vocational training.",
             category: "women",
             eligibility: "Adolescent girls (11-18 years)",
-            link: "https://wcd.nic.in/schemes/rgseag-sabla",
+            link: "https://wcd.gov.in/schemes/rgseag-sabla",
             provider: "Ministry of Women & Child Development"
         },
 
