@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useLanguage } from '../contexts/LanguageContext'
 import { Search, Filter, ExternalLink, Building, Users, Briefcase, GraduationCap, Heart, Home, Leaf, BookOpen, Award, Baby, Accessibility, Rocket } from 'lucide-react'
 import api from '../services/api'
+import ScrollToTop from '../components/ScrollToTop'
 import '../styles/Resources.css'
 
 const Resources = () => {
@@ -2080,6 +2081,7 @@ const Resources = () => {
                     </div>
                 </div>
             </div>
+            <ScrollToTop />
         </div>
     )
 }

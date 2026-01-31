@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { BookOpen, Play, ExternalLink, Clock, Award, Users, GraduationCap, Code, Briefcase, Languages, Heart, Search } from 'lucide-react'
 import api from '../services/api'
+import ScrollToTop from '../components/ScrollToTop'
 import '../styles/LearningHub.css'
 
 const LearningHub = () => {
@@ -4395,6 +4396,7 @@ const LearningHub = () => {
                     </div>
                 </div>
             </div>
+            <ScrollToTop />
         </div>
     )
 }
