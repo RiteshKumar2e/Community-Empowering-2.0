@@ -2168,7 +2168,236 @@ body.dark-theme .comment-item.is-pinned {
     background: rgba(16, 185, 129, 0.1) !important;
 }
 
-.comment-action-btn.pin-btn:hover {
-    background: rgba(16, 185, 129, 0.08);
-    color: #10b981;
+/* ===================================
+   RESPONSIVE DESIGN (MOBILE & TABLET)
+   =================================== */
+
+@media (max-width: 1200px) {
+    .forum-main {
+        grid-template-columns: 240px 1fr;
+    }
+
+    .forum-sidebar-right {
+        grid-column: 1 / -1;
+        display: flex;
+        flex-direction: row;
+        gap: 20px;
+    }
+
+    .forum-sidebar-right .sidebar-section {
+        flex: 1;
+    }
+}
+
+@media (max-width: 900px) {
+    .forum-main {
+        grid-template-columns: 1fr;
+    }
+
+    .forum-sidebar {
+        position: static;
+        width: 100%;
+    }
+
+    .forum-sidebar-right {
+        flex-direction: column;
+    }
+
+    .forum-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .forum-container {
+        padding-top: 60px;
+    }
+
+    .forum-hero {
+        padding: 40px 20px 30px;
+    }
+
+    .forum-hero-content h1 {
+        font-size: 2.2rem;
+    }
+
+    .forum-hero-content p {
+        font-size: 1rem;
+        margin-bottom: 25px;
+    }
+
+    .btn-start-discussion {
+        padding: 12px 28px;
+        font-size: 1rem;
+    }
+
+    .forum-stats {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        margin-bottom: 30px;
+    }
+
+    .stat-card {
+        padding: 16px;
+    }
+
+    .stat-value {
+        font-size: 1.75rem;
+    }
+
+    .forum-main {
+        padding: 0 15px 40px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    /* Transform Sidebar into Horizontal Lists on Mobile */
+    .sidebar-section {
+        padding: 15px;
+        border-radius: 16px;
+    }
+
+    .category-list {
+        flex-direction: row;
+        overflow-x: auto;
+        padding-bottom: 10px;
+        scrollbar-width: none;
+        margin: 0 -15px;
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+
+    .category-list::-webkit-scrollbar {
+        display: none;
+    }
+
+    .category-item {
+        width: auto;
+        flex-shrink: 0;
+        padding: 8px 16px;
+        white-space: nowrap;
+    }
+
+    .category-info {
+        gap: 8px;
+    }
+
+    .category-count {
+        display: none;
+        /* Hide count on mobile to save space */
+    }
+
+    .forum-controls {
+        gap: 15px;
+    }
+
+    .filter-buttons {
+        gap: 8px;
+        margin: 0 -15px;
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+
+    .filter-btn {
+        padding: 8px 16px;
+        font-size: 0.85rem;
+        white-space: nowrap;
+    }
+
+    .discussion-card {
+        padding: 15px;
+    }
+
+    .discussion-title {
+        font-size: 1.1rem;
+    }
+
+    .discussion-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .discussion-footer {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .discussion-stats {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    /* Modal Adjustments */
+    .modal-content {
+        width: 100%;
+        height: 100%;
+        max-height: 100vh;
+        border-radius: 0;
+        padding: 20px;
+        overflow-y: auto;
+    }
+
+    .modal-content h2 {
+        font-size: 1.5rem;
+        margin-top: 30px;
+    }
+
+    .detail-modal {
+        padding-bottom: 80px;
+        /* Space for fixed reply input if we add it */
+    }
+
+    .discussion-detail-header h1 {
+        font-size: 1.5rem;
+    }
+
+    .engagement-actions {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .author-full-info {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+    }
+
+    .btn-contact-author {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .replies-list-modern {
+        gap: 15px;
+    }
+
+    .comment-item {
+        gap: 10px;
+    }
+
+    .comment-body {
+        padding: 12px 15px;
+        border-radius: 0 16px 16px 16px;
+    }
+
+    .comment-actions {
+        flex-wrap: wrap;
+    }
+}
+
+@media (max-width: 480px) {
+    .forum-hero-content h1 {
+        font-size: 1.8rem;
+    }
+
+    .stat-card {
+        gap: 12px;
+    }
+
+    .stat-value {
+        font-size: 1.5rem;
+    }
 }

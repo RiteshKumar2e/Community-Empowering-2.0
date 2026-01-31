@@ -47,37 +47,82 @@ const LiveChat = () => {
         };
         fetchData();
 
-        // WebSocket setup with robust host detection
+        // WebSocket setup with robust host detection and protocol matching
         const apiUrl = import.meta.env.VITE_API_URL || '';
         let wsHost = window.location.host;
+        let wsProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
 
         if (apiUrl.startsWith('http')) {
-            // Extract host from absolute URL
-            wsHost = apiUrl.split('://')[1].split('/')[0];
+            const urlParts = apiUrl.split('://');
+            wsProtocol = urlParts[0] === 'https' ? 'wss' : 'ws';
+            wsHost = urlParts[1].split('/')[0];
         } else if (window.location.hostname === 'localhost') {
             wsHost = 'localhost:8000';
+            wsProtocol = 'ws';
         }
 
-        const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-        ws.current = new WebSocket(`${protocol}://${wsHost}/ws/chat/${user.id}`);
+        const wsUrl = `${wsProtocol}://${wsHost}/ws/chat/${user.id}`;
+        let socket = null;
+        let isMounted = true;
+        let reconnectTimeout = null;
 
-        ws.current.onmessage = (event) => {
-            try {
-                const data = JSON.parse(event.data);
-                if (data.type === 'delete') {
-                    setMessages(prev => prev.filter(m => m.id !== data.message_id));
-                } else {
-                    setMessages(prev => [...prev, data]);
+        const connect = () => {
+            if (!isMounted) return;
+
+            console.log(`📡 Connecting to WebSocket: ${wsUrl}`);
+            socket = new WebSocket(wsUrl);
+
+            socket.onopen = () => {
+                if (isMounted) {
+                    console.log('✅ WebSocket Connected');
+                    ws.current = socket;
                 }
-            } catch (err) {
-                console.error("Error parsing socket message:", err);
-            }
+            };
+
+            socket.onmessage = (event) => {
+                if (!isMounted) return;
+                try {
+                    const data = JSON.parse(event.data);
+                    if (data.type === 'delete') {
+                        setMessages(prev => prev.filter(m => m.id !== data.message_id));
+                    } else {
+                        setMessages(prev => [...prev, data]);
+                    }
+                } catch (err) {
+                    console.error("❌ Error parsing socket message:", err);
+                }
+            };
+
+            socket.onclose = (event) => {
+                if (isMounted) {
+                    console.log('⚠️ WebSocket connection closed. Reconnecting in 3s...');
+                    ws.current = null;
+                    reconnectTimeout = setTimeout(connect, 3000);
+                }
+            };
+
+            socket.onerror = (err) => {
+                console.error("🔴 WebSocket error:", err);
+                socket.close();
+            };
         };
 
-        ws.current.onclose = () => console.log('WebSocket connection closed');
+        connect();
 
         return () => {
-            if (ws.current) ws.current.close();
+            isMounted = false;
+            if (reconnectTimeout) clearTimeout(reconnectTimeout);
+            if (socket) {
+                // Remove handlers before closing to avoid error logs on unmount
+                socket.onopen = null;
+                socket.onmessage = null;
+                socket.onclose = null;
+                socket.onerror = null;
+                if (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING) {
+                    socket.close();
+                }
+            }
+            ws.current = null;
         };
     }, [user]);
 

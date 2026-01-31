@@ -362,3 +362,60 @@ body.light-theme .chat-messages-container {
 body.light-theme .msg-bubble {
     background: white;
 }
+
+@media (max-width: 768px) {
+    .live-chat-panel {
+        height: 500px;
+        margin-top: var(--space-4);
+        border-radius: 16px;
+    }
+
+    .chat-header {
+        padding: 0.75rem 1rem;
+    }
+
+    .chat-title span {
+        font-size: 0.9rem;
+    }
+
+    .chat-messages-container {
+        padding: 1rem;
+        gap: 1rem;
+    }
+
+    .msg-content-wrapper {
+        max-width: 92%;
+    }
+
+    .msg-bubble {
+        padding: 0.6rem 0.85rem;
+    }
+
+    .msg-body {
+        font-size: 0.85rem;
+    }
+
+    .chat-input-area {
+        padding: 10px;
+        gap: 8px;
+    }
+
+    .chat-main-input {
+        padding: 10px 12px;
+        font-size: 0.85rem;
+    }
+
+    .emoji-btn,
+    .send-btn-main {
+        width: 42px;
+        height: 42px;
+        min-width: 42px;
+    }
+
+    .emoji-mini-picker {
+        grid-template-columns: repeat(5, 1fr);
+        left: 0.5rem;
+        right: 0.5rem;
+        width: auto;
+    }
+}
