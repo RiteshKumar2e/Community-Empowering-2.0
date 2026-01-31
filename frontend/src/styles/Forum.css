@@ -2321,10 +2321,21 @@ body.dark-theme .comment-item.is-pinned {
 
     .discussion-card {
         padding: 15px;
+        width: 100%;
+        box-sizing: border-box;
+        border-radius: 18px;
     }
 
     .discussion-title {
         font-size: 1.1rem;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+
+    .discussion-excerpt {
+        font-size: 0.9rem;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
     }
 
     .discussion-meta {
@@ -2413,30 +2424,40 @@ body.dark-theme .comment-item.is-pinned {
 
     .replies-list-modern {
         gap: 12px;
+        width: 100%;
     }
 
     .comment-item {
-        gap: 8px;
+        gap: 10px;
+        width: 100%;
+        box-sizing: border-box;
     }
 
     .comment-avatar {
-        width: 36px;
-        height: 36px;
-        font-size: 0.9rem;
+        width: 34px;
+        height: 34px;
+        font-size: 0.85rem;
     }
 
     .comment-body {
-        padding: 10px 14px;
+        padding: 10px 12px;
         border-radius: 0 16px 16px 16px;
+        flex: 1;
+        min-width: 0;
+        /* Critical for flex wrap/shrink */
+        width: 100%;
     }
 
     .comment-text {
         font-size: 0.875rem;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        line-height: 1.4;
     }
 
     .comment-actions {
         flex-wrap: wrap;
-        gap: 10px;
+        gap: 8px;
     }
 }
 
