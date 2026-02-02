@@ -5,7 +5,7 @@ from typing import Optional, Dict, Any
 from app.core.database import get_db
 from app.api.auth import oauth2_scheme
 from app.models.models import User
-from app.api.users import get_current_user
+from app.api.users import get_current_user, get_current_user_optional
 from app.services.ai_service import AIService
 from app.services.search_service import search_service
 import json
