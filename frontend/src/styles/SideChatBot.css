@@ -220,6 +220,8 @@ body:not(.light-theme) .chatbot-messages {
     overflow-wrap: break-word;
     word-break: break-word;
     white-space: pre-wrap;
+    display: flex;
+    flex-direction: column;
 }
 
 .message:hover {
@@ -237,7 +239,8 @@ body:not(.light-theme) .chatbot-messages {
 }
 
 body.light-theme .message.bot {
-    color: #052e16;
+    color: #ffffff;
+    /* Keeping bot text white for better green contrast */
 }
 
 .message.user {
@@ -258,6 +261,7 @@ body:not(.light-theme) .message.user {
 
 .message-content {
     margin-bottom: 4px;
+    width: 100%;
 }
 
 .message-content p {
@@ -287,17 +291,21 @@ body:not(.light-theme) .message.user {
 
 .message-time {
     font-size: 0.7rem;
-    opacity: 0.6;
-    margin-top: 6px;
+    opacity: 0.65;
+    margin-top: 8px;
+    white-space: nowrap;
+    user-select: none;
 }
 
 .message.user .message-time {
     text-align: right;
+    align-self: flex-end;
 }
 
 .message.bot .message-time {
     text-align: left;
-    color: rgba(255, 255, 255, 0.8);
+    align-self: flex-start;
+    color: rgba(255, 255, 255, 0.9);
 }
 
 .message-meta {

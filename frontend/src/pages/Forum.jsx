@@ -496,6 +496,15 @@ const Forum = () => {
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                             />
+                            {searchQuery && (
+                                <button
+                                    className="clear-search-btn"
+                                    onClick={() => setSearchQuery('')}
+                                    title="Clear search"
+                                >
+                                    <X size={16} />
+                                </button>
+                            )}
                         </div>
                         <div className="filter-buttons">
                             <button
@@ -650,14 +659,21 @@ const Forum = () => {
                     <div className="sidebar-section">
                         <h3>Trending Topics</h3>
                         <div className="trending-list">
-                            <div className="trending-item">
-                                <TrendingUp size={16} className="trending-icon" />
-                                <span>Scaling AI Solutions in Rural India</span>
-                            </div>
-                            <div className="trending-item">
-                                <TrendingUp size={16} className="trending-icon" />
-                                <span>Improving AI Chatbots for Local Languages</span>
-                            </div>
+                            {[
+                                "Scaling AI Solutions in Rural India",
+                                "Improving AI Chatbots for Local Languages",
+                                "Community Support AI",
+                                "Skill Development"
+                            ].map((topic, index) => (
+                                <div
+                                    key={index}
+                                    className={`trending-item ${searchQuery === topic ? 'active' : ''}`}
+                                    onClick={() => setSearchQuery(topic)}
+                                >
+                                    <TrendingUp size={16} className="trending-icon" />
+                                    <span>{topic}</span>
+                                </div>
+                            ))}
                         </div>
                     </div>
 

@@ -25,22 +25,13 @@ class AgentChatResponse(BaseModel):
 @router.post("/chat", response_model=AgentChatResponse)
 async def agent_chat(
     request: AgentChatRequest,
-    token: Optional[str] = Depends(oauth2_scheme),
+    current_user: Optional[User] = Depends(get_current_user_optional),
     db: Session = Depends(get_db)
 ):
     """
     Advanced agent chat endpoint that returns response and metadata.
     Logs activity if user is authenticated.
     """
-    
-    # Try to get current user if token is provided
-    current_user = None
-    if token:
-        from app.api.users import get_current_user
-        try:
-            current_user = await get_current_user(token, db)
-        except:
-            pass
 
     # NEW: Search Integration
     search_triggers = ["search", "google", "latest", "find", "current", "news", "scheme", "update", "browser", "chrome"]
