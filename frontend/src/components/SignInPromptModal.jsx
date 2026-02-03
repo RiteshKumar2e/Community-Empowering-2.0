@@ -41,10 +41,7 @@ const SignInPromptModal = () => {
         }
     }, [isAuthenticated]);
 
-    // Log visibility changes
-    useEffect(() => {
-        console.log('👁️ Modal visibility changed to:', isVisible);
-    }, [isVisible]);
+
 
     const handleSignIn = () => {
         setIsVisible(false);

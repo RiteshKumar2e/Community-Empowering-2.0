@@ -80,6 +80,34 @@ The **Community AI Platform** is a high-performance, production-ready applicatio
 - **Smart Recommendations** - ML-driven content suggestions
 - **UX: Auto-Focus Input** - Chatbot input automatically focuses on hover for instant interaction
 
+### 🎨 **Premium UI/UX Features**
+
+- **Sign-In Prompt Modal** - Intelligent modal that appears after 5 seconds for non-authenticated users
+  - Theme-aware design (transparent glassmorphism for dark, solid white for light)
+  - Responsive positioning (left-aligned on desktop, centered on mobile)
+  - Feature highlights with animated cards
+  - Single-action CTA ("Sign In Now")
+- **Explore Modal** - User-triggered modal via "Explore Solutions" button
+  - Showcases 4 key platform features with icons
+  - Dual CTAs: "Sign In Now" and "Explore Features" (smooth scroll)
+  - Mobile-optimized with viewport-based positioning
+- **Theme System** - Seamless light/dark mode toggle
+  - Persistent theme preference
+  - Smooth transitions
+  - All components theme-aware
+- **Particle Cursor** - GPU-accelerated custom cursor with stellar trail effect
+  - Dynamic particle trails
+  - Smooth animations
+  - Performance-optimized
+- **Three.js Background** - Animated cosmic background
+  - Particle systems
+  - Interactive elements
+  - Theme-responsive colors
+- **Mobile-First Design** - Fully responsive across all devices
+  - Adaptive layouts
+  - Touch-optimized interactions
+  - Viewport-based positioning
+
 ### 🔐 **Enterprise Security**
 
 - **JWT Authentication** - Secure token-based auth with refresh tokens
