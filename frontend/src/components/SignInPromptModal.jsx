@@ -65,7 +65,7 @@ const SignInPromptModal = () => {
         },
         {
             icon: <Zap size={24} />,
-            title: "Free Learning",
+            title: "Learning Hub",
             description: "250+ courses to boost your skills"
         },
         {
