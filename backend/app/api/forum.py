@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 from typing import List, Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from datetime import datetime
 import json
 
@@ -28,8 +28,7 @@ class CategoryResponse(BaseModel):
     discussion_count: int = 0
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class DiscussionCreate(BaseModel):
     title: str
@@ -62,8 +61,7 @@ class DiscussionResponse(BaseModel):
     latest_reply: Optional[LatestReplySchema] = None
     is_liked: bool = False
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class ReplyCreate(BaseModel):
     content: str
@@ -82,8 +80,7 @@ class ReplyResponse(BaseModel):
     created_at: datetime
     updated_at: Optional[datetime]
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class ForumStats(BaseModel):
     total_discussions: int

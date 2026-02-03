@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 import os
@@ -12,10 +13,27 @@ import asyncio
 # Create database tables
 Base.metadata.create_all(bind=engine)
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Check configuration
+    settings.check_keys()
+    
+    # Create tables separately to be safe
+    Base.metadata.create_all(bind=engine)
+    
+    # Seed data
+    await seed_database()
+    
+    # Run market scan in background on startup to ensure fresh data
+    print("🔔 Server starting... Initiating background market scan.")
+    asyncio.create_task(market_scanner.scan_and_update())
+    yield
+
 app = FastAPI(
     title="Community AI Platform API",
     description="AI-powered platform for community access to information and resources",
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan
 )
 
 # Ensure uploads directory exists
@@ -79,20 +97,6 @@ async def seed_database():
     finally:
         db.close()
 
-@app.on_event("startup")
-async def startup_event():
-    # Check configuration
-    settings.check_keys()
-    
-    # Create tables separately to be safe
-    Base.metadata.create_all(bind=engine)
-    
-    # Seed data
-    await seed_database()
-    
-    # Run market scan in background on startup to ensure fresh data
-    print("🔔 Server starting... Initiating background market scan.")
-    asyncio.create_task(market_scanner.scan_and_update())
 
 @app.get("/favicon.ico", include_in_schema=False)
 async def favicon():
