@@ -133,6 +133,41 @@
     gap: var(--space-2);
 }
 
+.password-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-input-wrapper .form-input {
+    padding-right: 48px;
+}
+
+.password-toggle-btn {
+    position: absolute;
+    right: 4px;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    z-index: 5;
+}
+
+.password-toggle-btn:hover {
+    color: var(--primary-400);
+    background: rgba(99, 102, 241, 0.1);
+}
+
+body.light-theme .password-toggle-btn:hover {
+    background: rgba(99, 102, 241, 0.05);
+}
+
 .form-label {
     display: flex;
     align-items: center;
@@ -528,7 +563,7 @@ body.light-theme .back-to-home-btn {
     -webkit-backdrop-filter: blur(16px) !important;
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
     color: #ffffff !important;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.3) !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
     transition: all 0.3s ease !important;
 }
 
@@ -561,7 +596,7 @@ body.light-theme .back-to-home-btn:hover {
         gap: 4px !important;
         border-radius: 8px !important;
     }
-    
+
     .back-to-home-btn svg {
         width: 14px !important;
         height: 14px !important;

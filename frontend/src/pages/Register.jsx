@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { useLanguage } from '../contexts/LanguageContext'
-import { User, Mail, Lock, Phone, MapPin, AlertCircle, Loader, ArrowLeft } from 'lucide-react'
+import { User, Mail, Lock, Phone, MapPin, AlertCircle, Loader, ArrowLeft, Eye, EyeOff } from 'lucide-react'
 import '../styles/Auth.css'
 
 const Register = () => {
@@ -24,6 +24,8 @@ const Register = () => {
     })
     const [error, setError] = useState('')
     const [loading, setLoading] = useState(false)
+    const [showPassword, setShowPassword] = useState(false)
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
     const handleChange = (e) => {
         setFormData({
@@ -229,21 +231,31 @@ const Register = () => {
                         </div>
 
                         <div className="form-group">
-                            <label htmlFor="password" className="form-label">
+                            <label htmlFor="password" title="password" className="form-label">
                                 <Lock size={16} />
                                 Password
                             </label>
-                            <input
-                                type="password"
-                                id="password"
-                                name="password"
-                                value={formData.password}
-                                onChange={handleChange}
-                                className="form-input"
-                                placeholder="Create a strong password"
-                                autoComplete="new-password"
-                                required
-                            />
+                            <div className="password-input-wrapper">
+                                <input
+                                    type={showPassword ? 'text' : 'password'}
+                                    id="password"
+                                    name="password"
+                                    value={formData.password}
+                                    onChange={handleChange}
+                                    className="form-input"
+                                    placeholder="Create a strong password"
+                                    autoComplete="new-password"
+                                    required
+                                />
+                                <button
+                                    type="button"
+                                    className="password-toggle-btn"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    tabIndex="-1"
+                                >
+                                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                </button>
+                            </div>
                         </div>
 
                         <div className="form-group">
@@ -251,17 +263,27 @@ const Register = () => {
                                 <Lock size={16} />
                                 Confirm Password
                             </label>
-                            <input
-                                type="password"
-                                id="confirmPassword"
-                                name="confirmPassword"
-                                value={formData.confirmPassword}
-                                onChange={handleChange}
-                                className="form-input"
-                                placeholder="Confirm your password"
-                                autoComplete="new-password"
-                                required
-                            />
+                            <div className="password-input-wrapper">
+                                <input
+                                    type={showConfirmPassword ? 'text' : 'password'}
+                                    id="confirmPassword"
+                                    name="confirmPassword"
+                                    value={formData.confirmPassword}
+                                    onChange={handleChange}
+                                    className="form-input"
+                                    placeholder="Confirm your password"
+                                    autoComplete="new-password"
+                                    required
+                                />
+                                <button
+                                    type="button"
+                                    className="password-toggle-btn"
+                                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                    tabIndex="-1"
+                                >
+                                    {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                </button>
+                            </div>
                         </div>
 
                         <button

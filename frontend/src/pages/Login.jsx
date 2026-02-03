@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { GoogleLogin } from '@react-oauth/google'
 import { useAuth } from '../contexts/AuthContext'
 import { useLanguage } from '../contexts/LanguageContext'
-import { Mail, Lock, AlertCircle, Loader, ArrowLeft } from 'lucide-react'
+import { Mail, Lock, AlertCircle, Loader, ArrowLeft, Eye, EyeOff } from 'lucide-react'
 import OTPModal from '../components/OTPModal'
 
 import '../styles/Auth.css'
@@ -23,6 +23,7 @@ const Login = () => {
     const [loading, setLoading] = useState(false)
     const [isOtpOpen, setIsOtpOpen] = useState(false)
     const [emailForOtp, setEmailForOtp] = useState('')
+    const [showPassword, setShowPassword] = useState(false)
 
     const handleChange = (e) => {
         setFormData({
@@ -123,17 +124,27 @@ const Login = () => {
                                 <Lock size={16} />
                                 Password
                             </label>
-                            <input
-                                type="password"
-                                id="password"
-                                name="password"
-                                value={formData.password}
-                                onChange={handleChange}
-                                className="form-input"
-                                placeholder="Enter your password"
-                                autoComplete="current-password"
-                                required
-                            />
+                            <div className="password-input-wrapper">
+                                <input
+                                    type={showPassword ? 'text' : 'password'}
+                                    id="password"
+                                    name="password"
+                                    value={formData.password}
+                                    onChange={handleChange}
+                                    className="form-input"
+                                    placeholder="Enter your password"
+                                    autoComplete="current-password"
+                                    required
+                                />
+                                <button
+                                    type="button"
+                                    className="password-toggle-btn"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    tabIndex="-1"
+                                >
+                                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                </button>
+                            </div>
                         </div>
 
                         <button
@@ -180,7 +191,7 @@ const Login = () => {
                         </p>
                     </div>
                 </div>
-            </div>
+            </div >
             <OTPModal
                 isOpen={isOtpOpen}
                 onClose={() => setIsOtpOpen(false)}
@@ -188,7 +199,7 @@ const Login = () => {
                 onVerify={handleVerifyOtp}
                 loading={loading}
             />
-        </div>
+        </div >
     )
 }
 
