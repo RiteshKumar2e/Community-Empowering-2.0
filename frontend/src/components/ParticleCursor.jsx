@@ -59,7 +59,7 @@ const ParticleCursor = () => {
     if (isMobile) return null;
 
     return (
-        <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 99999 }}>
+        <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 2147483647 }}>
             {/* Dot */}
             <motion.div
                 style={{
@@ -77,7 +77,7 @@ const ParticleCursor = () => {
                     boxShadow: `0 0 10px ${color}`,
                     willChange: 'transform'
                 }}
-                animate={{ scale: isHovered ? 0 : 1 }}
+                animate={{ scale: isHovered ? 0.5 : 1 }}
                 transition={{ type: 'spring', damping: 20, stiffness: 200 }}
             />
 
@@ -98,8 +98,9 @@ const ParticleCursor = () => {
                     willChange: 'transform'
                 }}
                 animate={{
-                    scale: isHovered ? 1.5 : 1,
+                    scale: isHovered ? 2 : 1,
                     opacity: isHovered ? 1 : 0.6,
+                    borderWidth: isHovered ? '3px' : '2px'
                 }}
                 transition={{ type: 'spring', damping: 20, stiffness: 200 }}
             />
