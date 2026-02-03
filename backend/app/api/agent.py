@@ -1,17 +1,40 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Header
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from typing import Optional, Dict, Any
 from app.core.database import get_db
-from app.api.auth import oauth2_scheme
 from app.models.models import User
-from app.api.users import get_current_user, get_current_user_optional
+from app.core.security import decode_access_token
 from app.services.ai_service import AIService
 from app.services.search_service import search_service
 import json
 
 router = APIRouter()
 ai_service = AIService()
+
+# Optional authentication scheme
+security = HTTPBearer(auto_error=False)
+
+async def get_current_user_from_token(
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
+    db: Session = Depends(get_db)
+) -> Optional[User]:
+    """Get current user from token, returns None if not authenticated"""
+    if not credentials:
+        return None
+    
+    try:
+        token = credentials.credentials
+        payload = decode_access_token(token)
+        if not payload:
+            return None
+        
+        email = payload.get("sub")
+        user = db.query(User).filter(User.email == email).first()
+        return user
+    except:
+        return None
 
 class AgentChatRequest(BaseModel):
     message: str
@@ -25,7 +48,7 @@ class AgentChatResponse(BaseModel):
 @router.post("/chat", response_model=AgentChatResponse)
 async def agent_chat(
     request: AgentChatRequest,
-    current_user: Optional[User] = Depends(get_current_user_optional),
+    current_user: Optional[User] = Depends(get_current_user_from_token),
     db: Session = Depends(get_db)
 ):
     """
