@@ -22,6 +22,7 @@ const SideChatBot = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [isRecording, setIsRecording] = useState(false);
     const messagesEndRef = useRef(null);
+    const inputRef = useRef(null);
 
     // Base URL is managed by api service
 
@@ -174,9 +175,18 @@ const SideChatBot = () => {
                             <div ref={messagesEndRef} />
                         </div>
 
-                        <form className="chatbot-input-area" onSubmit={handleSendMessage}>
+                        <form 
+                            className="chatbot-input-area" 
+                            onSubmit={handleSendMessage}
+                            onMouseEnter={() => {
+                                if (isOpen && !isLoading) {
+                                    inputRef.current?.focus();
+                                }
+                            }}
+                        >
                             <div className="input-wrapper">
                                 <input
+                                    ref={inputRef}
                                     type="text"
                                     placeholder="Type your message..."
                                     value={inputText}
