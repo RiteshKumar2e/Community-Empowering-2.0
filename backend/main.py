@@ -103,7 +103,7 @@ async def favicon():
     from fastapi.responses import Response
     return Response(status_code=204)
 
-@app.get("/")
+@app.api_route("/", methods=["GET", "HEAD"])
 async def root():
     return {
         "message": "Community AI Platform API",
