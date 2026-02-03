@@ -14,7 +14,7 @@ export default function OTPModal({ isOpen, onClose, email, onVerify, loading }) 
             // Focus first input for speed
             setTimeout(() => {
                 document.getElementById('otp-0')?.focus();
-            }, 50);
+            }, 10);
         }
     }, [isOpen]);
 
@@ -82,15 +82,16 @@ export default function OTPModal({ isOpen, onClose, email, onVerify, loading }) 
                 >
                     <motion.div
                         className="otp-modal-content"
-                        initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                        initial={{ scale: 0.95, opacity: 0, y: 10 }}
                         animate={{ scale: 1, opacity: 1, y: 0 }}
-                        exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                        exit={{ scale: 0.95, opacity: 0, y: 10 }}
                         transition={{
                             type: "spring",
-                            damping: 25,
-                            stiffness: 400,
-                            mass: 0.8
+                            damping: 30,
+                            stiffness: 600,
+                            mass: 0.5
                         }}
+                        style={{ transitionDuration: '100ms' }}
                         onClick={(e) => e.stopPropagation()}
                     >
                         <div className="otp-modal-header">

@@ -41,15 +41,16 @@ class EmailService:
     # ------------------------------------------------------------------
     
     def send_otp(self, user_email: str, otp: str) -> bool:
-        """Send OTP to user with INSTANT priority - Non-blocking for speed"""
-        thread = threading.Thread(
-            target=self._worker_send_otp,
-            args=(user_email, otp),
-            name="OTP-Instant-Delivery"
-        )
-        thread.daemon = False
-        thread.start()
-        return True
+        """Send OTP to user with INSTANT priority - Optimized for BackgroundTasks"""
+        try:
+            subject = f"🔐 {otp} is your {self.company_name} Verification Code"
+            html_body = self._generate_otp_html(otp)
+            self._dispatch_api(user_email, subject, html_body, priority=True)
+            print(f"✅ OTP sent successfully to {user_email}")
+            return True
+        except Exception as e:
+            print(f"❌ CRITICAL: OTP Email Failed for {user_email}: {str(e)}")
+            return False
 
     def send_feedback_to_admin(self, user_name: str, user_email: str, category: str, rating: int, message: str) -> bool:
         """Send user feedback to admin with detailed template"""
@@ -85,15 +86,6 @@ class EmailService:
     # BACKGROUND WORKER
     # ------------------------------------------------------------------
 
-    def _worker_send_otp(self, user_email: str, otp: str):
-        """INSTANT OTP delivery with priority handling"""
-        try:
-            subject = f"🔐 {otp} is your {self.company_name} Verification Code"
-            html_body = self._generate_otp_html(otp)
-            self._dispatch_api(user_email, subject, html_body, priority=True)
-            print(f"✅ OTP sent successfully to {user_email}")
-        except Exception as e:
-            print(f"❌ CRITICAL: OTP Email Failed for {user_email}: {str(e)}")
 
     def _worker_send_feedback(self, user_name: str, user_email: str, category: str, rating: int, message: str):
         """Background worker for feedback delivery"""
