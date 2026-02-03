@@ -119,6 +119,7 @@ const Register = () => {
                                 className="form-input"
                                 placeholder="Enter your full name"
                                 autoComplete="name"
+                                autoFocus
                                 required
                             />
                         </div>

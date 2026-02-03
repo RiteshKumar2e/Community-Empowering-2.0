@@ -108,6 +108,7 @@ const Login = () => {
                                 className="form-input"
                                 placeholder="your.email@example.com"
                                 autoComplete="email"
+                                autoFocus
                                 required
                             />
                         </div>
