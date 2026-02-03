@@ -1,48 +1,31 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Sparkles, Zap, Shield, TrendingUp } from 'lucide-react';
+import { Sparkles, Zap, Shield, TrendingUp } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
 import '../styles/SignInPromptModal.css';
 
-const SignInPromptModal = () => {
-    const [isVisible, setIsVisible] = useState(false);
+const ExploreModal = ({ isOpen, onClose }) => {
     const navigate = useNavigate();
-    const { isAuthenticated } = useAuth();
-
-    useEffect(() => {
-        console.log('🔍 SignInPromptModal - isAuthenticated:', isAuthenticated);
-
-        // Only show modal if user is NOT logged in
-        if (!isAuthenticated) {
-            console.log('⏰ Starting 5 second timer for modal...');
-            // Show modal after 5 seconds
-            const timer = setTimeout(() => {
-                console.log('✅ Timer complete! Showing modal...');
-                setIsVisible(true);
-            }, 5000); // 5 seconds
-
-            return () => {
-                console.log('🧹 Cleanup: Clearing timer');
-                clearTimeout(timer);
-            };
-        } else {
-            console.log('ℹ️ User is logged in - modal will NOT show');
-        }
-    }, [isAuthenticated]);
-
-    // Log visibility changes
-    useEffect(() => {
-        console.log('👁️ Modal visibility changed to:', isVisible);
-    }, [isVisible]);
 
     const handleSignIn = () => {
-        setIsVisible(false);
+        onClose();
         navigate('/login');
     };
 
-    const handleClose = () => {
-        setIsVisible(false);
+    const handleExploreFeatures = () => {
+        onClose();
+        // Scroll to features section
+        const featuresSection = document.getElementById('features');
+        if (featuresSection) {
+            const headerOffset = 80;
+            const elementPosition = featuresSection.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+            window.scrollTo({
+                top: offsetPosition,
+                behavior: 'smooth'
+            });
+        }
     };
 
     const features = [
@@ -68,9 +51,12 @@ const SignInPromptModal = () => {
         }
     ];
 
+    // Check if light theme
+    const isLightTheme = document.body.classList.contains('light-theme');
+
     return (
         <AnimatePresence>
-            {isVisible && (
+            {isOpen && (
                 <>
                     {/* Backdrop */}
                     <motion.div
@@ -89,10 +75,9 @@ const SignInPromptModal = () => {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        onClick={handleClose}
                     />
 
-                    {/* Modal */}
+                    {/* Modal - Theme Aware */}
                     <motion.div
                         className="signin-prompt-modal"
                         style={{
@@ -102,25 +87,26 @@ const SignInPromptModal = () => {
                             transform: 'translate(-50%, -50%)',
                             zIndex: 999999,
                             display: 'block',
+                            background: isLightTheme
+                                ? 'linear-gradient(135deg, #ffffff 0%, #f9faff 100%)'
+                                : 'rgba(26, 26, 36, 0.85)',
+                            backdropFilter: isLightTheme ? 'none' : 'blur(20px)',
+                            padding: '28px',
+                            borderRadius: '24px',
                             maxWidth: '480px',
                             width: '88%',
                             maxHeight: '65vh',
                             overflowY: 'auto',
-                            overflowX: 'hidden'
+                            overflowX: 'hidden',
+                            border: isLightTheme
+                                ? '2px solid rgba(99, 102, 241, 0.2)'
+                                : '2px solid rgba(99, 102, 241, 0.4)'
                         }}
                         initial={{ opacity: 0, scale: 0.8, y: 50 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.8, y: 50 }}
                         transition={{ type: "spring", damping: 25, stiffness: 300 }}
                     >
-                        <button
-                            className="signin-prompt-close"
-                            onClick={handleClose}
-                            aria-label="Close"
-                        >
-                            <X size={20} />
-                        </button>
-
                         <div className="signin-prompt-header">
                             <div className="signin-prompt-icon-wrapper">
                                 <Sparkles className="signin-prompt-icon" size={40} />
@@ -156,6 +142,12 @@ const SignInPromptModal = () => {
                             >
                                 Sign In Now
                             </button>
+                            <button
+                                className="btn-signin-secondary"
+                                onClick={handleExploreFeatures}
+                            >
+                                Explore Features
+                            </button>
                         </div>
                     </motion.div>
                 </>
@@ -164,4 +156,4 @@ const SignInPromptModal = () => {
     );
 };
 
-export default SignInPromptModal;
+export default ExploreModal;

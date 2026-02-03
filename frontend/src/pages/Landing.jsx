@@ -4,6 +4,7 @@ import { useLanguage } from '../contexts/LanguageContext'
 import { ArrowRight, MessageSquare, BookOpen, Search, Mic, Globe, Zap, Target, Heart, Award, CheckCircle, Star, ArrowUp, Github, Linkedin, Mail } from 'lucide-react'
 import ThreeBackground from '../components/ThreeBackground'
 import SignInPromptModal from '../components/SignInPromptModal'
+import ExploreModal from '../components/ExploreModal'
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import '../styles/Landing.css'
@@ -16,6 +17,7 @@ const Landing = () => {
     const { t } = useLanguage()
     const [selectedFeature, setSelectedFeature] = useState(null)
     const [showScrollTop, setShowScrollTop] = useState(false)
+    const [showExploreModal, setShowExploreModal] = useState(false)
     // Scroll to Top Logic
     useEffect(() => {
         const handleScroll = () => {
@@ -226,7 +228,7 @@ const Landing = () => {
                         </p>
 
                         <div className="hero-actions">
-                            <button onClick={() => scrollToSection('features')} className="btn btn-explore">
+                            <button onClick={() => setShowExploreModal(true)} className="btn btn-explore">
                                 Explore Solutions
                                 <ArrowRight size={20} />
                             </button>
@@ -551,6 +553,12 @@ const Landing = () => {
                     />
                 )}
             </AnimatePresence>
+
+            {/* Explore Modal */}
+            <ExploreModal
+                isOpen={showExploreModal}
+                onClose={() => setShowExploreModal(false)}
+            />
 
             {/* Sign In Prompt Modal */}
             <SignInPromptModal />
