@@ -66,7 +66,7 @@ const SignInPromptModal = () => {
         {
             icon: <Zap size={24} />,
             title: "Free Learning",
-            description: "100+ courses to boost your skills"
+            description: "250+ courses to boost your skills"
         },
         {
             icon: <Shield size={24} />,
