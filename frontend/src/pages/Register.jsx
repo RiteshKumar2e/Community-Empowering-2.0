@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { useLanguage } from '../contexts/LanguageContext'
-import { User, Mail, Lock, Phone, MapPin, AlertCircle, Loader } from 'lucide-react'
+import { User, Mail, Lock, Phone, MapPin, AlertCircle, Loader, ArrowLeft } from 'lucide-react'
 import '../styles/Auth.css'
 
 const Register = () => {
@@ -62,6 +62,11 @@ const Register = () => {
 
     return (
         <div className="auth-page">
+            <Link to="/" className="back-to-home-btn">
+                <ArrowLeft size={18} />
+                <span>Back to Home</span>
+            </Link>
+
             <div className="auth-container">
                 <div className="auth-features">
                     <h3>Why Join Community AI?</h3>

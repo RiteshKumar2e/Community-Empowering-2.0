@@ -125,7 +125,7 @@ const SideChatBot = () => {
                         initial={{ opacity: 0, y: 50, scale: 0.9 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 50, scale: 0.9 }}
-                        transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                        transition={{ type: "spring", damping: 30, stiffness: 450, mass: 0.8 }}
                     >
                         <div className="chatbot-header">
                             <div className="bot-avatar" style={{ overflow: 'hidden' }}>

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { GoogleLogin } from '@react-oauth/google'
 import { useAuth } from '../contexts/AuthContext'
 import { useLanguage } from '../contexts/LanguageContext'
-import { Mail, Lock, AlertCircle, Loader } from 'lucide-react'
+import { Mail, Lock, AlertCircle, Loader, ArrowLeft } from 'lucide-react'
 import OTPModal from '../components/OTPModal'
 
 import '../styles/Auth.css'
@@ -77,6 +77,11 @@ const Login = () => {
 
     return (
         <div className="auth-page">
+            <Link to="/" className="back-to-home-btn">
+                <ArrowLeft size={18} />
+                <span>Back to Home</span>
+            </Link>
+
             <div className="auth-container centered-container">
 
                 <div className="auth-card">

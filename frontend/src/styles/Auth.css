@@ -12,6 +12,44 @@
     overflow-x: hidden;
 }
 
+.back-to-home-btn {
+    position: absolute;
+    top: var(--space-6);
+    left: var(--space-6);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-5);
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-lg);
+    color: #ffffff;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all var(--transition-base);
+    z-index: 100;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.back-to-home-btn:hover {
+    background: rgba(99, 102, 241, 0.2);
+    border-color: var(--primary-400);
+    color: var(--primary-300);
+    transform: translateX(-2px);
+    box-shadow: 0 6px 16px rgba(99, 102, 241, 0.3);
+}
+
+.back-to-home-btn svg {
+    transition: transform var(--transition-base);
+}
+
+.back-to-home-btn:hover svg {
+    transform: translateX(-3px);
+}
+
 .auth-container {
     width: 100%;
     max-width: 1000px;
@@ -442,4 +480,43 @@ body.light-theme .form-select:focus {
 body.light-theme .form-select option {
     background: #ffffff;
     color: #111827;
+}
+
+body.light-theme .back-to-home-btn {
+    background: rgba(0, 0, 0, 0.05);
+    border-color: #d1d5db;
+    color: #374151;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+body.light-theme .back-to-home-btn:hover {
+    background: rgba(99, 102, 241, 0.1);
+    border-color: var(--primary-500);
+    color: var(--primary-600);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+}
+
+
+/* Forced Visibility and Positioning Fix */
+.back-to-home-btn {
+    position: fixed !important;
+    top: 100px !important;
+    left: 20px !important;
+    z-index: 9999 !important;
+    background: #4f46e5 !important;
+    color: #ffffff !important;
+    padding: 10px 20px !important;
+    border-radius: 12px !important;
+    font-weight: 700 !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    text-decoration: none !important;
+}
+
+body.light-theme .back-to-home-btn {
+    background: #4f46e5 !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 20px rgba(79, 70, 229, 0.4) !important;
 }

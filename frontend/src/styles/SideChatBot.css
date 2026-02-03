@@ -90,21 +90,7 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    animation: slideIn 0.5s cubic-bezier(0.2, 1, 0.2, 1);
-}
-
-@keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateY(30px) scale(0.95);
-        filter: blur(10px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-        filter: blur(0);
-    }
+    /* Removed redundant CSS animation to let Framer Motion handle it smoothly */
 }
 
 /* Header - Authoritative & Clean */
