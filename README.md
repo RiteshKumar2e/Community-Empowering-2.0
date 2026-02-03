@@ -70,6 +70,10 @@ The **Community AI Platform** is a high-performance, production-ready applicatio
 ### 🤖 **AI-Powered Intelligence**
 
 - **Multi-Model AI Integration** - Groq API with 30+ fallback models for 99.9% uptime
+- **AWS Bedrock Integration** - Enterprise-grade models including Claude 3 (Opus/Sonnet), Llama 3, and Amazon Titan
+- **Amazon Q Business Intelligence** - Source-attributed Q&A, personalized learning paths, and automated business insights
+- **Sentiment & Emotion Analysis** - Real-time analysis of user queries via AWS Bedrock
+- **Advanced Text Embeddings** - Vector-based search utilizing Amazon Titan Embeddings
 - **Platform-Aware Assistant** - Chatbot is fully trained on platform identity, features, and mission
 - **Multilingual NLP** - English, Hindi, Bengali, Telugu, Marathi support
 - **Context-Aware Responses** - Personalized based on user profile and location
