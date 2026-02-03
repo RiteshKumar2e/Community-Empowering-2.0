@@ -70,17 +70,20 @@ The **Community AI Platform** is a high-performance, production-ready applicatio
 ### 🤖 **AI-Powered Intelligence**
 
 - **Multi-Model AI Integration** - Groq API with 30+ fallback models for 99.9% uptime
+- **Platform-Aware Assistant** - Chatbot is fully trained on platform identity, features, and mission
 - **Multilingual NLP** - English, Hindi, Bengali, Telugu, Marathi support
 - **Context-Aware Responses** - Personalized based on user profile and location
 - **Smart Recommendations** - ML-driven content suggestions
+- **UX: Auto-Focus Input** - Chatbot input automatically focuses on hover for instant interaction
 
 ### 🔐 **Enterprise Security**
 
 - **JWT Authentication** - Secure token-based auth with refresh tokens
 - **Bcrypt Password Hashing** - Industry-standard encryption
+- **Password Visibility Toggle** - Secure show/hide option on login and registration for better UX
 - **CORS Protection** - Configurable origin whitelisting
 - **SQL Injection Prevention** - ORM-based parameterized queries
-- **Input Validation** - Pydantic models with strict type checking
+- **Input Validation** - Pydantic V2 models with strict type checking (ConfigDict)
 - **Rate Limiting** - DDoS protection and abuse prevention
 
 ### 📊 **Comprehensive APIs**
@@ -192,6 +195,9 @@ Intelligent routing, task automation, workflow management
 ### 🚀 **Performance Optimized**
 
 - **Async/Await** - Non-blocking I/O for high concurrency
+- **Lifespan Management** - Modern FastAPI lifespan handlers for robust startup/shutdown
+- **Zero-Lag UI** - Optimized Particle Cursor with GPU acceleration and raw input tracking
+- **Background Tasks** - Non-blocking email dispatch (OTP) via Brevo API
 - **Connection Pooling** - Efficient database connections
 - **Response Caching** - Redis integration ready
 - **Lazy Loading** - Optimized query performance
