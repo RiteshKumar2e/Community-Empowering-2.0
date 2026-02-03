@@ -90,7 +90,15 @@ The **Community AI Platform** is a high-performance, production-ready applicatio
 - **Input Validation** - Pydantic V2 models with strict type checking (ConfigDict)
 - **Rate Limiting** - DDoS protection and abuse prevention
 
-### 📊 **Comprehensive APIs**
+### � **Advanced Automation & Tracking**
+
+- **Automated Market Scanner** - Multi-channel scanner using News API and YouTube API to fetch real-time schemes and courses
+- **Granular Activity Tracking** - Detailed logging of course enrollments, resource views, AI queries, and forum interactions
+- **Behavioral Analytics** - Admin-level visibility into user engagement and platform usage trends
+- **Intelligent Knowledge Infusion** - Seamless integration of scraped market data into the platform's resource base
+- **Email Notifications** - Automated summaries of new additions sent to stakeholders via Brevo API
+
+### �📊 **Comprehensive APIs**
 
 <details>
 <summary><b>📍 Authentication API</b> - <code>/api/auth/*</code></summary>
@@ -353,19 +361,25 @@ SECRET_KEY=your-super-secret-key-min-32-characters-long
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=10080
 
-# AI Services
+# AI Services (Primary & Fallback)
 GROQ_API_KEY=your-groq-api-key-here
 GOOGLE_API_KEY=your-google-gemini-key-here
 
-# CORS Configuration
+# AWS Cloud Services (Advanced AI)
+AWS_ACCESS_KEY_ID=your-aws-access-key
+AWS_SECRET_ACCESS_KEY=your-aws-secret-key
+AWS_REGION=us-east-1
+AWS_Q_APPLICATION_ID=your-amazon-q-app-id
+
+# External APIs
+NEWS_API_KEY=your-news-api-key             # For Market Scanner
+YOUTUBE_API_KEY=your-youtube-api-key       # For Learning Hub Scanner
+BREVO_API_KEY=your-brevo-api-key           # For Email Service
+
+# DB & CORS
 ALLOWED_ORIGINS=["http://localhost:5173","http://localhost:3000"]
-
-# Database (Optional - defaults to SQLite)
 DATABASE_URL=sqlite:///./community_ai.db
-# DATABASE_URL=postgresql://user:password@localhost/dbname
-
-# File Upload
-MAX_UPLOAD_SIZE=5242880  # 5MB in bytes
+MAX_UPLOAD_SIZE=5242880
 UPLOAD_DIR=./uploads
 ```
 
