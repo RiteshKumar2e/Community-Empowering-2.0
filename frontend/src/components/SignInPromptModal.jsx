@@ -61,7 +61,7 @@ const SignInPromptModal = () => {
         {
             icon: <TrendingUp size={24} />,
             title: "Government Schemes",
-            description: "Access 50+ schemes tailored for you"
+            description: "Access 350+ schemes tailored for you"
         },
         {
             icon: <Zap size={24} />,
