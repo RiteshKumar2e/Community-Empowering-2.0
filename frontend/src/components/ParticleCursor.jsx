@@ -9,9 +9,9 @@ const ParticleCursor = () => {
     const mouseX = useMotionValue(-100);
     const mouseY = useMotionValue(-100);
 
-    const spring = { damping: 15, stiffness: 400, mass: 0.1 }; // Much more responsive settings
-    const x = useSpring(mouseX, spring);
-    const y = useSpring(mouseY, spring);
+    const springConfig = { damping: 25, stiffness: 700, mass: 0.5 }; // Tightened spring for less lag
+    const springX = useSpring(mouseX, springConfig);
+    const springY = useSpring(mouseY, springConfig);
 
     useEffect(() => {
         const checkMobile = () => {
@@ -60,14 +60,14 @@ const ParticleCursor = () => {
 
     return (
         <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 2147483647 }}>
-            {/* Dot */}
+            {/* Center Dot - Instant (No lag) */}
             <motion.div
                 style={{
                     position: 'absolute',
                     left: 0,
                     top: 0,
-                    x: x,
-                    y: y,
+                    x: mouseX,
+                    y: mouseY,
                     width: 8,
                     height: 8,
                     marginLeft: '-4px',
@@ -75,27 +75,31 @@ const ParticleCursor = () => {
                     backgroundColor: color,
                     borderRadius: '50%',
                     boxShadow: `0 0 10px ${color}`,
-                    willChange: 'transform'
+                    willChange: 'transform',
+                    transformZ: 0,
+                    backfaceVisibility: 'hidden'
                 }}
                 animate={{ scale: isHovered ? 0.5 : 1 }}
                 transition={{ type: 'spring', damping: 20, stiffness: 200 }}
             />
 
-            {/* Ring */}
+            {/* Outer Ring - Smooth Follow */}
             <motion.div
                 style={{
                     position: 'absolute',
                     left: 0,
                     top: 0,
-                    x: x,
-                    y: y,
+                    x: springX,
+                    y: springY,
                     width: 30,
                     height: 30,
                     marginLeft: '-15px',
                     marginTop: '-15px',
                     border: `2px solid ${color}`,
                     borderRadius: '50%',
-                    willChange: 'transform'
+                    willChange: 'transform',
+                    transformZ: 0,
+                    backfaceVisibility: 'hidden'
                 }}
                 animate={{
                     scale: isHovered ? 2 : 1,
