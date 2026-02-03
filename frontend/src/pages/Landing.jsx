@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { useLanguage } from '../contexts/LanguageContext'
 import { ArrowRight, MessageSquare, BookOpen, Search, Mic, Globe, Zap, Target, Heart, Award, CheckCircle, Star, ArrowUp, Github, Linkedin, Mail } from 'lucide-react'
 import ThreeBackground from '../components/ThreeBackground'
+import SignInPromptModal from '../components/SignInPromptModal'
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import '../styles/Landing.css'
@@ -550,6 +551,9 @@ const Landing = () => {
                     />
                 )}
             </AnimatePresence>
+
+            {/* Sign In Prompt Modal */}
+            <SignInPromptModal />
         </div>
     )
 }
