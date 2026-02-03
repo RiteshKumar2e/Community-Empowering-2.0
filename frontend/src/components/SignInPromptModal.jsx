@@ -9,6 +9,16 @@ const SignInPromptModal = () => {
     const [isVisible, setIsVisible] = useState(false);
     const navigate = useNavigate();
     const { isAuthenticated } = useAuth();
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+    useEffect(() => {
+        const handleResize = () => {
+            setIsMobile(window.innerWidth <= 768);
+        };
+
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     useEffect(() => {
         console.log('🔍 SignInPromptModal - isAuthenticated:', isAuthenticated);
@@ -92,13 +102,13 @@ const SignInPromptModal = () => {
                         onClick={handleClose}
                     />
 
-                    {/* Modal */}
+                    {/* Modal - Responsive Position */}
                     <motion.div
                         className="signin-prompt-modal"
                         style={{
                             position: 'fixed',
-                            top: '22%',
-                            left: '30%',
+                            top: isMobile ? '50%' : '22%',
+                            left: isMobile ? '50%' : '30%',
                             transform: 'translate(-50%, -50%)',
                             zIndex: 999999,
                             display: 'block',

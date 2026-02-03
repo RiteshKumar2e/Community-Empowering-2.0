@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Zap, Shield, TrendingUp } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -6,6 +6,16 @@ import '../styles/SignInPromptModal.css';
 
 const ExploreModal = ({ isOpen, onClose }) => {
     const navigate = useNavigate();
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+    useEffect(() => {
+        const handleResize = () => {
+            setIsMobile(window.innerWidth <= 768);
+        };
+
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     const handleSignIn = () => {
         onClose();
@@ -77,13 +87,13 @@ const ExploreModal = ({ isOpen, onClose }) => {
                         exit={{ opacity: 0 }}
                     />
 
-                    {/* Modal - Theme Aware */}
+                    {/* Modal - Theme Aware & Responsive */}
                     <motion.div
                         className="signin-prompt-modal"
                         style={{
                             position: 'fixed',
-                            top: '22%',
-                            left: '30%',
+                            top: isMobile ? '50%' : '22%',
+                            left: isMobile ? '50%' : '30%',
                             transform: 'translate(-50%, -50%)',
                             zIndex: 999999,
                             display: 'block',

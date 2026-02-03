@@ -300,9 +300,13 @@ body.light-theme .btn-signin-secondary:hover {
 /* Mobile Responsive */
 @media (max-width: 768px) {
     .signin-prompt-modal {
-        width: 95%;
+        left: 50% !important;
+        top: 50% !important;
+        transform: translate(-50%, -50%) !important;
+        width: 92%;
+        max-width: 420px;
         padding: 24px;
-        max-height: 85vh;
+        max-height: 80vh;
     }
 
     .signin-prompt-header h2 {
