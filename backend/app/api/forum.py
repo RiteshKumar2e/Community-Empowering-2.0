@@ -202,8 +202,8 @@ async def get_discussions(
     """Optimized discussions fetch using batching and joinedload"""
     from sqlalchemy.orm import joinedload
     
-    # Use joinedload to get user info in the same query
-    query = db.query(ForumDiscussion).options(joinedload(ForumDiscussion.user))
+    # Base query
+    query = db.query(ForumDiscussion)
     
     if category_id:
         query = query.filter(ForumDiscussion.category_id == category_id)
@@ -216,13 +216,16 @@ async def get_discussions(
     if filter_type == "featured":
         query = query.filter(ForumDiscussion.is_featured == True)
     elif filter_type == "unanswered":
-        query = query.outerjoin(ForumReply).group_by(ForumDiscussion.id).having(
-            func.count(ForumReply.id) == 0
-        )
+        # Use subquery to avoid GROUP BY issues with joinedload
+        subquery = db.query(ForumReply.discussion_id).group_by(ForumReply.discussion_id).subquery()
+        query = query.filter(~ForumDiscussion.id.in_(subquery))
     elif filter_type == "popular":
         query = query.order_by(ForumDiscussion.views.desc())
     else:  # latest
         query = query.order_by(ForumDiscussion.created_at.desc())
+    
+    # Apply joinedload after filtering to avoid GROUP BY conflicts
+    query = query.options(joinedload(ForumDiscussion.user))
     
     discussions = query.offset(skip).limit(limit).all()
     

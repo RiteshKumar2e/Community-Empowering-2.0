@@ -21,23 +21,14 @@ const SignInPromptModal = () => {
     }, []);
 
     useEffect(() => {
-        console.log('🔍 SignInPromptModal - isAuthenticated:', isAuthenticated);
-
         // Only show modal if user is NOT logged in
         if (!isAuthenticated) {
-            console.log('⏰ Starting 5 second timer for modal...');
-            // Show modal after 5 seconds
+            // Show modal after 100ms (near-instant)
             const timer = setTimeout(() => {
-                console.log('✅ Timer complete! Showing modal...');
                 setIsVisible(true);
-            }, 20000); // 20 seconds
+            }, 100);
 
-            return () => {
-                console.log('🧹 Cleanup: Clearing timer');
-                clearTimeout(timer);
-            };
-        } else {
-            console.log('ℹ️ User is logged in - modal will NOT show');
+            return () => clearTimeout(timer);
         }
     }, [isAuthenticated]);
 

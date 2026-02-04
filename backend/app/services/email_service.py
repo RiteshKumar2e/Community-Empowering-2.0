@@ -24,12 +24,27 @@ class EmailService:
         self.company_name = "Community AI"
         self.app_url = "https://communityai.co.in"
         
-        # Use a persistent session for better performance (connection pooling)
+        # ULTRA-FAST: Use persistent session with connection pooling
         self.session = requests.Session()
+        
+        # Add HTTPAdapter for connection pooling and keep-alive
+        from requests.adapters import HTTPAdapter
+        from urllib3.util.retry import Retry
+        
+        # Aggressive connection pooling for instant delivery
+        adapter = HTTPAdapter(
+            pool_connections=10,  # Keep 10 connections alive
+            pool_maxsize=20,      # Max 20 connections in pool
+            max_retries=Retry(total=2, backoff_factor=0.1, status_forcelist=[500, 502, 503, 504])
+        )
+        self.session.mount("https://", adapter)
+        self.session.mount("http://", adapter)
+        
         self.session.headers.update({
             "api-key": self.api_key or "",
             "Content-Type": "application/json",
-            "Accept": "application/json"
+            "Accept": "application/json",
+            "Connection": "keep-alive"  # Keep connections alive
         })
         
         if not self.api_key:
@@ -109,7 +124,7 @@ class EmailService:
             print(f"❌ Market Update Email Failed: {str(e)}")
 
     def _dispatch_api(self, to_email: str, subject: str, html_body: str, priority: bool = False):
-        """Internal dispatcher using Brevo HTTPS API with better deliverability"""
+        """Internal dispatcher using Brevo HTTPS API with ULTRA-FAST deliverability"""
         if not self.api_key:
             return
         
@@ -128,10 +143,11 @@ class EmailService:
             "textContent": f"Your verification code is: {otp_val}. This code expires in 10 minutes."
         }
         
-        timeout_duration = 10 if priority else 15
+        # ULTRA-FAST: 3 seconds for OTP, 8 seconds for others
+        timeout_duration = 3 if priority else 8
         
         try:
-            # Use the pooled session for faster delivery
+            # Use the pooled session for INSTANT delivery
             response = self.session.post(url, json=data, timeout=timeout_duration)
             if response.status_code not in [200, 201, 202]:
                 print(f"⚠️ Email API Failure: {response.status_code} - {response.text}")
