@@ -30,7 +30,7 @@ const SignInPromptModal = () => {
             const timer = setTimeout(() => {
                 console.log('✅ Timer complete! Showing modal...');
                 setIsVisible(true);
-            }, 5000); // 5 seconds
+            }, 20000); // 20 seconds
 
             return () => {
                 console.log('🧹 Cleanup: Clearing timer');
