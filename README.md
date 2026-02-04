@@ -1798,7 +1798,7 @@ Built with ❤️ for communities across India
 
 ### **Links**
 
-- 🌐 **Live Demo:** https://communityai.co.in/
+- 🌐 **Live:** https://communityai.co.in/
 - 📚 **Documentation:** https://communityai.co.in/docs
 - 💻 **GitHub:** https://github.com/RiteshKumar2e/Community-Empowering
 - 🎨 **Frontend:** https://communityai.co.in/
