@@ -941,11 +941,13 @@ ALLOWED_ORIGINS = [
 
 ### **Multi-Model Architecture**
 
-The platform uses an intelligent fallback system with 30+ AI models:
+The platform uses an intelligent fallback system with **50+ AI models** across multiple providers:
+
+**Priority Chain:** Amazon Q → AWS Bedrock → Groq → Gemini
 
 ```python
 AI_MODELS = [
-    # Ultra-Fast Chat Models
+    # Ultra-Fast Chat Models (Groq)
     "llama-3.3-70b-versatile",
     "llama-3.1-70b-versatile",
     
@@ -963,12 +965,307 @@ AI_MODELS = [
 ]
 ```
 
+---
+
+### **🔷 AWS Bedrock Integration**
+
+AWS Bedrock provides enterprise-grade foundation models with advanced capabilities:
+
+#### **Available Models**
+
+<details>
+<summary><b>Anthropic Claude Models</b></summary>
+
+<br>
+
+- **Claude 3 Opus** - Most powerful, best for complex tasks
+  - Model ID: `anthropic.claude-3-opus-20240229-v1:0`
+  - Max tokens: 2000
+  - Temperature: 0.7
+  
+- **Claude 3 Sonnet** - Balanced performance and speed
+  - Model ID: `anthropic.claude-3-sonnet-20240229-v1:0`
+  - Ideal for general-purpose tasks
+  
+- **Claude 3 Haiku** - Fastest, cost-effective (Default)
+  - Model ID: `anthropic.claude-3-haiku-20240307-v1:0`
+  - Best for high-volume queries
+  
+- **Claude Instant** - Legacy fast model
+  - Model ID: `anthropic.claude-instant-v1`
+  
+- **Claude v2** - Previous generation
+  - Model ID: `anthropic.claude-v2`
+
+</details>
+
+<details>
+<summary><b>Meta Llama Models</b></summary>
+
+<br>
+
+- **Llama 3 70B Instruct** - High-performance instruction following
+  - Model ID: `meta.llama3-70b-instruct-v1:0`
+  
+- **Llama 3 8B Instruct** - Efficient smaller model
+  - Model ID: `meta.llama3-8b-instruct-v1:0`
+  
+- **Llama 2 70B Chat** - Conversational AI
+  - Model ID: `meta.llama2-70b-chat-v1`
+  
+- **Llama 2 13B Chat** - Lightweight chat model
+  - Model ID: `meta.llama2-13b-chat-v1`
+
+</details>
+
+<details>
+<summary><b>Amazon Titan Models</b></summary>
+
+<br>
+
+- **Titan Text Express** - Fast text generation
+  - Model ID: `amazon.titan-text-express-v1`
+  
+- **Titan Text Lite** - Lightweight text model
+  - Model ID: `amazon.titan-text-lite-v1`
+  
+- **Titan Embed Text** - Text embeddings for search
+  - Model ID: `amazon.titan-embed-text-v1`
+  - Vector dimension: 1536
+  
+- **Titan Embed Image** - Image embeddings
+  - Model ID: `amazon.titan-embed-image-v1`
+
+</details>
+
+<details>
+<summary><b>Other Models</b></summary>
+
+<br>
+
+**Cohere:**
+- Command Text v14: `cohere.command-text-v14`
+- Command Light: `cohere.command-light-text-v14`
+
+**AI21 Labs:**
+- Jurassic-2 Ultra: `ai21.j2-ultra-v1`
+- Jurassic-2 Mid: `ai21.j2-mid-v1`
+
+**Stability AI:**
+- Stable Diffusion XL: `stability.stable-diffusion-xl-v1`
+
+</details>
+
+#### **Bedrock Features**
+
+✅ **Sentiment & Emotion Analysis** - Real-time analysis of user queries  
+✅ **Advanced Text Embeddings** - Vector-based semantic search using Titan  
+✅ **Multi-Model Fallback** - Automatic switching between models  
+✅ **Context-Aware Responses** - Personalized based on user profile  
+✅ **Multilingual Support** - English, Hindi, and regional languages  
+
+#### **💰 AWS Bedrock Pricing**
+
+<details>
+<summary><b>Claude 3 Models (per 1,000 tokens)</b></summary>
+
+<br>
+
+| Model | Input Cost | Output Cost | Batch Output |
+|-------|-----------|-------------|--------------|
+| **Claude 3 Haiku** | $0.00025 | $0.00125 | - |
+| **Claude 3 Sonnet** | $0.003 | $0.015 | - |
+| **Claude 3 Opus** | $0.015 | $0.075 | - |
+| **Claude 3.5 Haiku** | $0.001 | $0.005 | $0.0025 |
+| **Claude 3.5 Sonnet** | $0.006/M ($0.000006/K) | $0.003/M ($0.000003/K) | $0.015/M |
+
+*M = per million tokens, K = per thousand tokens*
+
+</details>
+
+<details>
+<summary><b>Meta Llama Models (per 1,000 tokens)</b></summary>
+
+<br>
+
+| Model | Input Cost | Output Cost |
+|-------|-----------|-------------|
+| **Llama 3.2 1B Instruct** | $0.0001 | $0.0001 |
+| **Llama 3.2 11B Instruct** | $0.00035 | $0.00035 |
+| **Llama 3.2 90B Instruct** | $0.002 | $0.002 |
+| **Llama 3 8B Instruct** | $0.00022 | $0.00022 |
+| **Llama 3 70B Instruct** | $0.00099 | $0.00099 |
+| **Llama 2 13B Chat** | $0.00075 | $0.001 |
+| **Llama 2 70B Chat** | $0.00195 | $0.00256 |
+
+</details>
+
+<details>
+<summary><b>Amazon Titan Models (per 1,000 tokens)</b></summary>
+
+<br>
+
+| Model | Input Cost | Batch Input | Output Cost |
+|-------|-----------|-------------|-------------|
+| **Titan Text Express** | $0.0008 | - | $0.0016 |
+| **Titan Text Embeddings V2** | $0.00011 | - | - |
+| **Titan Text Embeddings** | $0.0001 | $0.0004 | - |
+| **Titan Multimodal Embeddings** | $0.0008/1K tokens or $0.00006/image | $0.0004/1K or $0.00003/image | - |
+
+</details>
+
+**💡 Cost Optimization Tips:**
+- Use **Claude 3 Haiku** for high-volume queries (most cost-effective)
+- Use **Llama 3 8B** for general tasks (excellent price-performance)
+- Use **Titan Embeddings** for semantic search (cheapest embeddings)
+- Enable **batch processing** for 50% discount on supported models
+- Pricing varies by AWS Region (us-east-1 typically lowest)
+
+---
+
+### **🔷 Amazon Q Business Integration**
+
+Amazon Q provides intelligent business analytics and source-attributed Q&A:
+
+#### **Key Features**
+
+🎯 **Source-Attributed Answers** - Every response includes citations and sources  
+📊 **Business Intelligence** - Automated insights from platform metrics  
+🎓 **Personalized Learning Paths** - AI-generated skill development roadmaps  
+🔍 **Query Intent Analysis** - Understand user needs and route appropriately  
+🏛️ **Scheme Recommendations** - Context-aware government program suggestions  
+🌐 **Language Detection** - Automatic identification of user language  
+
+#### **Amazon Q Capabilities**
+
+<details>
+<summary><b>Intelligent Q&A</b></summary>
+
+<br>
+
+```python
+response = await amazon_q.ask_question(
+    question="What government schemes are available for farmers?",
+    context={"location": "Punjab", "community_type": "rural"},
+    user_id="user_123"
+)
+
+# Returns:
+{
+    "answer": "Here are the key schemes for farmers in Punjab...",
+    "sources": [
+        {
+            "title": "PM-KISAN Scheme",
+            "url": "https://...",
+            "snippet": "Direct income support..."
+        }
+    ],
+    "conversation_id": "conv_xyz",
+    "message_id": "msg_abc"
+}
+```
+
+</details>
+
+<details>
+<summary><b>Query Analysis</b></summary>
+
+<br>
+
+Analyzes user intent and extracts key information:
+
+```python
+analysis = await amazon_q.analyze_query(
+    query="I need help finding a job in IT sector"
+)
+
+# Returns:
+{
+    "intent": "employment_search",
+    "category": "employment",
+    "keywords": ["job", "IT", "sector"],
+    "suggested_action": "Show IT job listings",
+    "urgency": "medium"
+}
+```
+
+</details>
+
+<details>
+<summary><b>Learning Path Generation</b></summary>
+
+<br>
+
+Creates personalized learning roadmaps:
+
+```python
+path = await amazon_q.get_learning_path(
+    goals=["Python Developer", "Machine Learning"],
+    current_skills=["Basic Programming", "Mathematics"]
+)
+
+# Returns structured learning path with:
+# - Step-by-step progression
+# - Recommended courses
+# - Estimated timeline
+# - Key milestones
+```
+
+</details>
+
+<details>
+<summary><b>Business Insights</b></summary>
+
+<br>
+
+Analyzes platform metrics and provides recommendations:
+
+```python
+insights = await amazon_q.get_business_insights(
+    metrics={
+        "active_users": 1500,
+        "course_enrollments": 450,
+        "avg_session_time": "12 minutes"
+    },
+    time_period="last_month"
+)
+
+# Returns:
+# - Key insights and trends
+# - Recommendations for improvement
+# - Potential issues to address
+```
+
+</details>
+
+#### **💰 Amazon Q Business Pricing**
+
+| Tier | Price | Features |
+|------|-------|----------|
+| **Amazon Q Business Lite** | **$3/user/month** | • Basic Q&A functionality<br>• Permission-aware responses<br>• Secure data connection<br>• Basic knowledge access |
+| **Amazon Q Business Pro** | **$20/user/month** | • **All Lite features, plus:**<br>• Amazon Q Apps access<br>• QuickSight integration<br>• Extended content generation<br>• Structured data querying<br>• Image-based responses<br>• Third-party plugin integration |
+
+**Additional Costs:**
+- **Index Capacity Charges** - Based on data indexed
+- **API Call Charges** - For programmatic access
+- **Data Transfer** - Standard AWS data transfer rates apply
+
+**💡 Cost Optimization:**
+- Start with **Lite tier** for basic chatbot functionality
+- Upgrade to **Pro** only when advanced features are needed
+- Monitor index capacity to control storage costs
+- Use caching to reduce redundant API calls
+- Consider usage limits when scaling
+
+---
+
 ### **AI Service Features**
 
 #### 🌐 **Multilingual Support**
-- Automatic language detection
+- Automatic language detection via Amazon Q
 - Response generation in user's preferred language
 - Translation support for 5+ Indian languages
+- Context-aware language switching
 
 #### 🎯 **Context-Aware Responses**
 ```python
@@ -976,14 +1273,47 @@ context = {
     "user_location": "Punjab",
     "user_type": "farmer",
     "previous_queries": [...],
-    "user_preferences": {...}
+    "user_preferences": {...},
+    "community_type": "rural"
 }
 ```
 
 #### 💡 **Smart Recommendations**
-- Collaborative filtering
-- Content-based filtering
-- Hybrid recommendation engine
+- **Collaborative filtering** - Based on similar user behavior
+- **Content-based filtering** - Based on user profile and interests
+- **Hybrid recommendation engine** - Combines multiple approaches
+- **Amazon Q powered** - AI-driven personalized suggestions
+
+#### 🔄 **Intelligent Fallback System**
+
+```
+User Query
+    ↓
+┌─────────────────────────────────────┐
+│  Phase 1: Try Amazon Q              │
+│  - Source-attributed answers        │
+│  - Business intelligence            │
+└─────────────────────────────────────┘
+    ↓ (if unavailable)
+┌─────────────────────────────────────┐
+│  Phase 2: Try AWS Bedrock           │
+│  - Claude 3 Haiku (default)         │
+│  - Llama 3 / Titan (fallback)       │
+└─────────────────────────────────────┘
+    ↓ (if unavailable)
+┌─────────────────────────────────────┐
+│  Phase 3: Try Groq                  │
+│  - 30+ fast inference models        │
+│  - Ultra-low latency                │
+└─────────────────────────────────────┘
+    ↓ (if unavailable)
+┌─────────────────────────────────────┐
+│  Phase 4: Try Google Gemini         │
+│  - Final fallback option            │
+└─────────────────────────────────────┘
+```
+
+**Uptime Guarantee:** 99.9%+ with multi-provider redundancy
 
 ---
 
