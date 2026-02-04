@@ -26,7 +26,7 @@ const SignInPromptModal = () => {
             // Show modal after 100ms (near-instant)
             const timer = setTimeout(() => {
                 setIsVisible(true);
-            }, 100);
+            }, 20000);
 
             return () => clearTimeout(timer);
         }
