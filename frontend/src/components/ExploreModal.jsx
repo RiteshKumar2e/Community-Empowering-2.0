@@ -64,6 +64,10 @@ const ExploreModal = ({ isOpen, onClose }) => {
     // Check if light theme
     const isLightTheme = document.body.classList.contains('light-theme');
 
+    const handleMandatoryAlert = () => {
+        alert("Sign in is mandatory to access all features of Community AI!");
+    };
+
     return (
         <AnimatePresence>
             {isOpen && (
@@ -85,6 +89,7 @@ const ExploreModal = ({ isOpen, onClose }) => {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
+                        onClick={handleMandatoryAlert}
                     />
 
                     {/* Modal - Theme Aware & Responsive */}
@@ -151,12 +156,6 @@ const ExploreModal = ({ isOpen, onClose }) => {
                                 onClick={handleSignIn}
                             >
                                 Sign In Now
-                            </button>
-                            <button
-                                className="btn-signin-secondary"
-                                onClick={handleExploreFeatures}
-                            >
-                                Explore Features
                             </button>
                         </div>
                     </motion.div>

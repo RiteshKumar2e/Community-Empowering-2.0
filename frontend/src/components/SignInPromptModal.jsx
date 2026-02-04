@@ -49,7 +49,7 @@ const SignInPromptModal = () => {
     };
 
     const handleClose = () => {
-        setIsVisible(false);
+        alert("Sign in is mandatory to access all features of Community AI!");
     };
 
     const features = [
