@@ -11,7 +11,7 @@
 </p>
 
 <p align="center">
-  <a href="https://communityai.co.in/"><img src="https://img.shields.io/badge/🌐_Live-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Live"/></a>
+  <a href="https://communityai.co.in/"><img src="https://img.shields.io/badge/🌐_Live_Demo-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Live"/></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/📄_License-MIT-yellow?style=for-the-badge" alt="License"/></a>
 </p>
 
