@@ -1,10 +1,9 @@
 """
 Enhanced AI Service
-Combines Amazon Q, AWS Bedrock, Groq, and Gemini with intelligent fallback.
+Combines Amazon Q, Groq, and Gemini with intelligent fallback.
 """
 
 from typing import Optional, Dict, List
-from app.services.aws_bedrock_service import AWSBedrockService
 from app.services.aws_q_service import AmazonQService
 from app.services.ai_service import AIService
 
@@ -12,27 +11,25 @@ from app.services.ai_service import AIService
 class EnhancedAIService:
     """
     Enhanced AI service that intelligently routes requests to the best available provider
-    Priority: Amazon Q → AWS Bedrock → Groq → Gemini
+    Priority: Amazon Q → Groq → Gemini
     """
     
     def __init__(self):
         """Initialize all AI services"""
         self.q_service = AmazonQService()
-        self.bedrock_service = AWSBedrockService()
-        self.groq_gemini_service = AIService()
+        self.ai_service = AIService()
         
         # Track service availability
         self.services_available = {
             "amazon_q": self.q_service.is_available(),
-            "aws_bedrock": self.bedrock_service.is_available(),
-            "groq": True,  # Assumed available via AIService
-            "gemini": True  # Assumed available via AIService
+            "groq": True,
+            "gemini": True
         }
         
         print(f"Enhanced AI Service initialized:")
         print(f"  - Amazon Q: {'✓' if self.services_available['amazon_q'] else '✗'}")
-        print(f"  - AWS Bedrock: {'✓' if self.services_available['aws_bedrock'] else '✗'}")
         print(f"  - Groq/Gemini: ✓")
+    
     
     async def get_chat_response(
         self,
@@ -55,8 +52,6 @@ class EnhancedAIService:
         Returns:
             AI response text
         """
-        response = None
-        
         # Phase 1: Try Amazon Q (if enabled and available)
         if use_q and self.services_available["amazon_q"]:
             print("🔍 Attempting Amazon Q...")
@@ -72,25 +67,9 @@ class EnhancedAIService:
             except Exception as e:
                 print(f"⚠ Amazon Q failed: {e}")
         
-        # Phase 2: Try AWS Bedrock
-        if self.services_available["aws_bedrock"]:
-            print("🔍 Attempting AWS Bedrock...")
-            try:
-                response = await self.bedrock_service.get_chat_response(
-                    message=message,
-                    language=language,
-                    context=context,
-                    model=model
-                )
-                if response:
-                    print("✓ Success with AWS Bedrock")
-                    return response
-            except Exception as e:
-                print(f"⚠ AWS Bedrock failed: {e}")
-        
-        # Phase 3: Fallback to Groq/Gemini
-        print("🔍 Falling back to Groq/Gemini...")
-        response = await self.groq_gemini_service.get_chat_response(
+        # Phase 2: Fallback to Groq/Gemini
+        print("🔍 Using Groq/Gemini...")
+        response = await self.ai_service.get_chat_response(
             message=message,
             language=language,
             context=context,
@@ -99,9 +78,10 @@ class EnhancedAIService:
         
         return response
     
+    
     async def analyze_sentiment(self, text: str) -> Dict:
         """
-        Analyze sentiment using best available service
+        Analyze sentiment using Groq/Gemini
         
         Args:
             text: Text to analyze
@@ -109,15 +89,7 @@ class EnhancedAIService:
         Returns:
             Sentiment analysis results
         """
-        # Try Bedrock first for sentiment analysis
-        if self.services_available["aws_bedrock"]:
-            try:
-                return await self.bedrock_service.analyze_sentiment(text)
-            except Exception as e:
-                print(f"⚠ Bedrock sentiment analysis failed: {e}")
-        
-        # Fallback to Groq/Gemini
-        return await self.groq_gemini_service.analyze_sentiment(text)
+        return await self.ai_service.analyze_sentiment(text)
     
     async def generate_embeddings(self, text: str) -> List[float]:
         """
@@ -129,14 +101,8 @@ class EnhancedAIService:
         Returns:
             Embedding vector
         """
-        if self.services_available["aws_bedrock"]:
-            try:
-                return await self.bedrock_service.generate_embeddings(text)
-            except Exception as e:
-                print(f"⚠ Bedrock embeddings failed: {e}")
-        
-        # Fallback to Groq/Gemini
-        return await self.groq_gemini_service.generate_embeddings(text)
+        return await self.ai_service.generate_embeddings(text)
+    
     
     async def get_recommendations(
         self,
@@ -173,6 +139,7 @@ class EnhancedAIService:
         
         response = await self.get_chat_response(prompt, use_q=False)
         return {"recommendations": response, "sources": []}
+    
     
     async def get_learning_path(
         self,
@@ -265,6 +232,7 @@ class EnhancedAIService:
             'urgency': 'medium'
         }
     
+    
     def get_service_status(self) -> Dict:
         """Get status of all services"""
         return {
@@ -278,33 +246,25 @@ class EnhancedAIService:
         """Get the primary provider being used"""
         if self.services_available["amazon_q"]:
             return "Amazon Q"
-        elif self.services_available["aws_bedrock"]:
-            return "AWS Bedrock"
         else:
             return "Groq/Gemini"
     
     def _count_total_models(self) -> int:
         """Count total available models"""
-        count = 0
-        if self.services_available["aws_bedrock"]:
-            count += len(self.bedrock_service.get_available_models())
         # Groq has ~40 models, Gemini has ~10
-        count += 50
-        return count
+        return 50
     
     def get_available_models(self) -> Dict:
         """Get all available models"""
         models = {
-            "bedrock": [],
             "groq": [],
             "gemini": []
         }
         
-        if self.services_available["aws_bedrock"]:
-            models["bedrock"] = list(self.bedrock_service.get_available_models().keys())
-        
         # Groq and Gemini models from AIService
-        models["groq"] = self.groq_gemini_service.groq_models
-        models["gemini"] = self.groq_gemini_service.gemini_models
+        models["groq"] = self.ai_service.groq_models
+        models["gemini"] = self.ai_service.gemini_models
         
         return models
+
+

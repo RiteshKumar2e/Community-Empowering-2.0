@@ -1,6 +1,6 @@
 """
-AWS Services API Endpoints
-Provides REST API endpoints for AWS Bedrock and Amazon Q services.
+AI Services API Endpoints
+Provides REST API endpoints for Amazon Q, Groq, and Gemini AI services.
 """
 
 from fastapi import APIRouter, HTTPException, status
@@ -8,7 +8,7 @@ from pydantic import BaseModel
 from typing import Optional, Dict, List
 from app.services.enhanced_ai_service import EnhancedAIService
 
-router = APIRouter(prefix="/api/aws", tags=["AWS Services"])
+router = APIRouter(prefix="/api/aws", tags=["AI Services"])
 
 # Initialize enhanced AI service
 enhanced_ai_service = EnhancedAIService()
@@ -104,7 +104,7 @@ async def enhanced_chat(request: ChatRequest):
 @router.get("/status")
 async def get_service_status():
     """
-    Get status of all AWS services
+    Get status of all AI services
     """
     try:
         return enhanced_ai_service.get_service_status()
@@ -141,101 +141,8 @@ async def health_check():
     """
     return {
         "status": "healthy",
-        "services": {
-            "bedrock": enhanced_ai_service.services_available["aws_bedrock"],
-            "amazon_q": enhanced_ai_service.services_available["amazon_q"]
-        }
+        "services": enhanced_ai_service.services_available
     }
-
-
-# AWS Bedrock Endpoints
-
-@router.post("/bedrock/sentiment", response_model=SentimentResponse)
-async def analyze_sentiment(request: SentimentRequest):
-    """
-    Analyze sentiment of text using AWS Bedrock
-    """
-    try:
-        result = await enhanced_ai_service.analyze_sentiment(request.text)
-        
-        return SentimentResponse(
-            sentiment=result.get("sentiment", "neutral"),
-            confidence=result.get("confidence", 0.0),
-            key_emotions=result.get("key_emotions", [])
-        )
-    
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Sentiment analysis error: {str(e)}"
-        )
-
-
-@router.post("/bedrock/embeddings", response_model=EmbeddingsResponse)
-async def generate_embeddings(request: EmbeddingsRequest):
-    """
-    Generate text embeddings using AWS Bedrock
-    """
-    try:
-        embeddings = await enhanced_ai_service.generate_embeddings(request.text)
-        
-        return EmbeddingsResponse(
-            embeddings=embeddings,
-            dimension=len(embeddings)
-        )
-    
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Embeddings generation error: {str(e)}"
-        )
-
-
-@router.get("/bedrock/models")
-async def get_bedrock_models():
-    """
-    Get list of available Bedrock models
-    """
-    try:
-        if not enhanced_ai_service.services_available["aws_bedrock"]:
-            raise HTTPException(
-                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail="AWS Bedrock service not available"
-            )
-        
-        models = enhanced_ai_service.bedrock_service.get_available_models()
-        
-        # Categorize models
-        categories = {
-            "titan": [],
-            "claude": [],
-            "llama": [],
-            "other": []
-        }
-        
-        for name, model_id in models.items():
-            if "titan" in name:
-                categories["titan"].append(name)
-            elif "claude" in name:
-                categories["claude"].append(name)
-            elif "llama" in name:
-                categories["llama"].append(name)
-            else:
-                categories["other"].append(name)
-        
-        return {
-            "models": models,
-            "count": len(models),
-            "categories": categories
-        }
-    
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error fetching Bedrock models: {str(e)}"
-        )
 
 
 # Amazon Q Endpoints
