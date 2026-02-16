@@ -6,18 +6,55 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import '../styles/SideChatBot.css';
 import chatbotIcon from '../assets/chatbot.jpg';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const SideChatBot = () => {
+    const { language } = useLanguage();
     const [isOpen, setIsOpen] = useState(false);
+
+    // Mapping for Speech Recognition locales (matching AIAssistant)
+    const langMap = {
+        en: 'en-IN', hi: 'hi-IN', ta: 'ta-IN', te: 'te-IN', kn: 'kn-IN',
+        bn: 'bn-IN', mr: 'mr-IN', gu: 'gu-IN', ml: 'ml-IN', pa: 'pa-IN', or: 'or-IN'
+    };
+
+    const getGreeting = (lang) => {
+        const greetings = {
+            en: "Hi 👋 I'm the AI Support Agent. I can help you understand this website or take your complaint.",
+            hi: "नमस्ते 👋 मैं AI सहायता एजेंट हूँ। मैं इस वेबसाइट को समझने বা आपकी शिकायत दर्ज करने में आपकी मदद कर सकता हूँ।",
+            ta: "வணக்கம் 👋 நான் AI ஆதரவு முகவர். இந்த இணையதளத்தைப் புரிந்துகொள்ள அல்லது உங்கள் புகாரைப் பெற நான் உங்களுக்கு உதவ முடியும்.",
+            te: "నమస్కారం 👋 నేను AI సపోర్ట్ ఏజెంట్. ఈ వెబ్‌సైట్‌ను అర్థం చేసుకోవడంలో లేదా మీ ఫిర్యాదును స్వీకరించడంలో నేను మీకు సహాయం చేయగలను.",
+            kn: "ನಮಸ್ಕಾರ 👋 ನಾನು AI ಬೆಂಬಲ ಏಜೆಂಟ್. ಈ ವೆಬ್‌ಸೈಟ್ ಅನ್ನು ಅರ್ಥಮಾಡಿಕೊಳ್ಳಲು ಅಥವಾ ನಿಮ್ಮ ದೂರನ್ನು ಸ್ವೀಕರಿಸಲು ನಾನು ನಿಮಗೆ ಸಹಾಯ ಮಾಡಬಲ್ಲೆ.",
+            bn: "নমস্কার 👋 আমি এআই সাপোর্ট এজেন্ট। আমি আপনাকে এই ওয়েবসাইটটি বুঝতে বা আপনার অভিযোগ জানাতে সাহায্য করতে পারি।",
+            mr: "नमस्कार 👋 मी एआय सपोर्ट एजंट आहे. मी तुम्हाला ही वेबसाइट समजून घेण्यास किंवा तुमची तक्रार नोंदवण्यास मदत करू शकतो.",
+            gu: "નમસ્તે 👋 હું AI સપોર્ટ એજન્ટ છું. હું તમને આ વેબસાઈટ સમજવામાં અથવા તમારી ફરિયાદ લેવામાં મદદ કરી શકું છું.",
+            ml: "ഹലോ 👋 ഞാൻ AI സപ്പോർട്ട് ഏജന്റാണ്. ഈ വെബ്‌സൈറ്റ് മനസ്സിലാക്കാനോ നിങ്ങളുടെ പരാതി സ്വീകരിക്കാനോ എനിക്ക് നിങ്ങളെ സഹായിക്കാനാകും.",
+            pa: "ਸਤਿ ਸ੍ਰੀ ਅਕਾਲ 👋 ਮੈਂ AI ਸਹਾਇਤਾ ਏਜੰਟ ਹਾਂ। ਮੈਂ ਤੁਹਾਨੂੰ ਇਸ ਵੈੱਬਸਾਈਟ ਨੂੰ ਸਮਝਣ ਜਾਂ ਤੁਹਾਡੀ ਸ਼ਿਕਾਇਤ ਦਰਜ ਕਰਨ ਵਿੱਚ ਮਦਦ ਕਰ ਸਕਦਾ ਹਾਂ।",
+            or: "ନମସ୍କାର 👋 ମୁଁ AI ସହାୟତା ଏଜେଣ୍ଟ | ମୁଁ ଆପଣଙ୍କୁ ଏହି ୱେବସାଇଟ୍ ବୁଝିବାରେ କିମ୍ବା ଆପଣଙ୍କର ଅଭିଯୋଗ ଗ୍ରହଣ କରିବାରେ ସାହାଯ୍ୟ କରିପାରିବି |"
+        };
+        return greetings[lang] || greetings.en;
+    };
+
     const [messages, setMessages] = useState([
         {
             id: 1,
-            text: "Hi 👋 I'm the AI Support Agent. I can help you understand this website or take your complaint.",
+            text: getGreeting(language),
             sender: 'bot',
             timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             meta: { type: 'greeting', category: 'general', priority: 'low' }
         }
     ]);
+
+    // Update greeting when language changes
+    useEffect(() => {
+        if (messages.length === 1 && messages[0].meta?.type === 'greeting') {
+            setMessages([{
+                ...messages[0],
+                text: getGreeting(language)
+            }]);
+        }
+    }, [language]);
+
     const [inputText, setInputText] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [isRecording, setIsRecording] = useState(false);
@@ -36,39 +73,42 @@ const SideChatBot = () => {
 
     // Speech Recognition Setup
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    const recognition = SpeechRecognition ? new SpeechRecognition() : null;
+    const recognition = useRef(null);
 
-    if (recognition) {
-        recognition.continuous = false;
-        recognition.interimResults = false;
-        recognition.lang = 'en-IN';
+    useEffect(() => {
+        if (SpeechRecognition) {
+            recognition.current = new SpeechRecognition();
+            recognition.current.continuous = false;
+            recognition.current.interimResults = false;
+            recognition.current.lang = langMap[language] || 'en-IN';
 
-        recognition.onresult = (event) => {
-            const transcript = event.results[0][0].transcript;
-            setInputText(transcript);
-            setIsRecording(false);
-        };
+            recognition.current.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                setInputText(transcript);
+                setIsRecording(false);
+            };
 
-        recognition.onerror = () => {
-            setIsRecording(false);
-        };
+            recognition.current.onerror = () => {
+                setIsRecording(false);
+            };
 
-        recognition.onend = () => {
-            setIsRecording(false);
-        };
-    }
+            recognition.current.onend = () => {
+                setIsRecording(false);
+            };
+        }
+    }, [language]);
 
     const toggleRecording = () => {
-        if (!recognition) {
+        if (!recognition.current) {
             alert("Speech recognition is not supported in your browser.");
             return;
         }
 
         if (isRecording) {
-            recognition.stop();
+            recognition.current.stop();
         } else {
             setIsRecording(true);
-            recognition.start();
+            recognition.current.start();
         }
     };
 
@@ -90,7 +130,7 @@ const SideChatBot = () => {
         try {
             const response = await api.post('/agent/chat', {
                 message: inputText,
-                language: 'en'
+                language: 'auto'
             });
 
             const botMessage = {
@@ -175,8 +215,8 @@ const SideChatBot = () => {
                             <div ref={messagesEndRef} />
                         </div>
 
-                        <form 
-                            className="chatbot-input-area" 
+                        <form
+                            className="chatbot-input-area"
                             onSubmit={handleSendMessage}
                             onMouseEnter={() => {
                                 if (isOpen && !isLoading) {

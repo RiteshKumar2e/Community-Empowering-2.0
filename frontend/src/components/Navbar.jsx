@@ -19,7 +19,7 @@ const Navbar = () => {
     // Simplified view for Auth pages
     const isAuthPage = ['/login', '/register', '/admin-login'].includes(location.pathname)
 
-    // Handle clicking outside of profile menu to close it
+    // Handle clicking outside of profile menu and language menu to close them
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (profileMenuRef.current && !profileMenuRef.current.contains(event.target)) {
@@ -101,7 +101,6 @@ const Navbar = () => {
                     )}
                 </div>
 
-                {/* Navbar Actions (Theme, Dashboard Btn, Profile) */}
                 <div className="navbar-actions">
                     <ThemeToggle />
 

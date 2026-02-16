@@ -106,11 +106,20 @@ const translations = {
         loading: 'लोड हो रहा है...',
         error: 'त्रुटि',
         success: 'सफलता',
-    }
+    },
+    ta: { languageName: 'தமிழ்' },
+    te: { languageName: 'తెలుగు' },
+    kn: { languageName: 'ಕನ್ನಡ' },
+    bn: { languageName: 'বাংলা' },
+    mr: { languageName: 'मराठी' },
+    gu: { languageName: 'ગુજરાતી' },
+    ml: { languageName: 'മലയാളം' },
+    pa: { languageName: 'ਪੰਜਾਬੀ' },
+    or: { languageName: 'ଓଡ଼ିଆ' }
 }
 
 export const LanguageProvider = ({ children }) => {
-    const [language, setLanguage] = useState('en')
+    const [language, setLanguage] = useState(localStorage.getItem('language') || 'en')
 
     const changeLanguage = (lang) => {
         setLanguage(lang)
@@ -118,14 +127,14 @@ export const LanguageProvider = ({ children }) => {
     }
 
     const t = (key) => {
-        return translations[language][key] || key
+        return translations[language]?.[key] || translations['en']?.[key] || key
     }
 
     const value = {
         language,
         changeLanguage,
         t,
-        availableLanguages: ['en', 'hi'],
+        availableLanguages: ['en', 'hi', 'ta', 'te', 'kn', 'bn', 'mr', 'gu', 'ml', 'pa', 'or'],
         getLanguageName: (lang) => translations[lang]?.languageName || lang.toUpperCase()
     }
 

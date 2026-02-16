@@ -9,13 +9,35 @@ import '../styles/AIAssistant.css'
 
 const AIAssistant = () => {
     const { user } = useAuth()
-    const { t, language } = useLanguage()
+    const { t, language, getLanguageName } = useLanguage()
+
+    // Mapping for Speech Recognition and TTS locales
+    const langMap = {
+        en: 'en-US', hi: 'hi-IN', ta: 'ta-IN', te: 'te-IN', kn: 'kn-IN',
+        bn: 'bn-IN', mr: 'mr-IN', gu: 'gu-IN', ml: 'ml-IN', pa: 'pa-IN', or: 'or-IN'
+    }
+
+    const getGreeting = (lang) => {
+        const greetings = {
+            en: `Hello ${user?.name || 'friend'}! I'm your AI assistant. I can help you with government schemes, market access, and community resources. How can I assist you today?`,
+            hi: `नमस्ते ${user?.name || 'दोस्त'}! मैं आपका AI सहायक हूँ। मैं सरकारी योजनाओं, बाज़ार पहुँच और संसाधनों में आपकी मदद कर सकता हूँ।`,
+            ta: `வணக்கம்! நான் உங்கள் AI உதவியாளர். அரசு திட்டங்கள் ಮತ್ತು சந்தை அணுகަލில் நான் உங்களுக்கு உதவ முடியும்.`,
+            te: `నమస్కారం! నేను మీ AI అసిస్టెంట్. ప్రభుత్వ పథకాలు మరియు మార్కెట్ యాక్సెస్‌లో నేను మీకు సహాయం చేయగలను.`,
+            kn: `ನಮಸ್ಕಾರ! ನಾನು ನಿಮ್ಮ AI ಸಹಾಯಕ. ಸರ್ಕಾರಿ ಯೋಜನೆಗಳು ಮತ್ತು ಮಾರುಕಟ್ಟೆ ಪ್ರವೇಶದಲ್ಲಿ ನಾನು ನಿಮಗೆ ಸಹಾಯ ಮಾಡಬಲ್ಲೆ.`,
+            bn: `নমস্কার! আমি আপনার AI সহকারী। আমি আপনাকে সরকারি প্রকল্প এবং বাজারে অ্যাক্সেস পেতে সাহায্য করতে পারি।`,
+            mr: `नमस्कार! मी तुमचा AI सहाय्यक आहे. मी तुम्हाला सरकारी योजना आणि बाजारपेठेत मदत करू शकतो.`,
+            gu: `નમસ્તે! હું તમારો AI સહાયક છું. હું તમને સરકારી યોજનાઓ અને બજારમાં મદદ કરી શકું છું.`,
+            ml: `നമസ്കാരം! ഞാൻ നിങ്ങളുടെ AI അസിസ്റ്റൻ്റാണ്. സർക്കാർ പദ്ധതികളിലും വിപണിയിലും എനിക്ക് നിങ്ങളെ സഹായിക്കാനാകും.`,
+            pa: `ਸਤਿ ਸ੍ਰੀ ਅਕਾਲ! ਮੈਂ ਤੁਹਾਡਾ AI ਸਹਾਇਕ ਹਾਂ। ਮੈਂ ਸਰਕਾਰੀ ਸਕੀਮਾਂ ਵਿੱਚ ਤੁਹਾਡੀ ਮਦਦ ਕਰ ਸਕਦਾ ਹਾਂ।`,
+            or: `ନମସ୍କାର! ମୁଁ ଆପଣଙ୍କର AI ସହାୟକ | ମୁଁ ଆପଣଙ୍କୁ ସରକାରୀ ଯୋଜନାରେ ସାହାଯ୍ୟ କରିପାରିବି |`
+        }
+        return greetings[lang] || greetings.en
+    }
+
     const [messages, setMessages] = useState([
         {
             role: 'assistant',
-            content: language === 'hi'
-                ? `नमस्ते ${user?.name || 'दोस्त'}! मैं आपका AI सहायक हूँ। मैं सरकारी योजनाओं, बाज़ार पहुँच और सामुदायिक संसाधनों में आपकी मदद कर सकता हूँ। मैं आज आपकी क्या सहायता कर सकता हूँ?\n\n(Hello! I'm your AI assistant. I can help with schemes, markets, and resources. How can I help today?)`
-                : `Hello ${user?.name || 'friend'}! I'm your AI assistant. I can help you with government schemes, market access, and community resources. How can I assist you today?\n\n(नमस्ते! मैं आपका AI सहायक हूँ। मैं सरकारी योजनाओं, बाज़ार पहुँच और संसाधनों में आपकी मदद कर सकता हूँ।)`,
+            content: getGreeting(language),
             timestamp: new Date()
         }
     ])
@@ -36,7 +58,7 @@ const AIAssistant = () => {
             recognitionRef.current = new SpeechRecognition()
             recognitionRef.current.continuous = false
             recognitionRef.current.interimResults = false
-            recognitionRef.current.lang = language === 'hi' ? 'hi-IN' : 'en-US'
+            recognitionRef.current.lang = langMap[language] || 'en-US'
 
             recognitionRef.current.onresult = (event) => {
                 const transcript = event.results[0][0].transcript
@@ -61,10 +83,6 @@ const AIAssistant = () => {
     const handleSend = async () => {
         if (!input.trim() || loading) return
 
-        // Detect language based on input (Basic detection for Hindi characters)
-        const isHindiInput = /[\u0900-\u097F]/.test(input)
-        const currentLang = isHindiInput ? 'hi' : 'en'
-
         const userMessage = {
             role: 'user',
             content: input,
@@ -79,7 +97,7 @@ const AIAssistant = () => {
         try {
             const response = await api.post('/ai/chat', {
                 message: messageToSend,
-                language: currentLang,
+                language: 'auto', // Use auto detection
                 context: {
                     communityType: user?.communityType,
                     location: user?.location
@@ -95,39 +113,26 @@ const AIAssistant = () => {
 
             setMessages(prev => [...prev, assistantMessage])
 
-            // Text-to-speech for response (Human-like Voice Selection)
+            // Text-to-speech for response
             if ('speechSynthesis' in window) {
                 const utterance = new SpeechSynthesisUtterance(cleanContent)
-
-                // Detect response language
-                const isHindiResponse = /[\u0900-\u097F]/.test(cleanContent)
-                const targetLang = isHindiResponse ? 'hi-IN' : 'en-US'
+                const targetLang = langMap[language] || 'en-US'
                 utterance.lang = targetLang
 
-                // Find best human-like voice (Prioritize Google voices)
                 const voices = window.speechSynthesis.getVoices()
-
-                // Detailed voice selection strategy:
-                // 1. Look for Google Hindi/English (High quality human-like)
-                // 2. Look for Premium/Enhanced voices
-                // 3. Fallback to any voice matching the language
                 let selectedVoice = voices.find(v => v.name.includes('Google') && v.lang.includes(targetLang))
-
                 if (!selectedVoice) {
                     selectedVoice = voices.find(v => v.lang.includes(targetLang) && (v.name.includes('Premium') || v.name.includes('Enhanced')))
                 }
-
                 if (!selectedVoice) {
                     selectedVoice = voices.find(v => v.lang.includes(targetLang))
                 }
 
                 if (selectedVoice) {
                     utterance.voice = selectedVoice
-                    // Google voices sound better at a slightly slower rate
                     utterance.rate = 0.95
                 }
 
-                utterance.pitch = 1.0
                 window.speechSynthesis.speak(utterance)
             }
         } catch (error) {
@@ -165,17 +170,22 @@ const AIAssistant = () => {
         }
     }
 
-    const suggestions = language === 'hi' ? [
-        'मुझे किसानों के लिए सरकारी योजनाओं के बारे में बताएं',
-        'मैं अपने स्थानीय उत्पादों को कहां बेच सकता हूं?',
-        'मुझे बाज़ार मूल्य निर्धारण की जानकारी चाहिए',
-        'मेरे क्षेत्र में सहायता के लिए कौन से संसाधन उपलब्ध हैं?'
-    ] : [
-        'Tell me about government schemes for farmers',
-        'Where can I sell my local products?',
-        'I need market pricing information',
-        'What resources are available for help in my area?'
-    ]
+    const suggestions = {
+        en: [
+            'Tell me about government schemes for farmers',
+            'Where can I sell my local products?',
+            'I need market pricing information',
+            'What resources are available for help in my area?'
+        ],
+        hi: [
+            'मुझे किसानों के लिए सरकारी योजनाओं के बारे में बताएं',
+            'मैं अपने स्थानीय उत्पादों को कहां बेच सकता हूं?',
+            'मुझे बाज़ार मूल्य निर्धारण की जानकारी चाहिए',
+            'मेरे क्षेत्र में सहायता के लिए कौन से संसाधन उपलब्ध हैं?'
+        ]
+    }
+
+    const currentSuggestions = suggestions[language] || suggestions.en
 
     return (
         <div className="ai-assistant-page">
@@ -188,13 +198,13 @@ const AIAssistant = () => {
                                 <Bot size={32} />
                             </div>
                             <div>
-                                <h1>AI Assistant</h1>
-                                <p>{language === 'hi' ? 'मुझसे योजनाओं, बाज़ार और संसाधनों के बारे में कुछ भी पूछें' : 'Ask me anything about schemes, markets, and resources'}</p>
+                                <h1>{t('assistant')}</h1>
+                                <p>{language === 'hi' ? 'मुझसे योजनाओं, बाज़ार और संसाधनों के बारे में कुछ भी पूछें' : language === 'en' ? 'Ask me anything about schemes, markets, and resources' : t('heroSubtitle')}</p>
                             </div>
                         </div>
                         <div className="language-indicator">
                             <span className="badge badge-primary">
-                                {language === 'hi' ? 'हिंदी' : 'English'}
+                                {getLanguageName(language)}
                             </span>
                         </div>
                     </div>
@@ -255,7 +265,7 @@ const AIAssistant = () => {
                         <div className="suggestions">
                             <p className="suggestions-label">Try asking:</p>
                             <div className="suggestions-grid">
-                                {suggestions.map((suggestion, index) => (
+                                {currentSuggestions.map((suggestion, index) => (
                                     <button
                                         key={index}
                                         className="suggestion-chip"
