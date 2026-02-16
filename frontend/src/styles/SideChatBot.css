@@ -217,32 +217,44 @@ body:not(.light-theme) .chatbot-messages {
 .message.bot {
     align-self: flex-start;
     background: #22c55e;
-    color: white;
+    color: white !important;
     border-radius: 4px 18px 18px 18px;
     border: none;
     box-shadow: 0 4px 15px rgba(34, 197, 94, 0.2);
     font-weight: 500;
 }
 
+.message.bot * {
+    color: white !important;
+}
+
 body.light-theme .message.bot {
-    color: #ffffff;
+    color: #ffffff !important;
     /* Keeping bot text white for better green contrast */
 }
 
 .message.user {
     align-self: flex-end;
     background: #f1f5f9;
-    color: #1e293b;
+    color: #1e293b !important;
     border-radius: 18px 18px 4px 18px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     border: 1px solid #e2e8f0;
 }
 
+.message.user * {
+    color: #1e293b !important;
+}
+
 body:not(.light-theme) .message.user {
     background: #1e293b;
-    color: #f1f5f9;
+    color: #f1f5f9 !important;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
     border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+body:not(.light-theme) .message.user * {
+    color: #f1f5f9 !important;
 }
 
 .message-content {

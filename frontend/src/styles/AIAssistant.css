@@ -145,8 +145,12 @@
 
 .user-message .message-content {
     background: linear-gradient(135deg, var(--primary-600), var(--primary-500));
-    color: white;
+    color: #ffffff !important;
     border-bottom-right-radius: 4px;
+}
+
+.user-message .message-content * {
+    color: #ffffff !important;
 }
 
 .assistant-message .message-content {
@@ -154,15 +158,24 @@
     border: 1px solid var(--border-color);
     border-bottom-left-radius: 4px;
     backdrop-filter: blur(5px);
-    color: var(--text-primary);
+    color: var(--text-primary) !important;
+}
+
+.assistant-message .message-content * {
+    color: var(--text-primary) !important;
 }
 
 .message-time {
     display: block;
     font-size: 0.7rem;
     margin-top: var(--space-2);
-    opacity: 0.6;
+    opacity: 0.8;
     text-align: right;
+    color: inherit;
+}
+
+.user-message .message-time {
+    color: rgba(255, 255, 255, 0.9) !important;
 }
 
 .assistant-message .message-time {
@@ -397,8 +410,12 @@ body.light-theme .messages-area {
 body.light-theme .assistant-message .message-content {
     background: #f1f5f9;
     border: 1px solid #e2e8f0;
-    color: #334155;
+    color: #334155 !important;
     box-shadow: none;
+}
+
+body.light-theme .assistant-message .message-content * {
+    color: #334155 !important;
 }
 
 body.light-theme .assistant-message .message-avatar {
