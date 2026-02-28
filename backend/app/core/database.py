@@ -110,7 +110,9 @@ DATABASE_URL, DATABASE_TOKEN = _resolve_url_and_token()
 _display_url = DATABASE_URL.split("?")[0]
 print(f"[DB] Target: {_display_url}")
 if DATABASE_TOKEN:
-    print(f"[DB] Auth: Token detected (length: {len(DATABASE_TOKEN)})")
+    # Diagnostic logging: show length and first few chars to detect truncation
+    token_prefix = DATABASE_TOKEN[:10] + "..." if len(DATABASE_TOKEN) > 10 else DATABASE_TOKEN
+    print(f"[DB] Auth: Token detected (length: {len(DATABASE_TOKEN)}, prefix: {token_prefix})")
 else:
     print("[DB] Auth: No specialized auth token found (using URL or local)")
 

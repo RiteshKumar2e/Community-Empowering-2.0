@@ -1,4 +1,9 @@
-from duckduckgo_search import DDGS
+try:
+    from duckduckgo_search import DDGS
+except ImportError:
+    print("⚠️ WARNING: duckduckgo_search not found. Search functionality will be disabled.")
+    DDGS = None
+
 import json
 
 class SearchService:
@@ -7,6 +12,9 @@ class SearchService:
 
     def search(self, query: str, max_results: int = 5) -> str:
         """Perform a web search using DuckDuckGo (Google-like results)"""
+        if DDGS is None:
+            return "Search service is currently unavailable (missing dependency)."
+            
         try:
             results = self.ddgs.text(query, max_results=max_results)
             if not results:
