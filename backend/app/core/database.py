@@ -78,15 +78,23 @@ def _resolve_url():
         if "?" in turso_env:
             base, qs = turso_env.split("?", 1)
             params = parse_qs(qs)
-            token  = params.get("authToken", [os.environ.get("TURSO_AUTH_TOKEN", "")])[0]
+            # Support both authToken (Turso CLI/Portal) and auth_token (Libsql driver)
+            token  = params.get("authToken", [params.get("auth_token", [os.environ.get("TURSO_AUTH_TOKEN", "")])[0]])[0]
         else:
             base  = turso_env
             token = os.environ.get("TURSO_AUTH_TOKEN", "")
 
-        host = base.replace("libsql://", "").rstrip("/")
-        url  = f"sqlite+libsql://{host}"
+        # Strip protocol to get the host for the SQLAlchemy URL structure
+        host = base.replace("libsql://", "").replace("https://", "").replace("http://", "").rstrip("/")
+        
+        # Build the final URL with necessary parameters for Turso/libsql
+        # Adding 'secure=true' forces the driver to use SSL/HTTPS, preventing 308 redirects.
+        url = f"sqlite+libsql://{host}"
+        query_params = ["secure=true"]
         if token:
-            url += f"?auth_token={token}"
+            query_params.append(f"auth_token={token}")
+        
+        url += "?" + "&".join(query_params)
         return url
 
     # Fallback: raw DATABASE_URL
