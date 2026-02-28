@@ -14,21 +14,32 @@ from sqlalchemy.orm import sessionmaker
 # to either return a safe default or use a compatible SQL alternative.
 # =========================================================================
 from sqlalchemy.dialects.sqlite import base as _sqlite_base
-from sqlalchemy.schema import CreateTable
+from sqlalchemy.schema import CreateTable, CreateIndex
 from sqlalchemy.ext.compiler import compiles
 
 # =========================================================================
-# TURSO COMPATIBILITY: FORCE 'IF NOT EXISTS'
+# TURSO COMPATIBILITY: FORCE 'IF NOT EXISTS' FOR TABLES & INDEXES
 #
-# Turso/libsql can be sensitive to table creation if introspection fails.
-# We patch the CreateTable compiler to ALWAYS include 'IF NOT EXISTS'.
+# Turso/libsql can be sensitive to already existing objects if introspection 
+# fails. We patch the compilers to ALWAYS include 'IF NOT EXISTS'.
 # =========================================================================
 @compiles(CreateTable, "sqlite")
-def _add_if_not_exists(element, compiler, **kw):
+def _add_if_not_exists_table(element, compiler, **kw):
     sql = compiler.visit_create_table(element, **kw)
     if "IF NOT EXISTS" not in sql.upper():
         return sql.replace("CREATE TABLE ", "CREATE TABLE IF NOT EXISTS ", 1)
     return sql
+
+@compiles(CreateIndex, "sqlite")
+def _add_if_not_exists_index(element, compiler, **kw):
+    sql = compiler.visit_create_index(element, **kw)
+    if "IF NOT EXISTS" in sql.upper():
+        return sql
+        
+    if "CREATE UNIQUE INDEX" in sql.upper():
+        return sql.replace("CREATE UNIQUE INDEX ", "CREATE UNIQUE INDEX IF NOT EXISTS ", 1)
+    
+    return sql.replace("CREATE INDEX ", "CREATE INDEX IF NOT EXISTS ", 1)
 
 
 # --- Isolation level (PRAGMA read_uncommitted) ---
