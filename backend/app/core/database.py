@@ -1,87 +1,99 @@
 import os
-from urllib.parse import urlparse, parse_qs
-from sqlalchemy import create_engine
+from urllib.parse import parse_qs
+from sqlalchemy import create_engine, event
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 # =========================================================================
+# TURSO / LIBSQL COMPATIBILITY PATCH
+#
+# SQLAlchemy's SQLite dialect always runs "PRAGMA read_uncommitted" on
+# first connect to detect the isolation level.  Turso's Hrana HTTP
+# protocol rejects this with 405 / 308.  We patch the two dialect
+# methods so they return a safe default instead of raising.
+# =========================================================================
+from sqlalchemy.dialects.sqlite.base import SQLiteDialect
+
+_orig_get_isolation_level         = SQLiteDialect.get_isolation_level
+_orig_get_default_isolation_level = SQLiteDialect.get_default_isolation_level
+
+def _safe_get_isolation_level(self, connection):
+    try:
+        return _orig_get_isolation_level(self, connection)
+    except Exception:
+        return "SERIALIZABLE"          # safe default for Turso
+
+def _safe_get_default_isolation_level(self, connection):
+    try:
+        return _orig_get_default_isolation_level(self, connection)
+    except Exception:
+        return "SERIALIZABLE"
+
+SQLiteDialect.get_isolation_level         = _safe_get_isolation_level
+SQLiteDialect.get_default_isolation_level = _safe_get_default_isolation_level
+
+# =========================================================================
 # DATABASE URL RESOLUTION
 #
-# Priority order:
-#   1. TURSO_DATABASE_URL (libsql://...?authToken=...)  — always wins
-#   2. DATABASE_URL from environment (Render dashboard, .env, etc.)
-#   3. Local SQLite as ultimate fallback
+# Priority:
+#   1. TURSO_DATABASE_URL env var  (libsql://host?authToken=…)  ← always wins
+#   2. DATABASE_URL env var        (Render dashboard / .env)
+#   3. Local SQLite fallback
 # =========================================================================
 
 def _resolve_database_url() -> str:
-    """
-    Build the SQLAlchemy-compatible connection URL at runtime.
-    
-    TURSO_DATABASE_URL format (both supported):
-      libsql://<host>?authToken=<token>     ← combined (single line)
-      libsql://<host>                       ← host only, token from TURSO_AUTH_TOKEN
-    """
-    turso_url = os.environ.get("TURSO_DATABASE_URL", "")
+    turso_env = os.environ.get("TURSO_DATABASE_URL", "").strip()
 
-    if turso_url:
-        # Parse authToken out of the URL if present
-        if "?" in turso_url:
-            base, query = turso_url.split("?", 1)
+    if turso_env:
+        # Split authToken out of the URL if included inline
+        if "?" in turso_env:
+            base, query = turso_env.split("?", 1)
             params = parse_qs(query)
             token = params.get("authToken", [os.environ.get("TURSO_AUTH_TOKEN", "")])[0]
         else:
-            base  = turso_url
+            base  = turso_env
             token = os.environ.get("TURSO_AUTH_TOKEN", "")
 
-        # Normalise base: strip libsql:// prefix, keep just the host
-        host = base.replace("libsql://", "")
+        # Strip scheme so we can rebuild it for SQLAlchemy
+        host = base.replace("libsql://", "").rstrip("/")
 
         if token:
             return f"sqlite+libsql://{host}?auth_token={token}"
-        else:
-            return f"sqlite+libsql://{host}"
+        return f"sqlite+libsql://{host}"
 
-    # Fallback: raw DATABASE_URL (Render dashboard, etc.)
-    env_url = os.environ.get("DATABASE_URL", "sqlite:///./community_ai.db")
-
-    # Normalise older Render postgres:// scheme
+    # Fallback to whatever DATABASE_URL is set (Render / .env)
+    env_url = os.environ.get("DATABASE_URL", "sqlite:///./community_ai.db").strip()
     if env_url.startswith("postgres://"):
         env_url = env_url.replace("postgres://", "postgresql://", 1)
-
     return env_url
 
 
 DATABASE_URL = _resolve_database_url()
-print(f"[DB] Connecting to: {DATABASE_URL.split('?')[0]}")   # hide token in logs
-
+# Log without exposing the token
+print(f"[DB] Connecting to: {DATABASE_URL.split('?')[0]}")
 
 # =========================================================================
-# ENGINE CONFIGURATION
+# ENGINE
 # =========================================================================
 
 def _build_engine():
     url = DATABASE_URL
 
     if url.startswith("sqlite+libsql://"):
-        # Turso remote — StaticPool avoids threading issues.
-        # isolation_level=None prevents SQLAlchemy from running
-        # "PRAGMA read_uncommitted" which Turso rejects with HTTP 405.
         from sqlalchemy.pool import StaticPool
         return create_engine(
             url,
-            isolation_level=None,
             connect_args={"check_same_thread": False},
             poolclass=StaticPool,
         )
 
     if url.startswith("sqlite:///"):
-        # Local SQLite file
         return create_engine(
             url,
             connect_args={"check_same_thread": False},
         )
 
-    # PostgreSQL / other remote databases
+    # PostgreSQL or other remote DB
     return create_engine(
         url,
         pool_size=10,
@@ -98,7 +110,7 @@ Base         = declarative_base()
 
 
 def get_db():
-    """FastAPI dependency — yields a database session."""
+    """FastAPI dependency — yields a scoped database session."""
     db = SessionLocal()
     try:
         yield db
