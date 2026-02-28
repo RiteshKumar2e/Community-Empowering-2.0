@@ -33,36 +33,8 @@ class Settings(BaseSettings):
             return v
         return v
     
-    # Database - Handle Render Postgres URL format (postgres:// -> postgresql://)
-    _db_url: str = os.getenv("DATABASE_URL", "sqlite:///./community_ai.db")
-    
-    @property
-    def DATABASE_URL(self) -> str:
-        # Get URL from environment or use local sqlite as ultimate fallback
-        env_url = os.getenv("DATABASE_URL", self._db_url)
-        
-        # FORCE Turso if we have the token and the URL looks like the old Render Postgres one
-        # or if we explicitly want to use Turso.
-        if os.getenv("TURSO_AUTH_TOKEN") and ("render.com" in env_url or "libsql" not in env_url):
-            url = "libsql://communityai-riteshkr.aws-ap-south-1.turso.io"
-        else:
-            url = env_url
-            
-        if url.startswith("postgres://"):
-            url = url.replace("postgres://", "postgresql://", 1)
-        # Handle Turso libsql format
-        if url.startswith("libsql://"):
-            # SQLAlchemy with libsql-client expects sqlite+libsql://
-            url = url.replace("libsql://", "sqlite+libsql://", 1)
-            
-            # Append auth token if present in environment
-            auth_token = os.getenv("TURSO_AUTH_TOKEN")
-            if auth_token:
-                if "?" in url:
-                    url += f"&auth_token={auth_token}"
-                else:
-                    url += f"?auth_token={auth_token}"
-        return url
+    # Note: DATABASE_URL is resolved at runtime in app/core/database.py
+    # to ensure Turso always takes priority over stale Render env vars.
     
     # AI & Service API Keys
     GROQ_API_KEY: str = os.getenv("GROQ_API_KEY", "")
@@ -79,17 +51,10 @@ class Settings(BaseSettings):
         if not self.BREVO_API_KEY: missing.append("BREVO_API_KEY (for emails)")
         if not self.GEMINI_API_KEY and not self.GROQ_API_KEY: missing.append("AI_API_KEY (for Chatbot)")
         
-        if self.DATABASE_URL.startswith("sqlite+libsql") and not os.getenv("TURSO_AUTH_TOKEN"):
+        if not os.getenv("TURSO_AUTH_TOKEN"):
             print("\n" + "!"*50)
-            print("⚠️ WARNING: Using Turso but TURSO_AUTH_TOKEN is not set.")
-            print("Please set TURSO_AUTH_TOKEN in your .env file.")
+            print("⚠️ WARNING: TURSO_AUTH_TOKEN is not set — falling back to DATABASE_URL.")
             print("!"*50 + "\n")
-
-        if self.DATABASE_URL.startswith("sqlite://"):
-            print("\n" + "-"*50)
-            print("ℹ️  Using SQLite. Note: On Render, data clears on redeploy.")
-            print("   To persist data, use Render Postgres or a Persistent Disk.")
-            print("-"*50 + "\n")
             
         if missing:
             print("\n" + "!"*50)
