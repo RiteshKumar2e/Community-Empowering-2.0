@@ -98,10 +98,16 @@ def _resolve_url_and_token():
         # Build the SQLAlchemy URL — token will be appended in _build_engine
         final_url = f"sqlite+libsql://{host}?secure=true"
 
-        # Validate token length — real Turso JWTs are 200+ chars
-        if auth_token and len(auth_token) < 50:
-            print(f"[DB] WARNING: Auth token is suspiciously short ({len(auth_token)} chars). "
-                  "Turso JWTs are typically 200+ chars. Check TURSO_AUTH_TOKEN env var.")
+        # Validate token length — real Turso JWTs are 200-300+ chars
+        if auth_token:
+            if len(auth_token) < 150:
+                print(f"[DB] WARNING: Auth token is suspiciously short ({len(auth_token)} chars). "
+                      f"Turso JWTs are typically 200-300+ chars. Token may be truncated.")
+            # Verify it looks like a JWT (three base64 sections separated by dots)
+            if auth_token.count('.') != 2:
+                print(f"[DB] WARNING: Token doesn't look like a valid JWT (expected 2 dots, found {auth_token.count('.')}).")
+        else:
+            print("[DB] ERROR: No auth token found! Turso connection will fail.")
 
         return final_url, auth_token
 
@@ -143,6 +149,9 @@ def _build_engine():
         if token:
             separator = "&" if "?" in url else "?"
             url = f"{url}{separator}authToken={token}"
+            print(f"[DB] Connection: URL assembled with authToken (total length: {len(url)} chars)")
+        else:
+            print("[DB] WARNING: No authToken in URL — connection will likely fail!")
 
         return create_engine(
             url,
