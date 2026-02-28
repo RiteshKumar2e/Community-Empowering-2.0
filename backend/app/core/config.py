@@ -38,9 +38,16 @@ class Settings(BaseSettings):
     
     @property
     def DATABASE_URL(self) -> str:
-        # Prioritize Turso-specific URL if set, otherwise use standard DATABASE_URL
-        url = os.getenv("TURSO_DATABASE_URL") or self._db_url
+        # Get URL from environment or use local sqlite as ultimate fallback
+        env_url = os.getenv("DATABASE_URL", self._db_url)
         
+        # FORCE Turso if we have the token and the URL looks like the old Render Postgres one
+        # or if we explicitly want to use Turso.
+        if os.getenv("TURSO_AUTH_TOKEN") and ("render.com" in env_url or "libsql" not in env_url):
+            url = "libsql://communityai-riteshkr.aws-ap-south-1.turso.io"
+        else:
+            url = env_url
+            
         if url.startswith("postgres://"):
             url = url.replace("postgres://", "postgresql://", 1)
         # Handle Turso libsql format
