@@ -72,64 +72,59 @@ _sqlite_base.SQLiteDialect._get_table_pragma = _safe_get_table_pragma
 
 def _resolve_url_and_token():
     """Extract host and auth token from environment variables."""
+    # Priority 1: TURSO_DATABASE_URL
     turso_url = os.environ.get("TURSO_DATABASE_URL", "").strip()
+    # Priority 2: Standalone TURSO_AUTH_TOKEN
     auth_token = os.environ.get("TURSO_AUTH_TOKEN", "").strip()
-
-    # Also check DATABASE_URL — it may contain a libsql:// URL with ?authToken=
+    # Check DATABASE_URL as well (Render often sets this)
     database_url = os.environ.get("DATABASE_URL", "").strip()
 
-    # 1. Handle Turso URL if present
-    url_to_parse = turso_url or database_url
-    if url_to_parse and ("libsql://" in url_to_parse or "turso.io" in url_to_parse):
-        # Parse query params if present
-        if "?" in url_to_parse:
-            base, qs = url_to_parse.split("?", 1)
-            params = parse_qs(qs)
-            # Extract token from URL if it's there (overrides standalone env var)
+    # Determine which URL to use
+    raw_url = turso_url or database_url
+    
+    if raw_url and ("libsql://" in raw_url or "turso.io" in raw_url):
+        # Extract token from the URL if present
+        if "?" in raw_url:
+            base_part, query_part = raw_url.split("?", 1)
+            params = parse_qs(query_part)
             url_token = params.get("authToken", params.get("auth_token", [None]))[0]
             if url_token and len(url_token) > len(auth_token):
                 auth_token = url_token
         else:
-            base = url_to_parse
+            base_part = raw_url
 
-        # Clean the host
-        host = base.replace("libsql://", "").replace("https://", "").replace("http://", "").replace("sqlite+libsql://", "").rstrip("/")
-
-        # Build the SQLAlchemy URL — token will be appended in _build_engine
-        final_url = f"sqlite+libsql://{host}?secure=true"
-
-        # Validate token length — real Turso JWTs are 200-300+ chars
-        if auth_token:
-            if len(auth_token) < 150:
-                print(f"[DB] WARNING: Auth token is suspiciously short ({len(auth_token)} chars). "
-                      f"Turso JWTs are typically 200-300+ chars. Token may be truncated.")
-            # Verify it looks like a JWT (three base64 sections separated by dots)
-            if auth_token.count('.') != 2:
-                print(f"[DB] WARNING: Token doesn't look like a valid JWT (expected 2 dots, found {auth_token.count('.')}).")
-        else:
-            print("[DB] ERROR: No auth token found! Turso connection will fail.")
-
+        # Clean host (strip all protocols)
+        host = base_part.replace("sqlite+libsql://", "").replace("libsql://", "")
+        host = host.replace("https://", "").replace("http://", "").rstrip("/")
+        
+        # Build the SQLAlchemy dialect URL
+        # We keep it simple here and pass the token in connect_args for reliability
+        final_url = f"sqlite+libsql://{host}"
+        
         return final_url, auth_token
 
-    # 2. Fallback: standard DATABASE_URL
-    env_url = database_url or "sqlite:///./community_ai.db"
-    if env_url.startswith("postgres://"):
-        env_url = env_url.replace("postgres://", "postgresql://", 1)
-
-    return env_url, None
+    # Fallback: standard local SQLite or other (PostgreSQL)
+    fallback_url = database_url or "sqlite:///./community_ai.db"
+    if fallback_url.startswith("postgres://"):
+        fallback_url = fallback_url.replace("postgres://", "postgresql://", 1)
+    
+    return fallback_url, None
 
 
 # Resolve at module level
 DATABASE_URL, DATABASE_TOKEN = _resolve_url_and_token()
 
 _display_url = DATABASE_URL.split("?")[0]
-print(f"[DB] Target: {_display_url}")
+print(f"[DB] Base URL: {_display_url}")
 if DATABASE_TOKEN:
-    # Diagnostic logging: show length and first few chars to detect truncation
-    token_prefix = DATABASE_TOKEN[:10] + "..." if len(DATABASE_TOKEN) > 10 else DATABASE_TOKEN
-    print(f"[DB] Auth: Token detected (length: {len(DATABASE_TOKEN)}, prefix: {token_prefix})")
+    # Diagnostic logging
+    token_display = DATABASE_TOKEN[:10] + "..." if len(DATABASE_TOKEN) > 10 else "EMPTY"
+    print(f"[DB] Auth: Token loaded (length: {len(DATABASE_TOKEN)}, prefix: {token_display})")
+    
+    if len(DATABASE_TOKEN) < 100:
+        print("[DB] WARNING: Token is suspiciously short. Auth may fail.")
 else:
-    print("[DB] Auth: No specialized auth token found (using URL or local)")
+    print("[DB] Auth: No specialized auth token found.")
 
 
 # =========================================================================
@@ -142,28 +137,27 @@ def _build_engine():
 
     if url.startswith("sqlite+libsql://"):
         from sqlalchemy.pool import StaticPool
-        import libsql_experimental as libsql
+        
+        # Pass token in BOTH the URL query and connect_args to be absolutely sure
+        # different versions of the dialect/driver pick it up.
+        authenticated_url = url
+        if token:
+            authenticated_url += f"?authToken={token}&secure=true"
+        else:
+            authenticated_url += "?secure=true"
 
-        # Extract the host from the URL
-        host = url.split("?")[0].replace("sqlite+libsql://", "").rstrip("/")
+        connect_args = {
+            "check_same_thread": False,
+        }
+        if token:
+            connect_args["auth_token"] = token
+            connect_args["authToken"] = token
 
-        # Use creator to bypass SQLAlchemy's URL parsing entirely.
-        # SQLAlchemy strips query params like authToken from the URL before
-        # passing to the driver, so we must connect directly.
-        def _creator():
-            conn = libsql.connect(
-                host,
-                auth_token=token or "",
-                scheme="https",
-            )
-            return conn
-
-        print(f"[DB] Connection: Using direct libsql.connect to {host}")
-        print(f"[DB] Connection: auth_token provided = {bool(token)}")
-
+        print(f"[DB] Connecting to Turso via {authenticated_url.split('authToken=')[0]}...")
+        
         return create_engine(
-            "sqlite+libsql://",
-            creator=_creator,
+            authenticated_url,
+            connect_args=connect_args,
             poolclass=StaticPool,
         )
 
