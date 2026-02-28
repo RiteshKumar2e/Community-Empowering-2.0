@@ -1,76 +1,105 @@
 import os
 from urllib.parse import parse_qs
-from sqlalchemy import create_engine, event
+
+from sqlalchemy import create_engine, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 # =========================================================================
-# TURSO / LIBSQL COMPATIBILITY PATCH
+# TURSO / LIBSQL DIALECT PATCHES
 #
-# SQLAlchemy's SQLite dialect always runs "PRAGMA read_uncommitted" on
-# first connect to detect the isolation level.  Turso's Hrana HTTP
-# protocol rejects this with 405 / 308.  We patch the two dialect
-# methods so they return a safe default instead of raising.
+# SQLAlchemy's SQLite dialect uses several PRAGMA statements for
+# introspection (isolation level, table existence).  Turso rejects
+# these via its Hrana HTTP API.  We patch every affected method
+# to either return a safe default or use a compatible SQL alternative.
 # =========================================================================
-from sqlalchemy.dialects.sqlite.base import SQLiteDialect
+from sqlalchemy.dialects.sqlite import base as _sqlite_base
 
-_orig_get_isolation_level         = SQLiteDialect.get_isolation_level
-_orig_get_default_isolation_level = SQLiteDialect.get_default_isolation_level
 
+# --- Isolation level (PRAGMA read_uncommitted) ---
 def _safe_get_isolation_level(self, connection):
     try:
-        return _orig_get_isolation_level(self, connection)
-    except Exception:
-        return "SERIALIZABLE"          # safe default for Turso
-
-def _safe_get_default_isolation_level(self, connection):
-    try:
-        return _orig_get_default_isolation_level(self, connection)
+        cursor = connection.cursor()
+        cursor.execute("PRAGMA read_uncommitted")
+        val = cursor.fetchone()
+        cursor.close()
+        return "READ UNCOMMITTED" if val and val[0] else "SERIALIZABLE"
     except Exception:
         return "SERIALIZABLE"
 
-SQLiteDialect.get_isolation_level         = _safe_get_isolation_level
-SQLiteDialect.get_default_isolation_level = _safe_get_default_isolation_level
+def _safe_get_default_isolation_level(self, connection):
+    try:
+        return _safe_get_isolation_level(None, connection)
+    except Exception:
+        return "SERIALIZABLE"
+
+_sqlite_base.SQLiteDialect.get_isolation_level         = _safe_get_isolation_level
+_sqlite_base.SQLiteDialect.get_default_isolation_level = _safe_get_default_isolation_level
+
+
+# --- Table existence (PRAGMA table_info → use sqlite_master instead) ---
+def _turso_has_table(self, connection, table_name, schema=None, **kw):
+    """Check table existence via sqlite_master (works on Turso)."""
+    try:
+        query = "SELECT 1 FROM sqlite_master WHERE type='table' AND name=?"
+        result = connection.exec_driver_sql(query, [table_name])
+        return result.fetchone() is not None
+    except Exception:
+        # If even this fails, assume table doesn't exist — CREATE IF NOT EXISTS is safe
+        return False
+
+_sqlite_base.SQLiteDialect.has_table = _turso_has_table
+
+# --- Suppress raw _get_table_pragma errors too ---
+_orig_get_table_pragma = _sqlite_base.SQLiteDialect._get_table_pragma
+
+def _safe_get_table_pragma(self, connection, pragma, table_name, **kw):
+    try:
+        return _orig_get_table_pragma(self, connection, pragma, table_name, **kw)
+    except Exception:
+        return []
+
+_sqlite_base.SQLiteDialect._get_table_pragma = _safe_get_table_pragma
+
 
 # =========================================================================
 # DATABASE URL RESOLUTION
-#
 # Priority:
-#   1. TURSO_DATABASE_URL env var  (libsql://host?authToken=…)  ← always wins
-#   2. DATABASE_URL env var        (Render dashboard / .env)
+#   1. TURSO_DATABASE_URL  (libsql://host?authToken=…)  ← always wins
+#   2. DATABASE_URL from Render dashboard / .env
 #   3. Local SQLite fallback
 # =========================================================================
 
-def _resolve_database_url() -> str:
+def _resolve_url():
     turso_env = os.environ.get("TURSO_DATABASE_URL", "").strip()
 
     if turso_env:
-        # Split authToken out of the URL if included inline
+        # Split inline authToken if present
         if "?" in turso_env:
-            base, query = turso_env.split("?", 1)
-            params = parse_qs(query)
-            token = params.get("authToken", [os.environ.get("TURSO_AUTH_TOKEN", "")])[0]
+            base, qs = turso_env.split("?", 1)
+            params = parse_qs(qs)
+            token  = params.get("authToken", [os.environ.get("TURSO_AUTH_TOKEN", "")])[0]
         else:
             base  = turso_env
             token = os.environ.get("TURSO_AUTH_TOKEN", "")
 
-        # Strip scheme so we can rebuild it for SQLAlchemy
         host = base.replace("libsql://", "").rstrip("/")
-
+        url  = f"sqlite+libsql://{host}"
         if token:
-            return f"sqlite+libsql://{host}?auth_token={token}"
-        return f"sqlite+libsql://{host}"
+            url += f"?auth_token={token}"
+        return url
 
-    # Fallback to whatever DATABASE_URL is set (Render / .env)
+    # Fallback: raw DATABASE_URL
     env_url = os.environ.get("DATABASE_URL", "sqlite:///./community_ai.db").strip()
     if env_url.startswith("postgres://"):
         env_url = env_url.replace("postgres://", "postgresql://", 1)
     return env_url
 
 
-DATABASE_URL = _resolve_database_url()
-# Log without exposing the token
-print(f"[DB] Connecting to: {DATABASE_URL.split('?')[0]}")
+DATABASE_URL = _resolve_url()
+_display_url = DATABASE_URL.split("?")[0]
+print(f"[DB] Connecting to: {_display_url}")
+
 
 # =========================================================================
 # ENGINE
@@ -80,6 +109,7 @@ def _build_engine():
     url = DATABASE_URL
 
     if url.startswith("sqlite+libsql://"):
+        # sqlalchemy-libsql dialect — StaticPool for thread safety
         from sqlalchemy.pool import StaticPool
         return create_engine(
             url,
@@ -93,7 +123,7 @@ def _build_engine():
             connect_args={"check_same_thread": False},
         )
 
-    # PostgreSQL or other remote DB
+    # PostgreSQL / other remote
     return create_engine(
         url,
         pool_size=10,
