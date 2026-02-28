@@ -72,32 +72,34 @@ _sqlite_base.SQLiteDialect._get_table_pragma = _safe_get_table_pragma
 
 def _resolve_url():
     turso_env = os.environ.get("TURSO_DATABASE_URL", "").strip()
+    # Default to the standalone token if provided
+    auth_token = os.environ.get("TURSO_AUTH_TOKEN", "").strip()
 
     if turso_env:
-        # Split inline authToken if present
+        # Extract base and possibly existing params
         if "?" in turso_env:
             base, qs = turso_env.split("?", 1)
             params = parse_qs(qs)
-            # Support both authToken (Turso CLI/Portal) and auth_token (Libsql driver)
-            token  = params.get("authToken", [params.get("auth_token", [os.environ.get("TURSO_AUTH_TOKEN", "")])[0]])[0]
+            # URL query parameters take priority for token if present
+            if "authToken" in params:
+                auth_token = params["authToken"][0]
+            elif "auth_token" in params:
+                auth_token = params["auth_token"][0]
         else:
-            base  = turso_env
-            token = os.environ.get("TURSO_AUTH_TOKEN", "")
+            base = turso_env
 
-        # Strip protocol to get the host for the SQLAlchemy URL structure
+        # Strip protocol (libsql://, https://, etc) to get clean host for dialect
         host = base.replace("libsql://", "").replace("https://", "").replace("http://", "").rstrip("/")
         
         # Build the final URL with necessary parameters for Turso/libsql
-        # Adding 'secure=true' forces the driver to use SSL/HTTPS, preventing 308 redirects.
-        url = f"sqlite+libsql://{host}"
-        query_params = ["secure=true"]
-        if token:
-            query_params.append(f"auth_token={token}")
+        # We use 'authToken' (camelCase) because it is the standard for URL-based auth in Turso
+        url = f"sqlite+libsql://{host}?secure=true"
+        if auth_token:
+            url += f"&authToken={auth_token}"
         
-        url += "?" + "&".join(query_params)
         return url
 
-    # Fallback: raw DATABASE_URL
+    # Fallback: raw DATABASE_URL (for PostgreSQl or local SQLite)
     env_url = os.environ.get("DATABASE_URL", "sqlite:///./community_ai.db").strip()
     if env_url.startswith("postgres://"):
         env_url = env_url.replace("postgres://", "postgresql://", 1)
@@ -119,9 +121,22 @@ def _build_engine():
     if url.startswith("sqlite+libsql://"):
         # sqlalchemy-libsql dialect — StaticPool for thread safety
         from sqlalchemy.pool import StaticPool
+        
+        # Extract the token specifically for connect_args which usually expects 'auth_token' (snake_case)
+        token = None
+        if "authToken=" in url:
+            token = url.split("authToken=")[1].split("&")[0]
+        
+        connect_args = {"check_same_thread": False}
+        if token:
+            connect_args["auth_token"] = token
+            print(f"[DB] Authentication token enabled ({len(token)} chars).")
+        else:
+            print("[DB] WARNING: No authentication token found for Turso connection.")
+
         return create_engine(
             url,
-            connect_args={"check_same_thread": False},
+            connect_args=connect_args,
             poolclass=StaticPool,
         )
 
