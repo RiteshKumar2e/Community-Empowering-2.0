@@ -38,7 +38,9 @@ class Settings(BaseSettings):
     
     @property
     def DATABASE_URL(self) -> str:
-        url = self._db_url
+        # Prioritize Turso-specific URL if set, otherwise use standard DATABASE_URL
+        url = os.getenv("TURSO_DATABASE_URL") or self._db_url
+        
         if url.startswith("postgres://"):
             url = url.replace("postgres://", "postgresql://", 1)
         # Handle Turso libsql format
