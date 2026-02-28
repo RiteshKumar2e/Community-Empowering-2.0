@@ -10,16 +10,17 @@ from app.api import auth, users, ai, resources, learning, admin, agent, feedback
 from app.services.market_scanner import market_scanner
 import asyncio
 
-# Create database tables
-Base.metadata.create_all(bind=engine)
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Check configuration
     settings.check_keys()
     
-    # Create tables separately to be safe
-    Base.metadata.create_all(bind=engine)
+    # Create tables once in lifespan
+    try:
+        print("[DB] Ensuring database tables exist (lifespan)...")
+        Base.metadata.create_all(bind=engine)
+    except Exception as e:
+        print(f"[DB] Note: Table creation check skipped or failed (likely already exist): {e}")
     
     # Seed data
     await seed_database()

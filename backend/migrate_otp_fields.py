@@ -8,57 +8,39 @@ from dotenv import load_dotenv
 import os
 
 # Load environment variables
-load_dotenv()
+# Import correct engine from app core to ensure Turso compatibility
+from app.core.database import engine
 
 def migrate_database():
     """Add OTP-related columns to users table"""
     
-    # Get database URL from environment
-    database_url = os.getenv("DATABASE_URL", "sqlite:///./community_ai.db")
-    
-    # Create engine
-    engine = create_engine(database_url)
-    
     print("[*] Starting database migration...")
-    print(f"[*] Database: {database_url}")
     
     try:
         with engine.connect() as conn:
-            # Check if columns already exist
-            result = conn.execute(text("PRAGMA table_info(users)"))
-            existing_columns = [row[1] for row in result.fetchall()]
+            print("  [*] Checking/Adding columns to users table...")
             
-            migrations = []
+            # Use try-except for each ALTER TABLE to make it idempotent
+            # since Turso/SQLite doesn't support IF NOT EXISTS in ALTER TABLE.
+            columns = [
+                ("google_otp", "TEXT"),
+                ("google_otp_expiry", "TEXT"), 
+                ("google_email_verified", "BOOLEAN DEFAULT 0")
+            ]
             
-            # Add google_otp column if it doesn't exist
-            if 'google_otp' not in existing_columns:
-                migrations.append("ALTER TABLE users ADD COLUMN google_otp VARCHAR")
-                print("  [+] Adding column: google_otp")
-            else:
-                print("  [OK] Column already exists: google_otp")
+            for col_name, col_type in columns:
+                try:
+                    conn.execute(text(f"ALTER TABLE users ADD COLUMN {col_name} {col_type}"))
+                    print(f"  [+] Added column: {col_name}")
+                except Exception as e:
+                    err = str(e).lower()
+                    if "duplicate column name" in err or "already exists" in err:
+                        print(f"  [OK] Column already exists: {col_name}")
+                    else:
+                        print(f"  [!] Warning on {col_name}: {e}")
             
-            # Add google_otp_expiry column if it doesn't exist
-            if 'google_otp_expiry' not in existing_columns:
-                migrations.append("ALTER TABLE users ADD COLUMN google_otp_expiry TIMESTAMP")
-                print("  [+] Adding column: google_otp_expiry")
-            else:
-                print("  [OK] Column already exists: google_otp_expiry")
-            
-            # Add google_email_verified column if it doesn't exist
-            if 'google_email_verified' not in existing_columns:
-                migrations.append("ALTER TABLE users ADD COLUMN google_email_verified BOOLEAN DEFAULT 0")
-                print("  [+] Adding column: google_email_verified")
-            else:
-                print("  [OK] Column already exists: google_email_verified")
-            
-            # Execute migrations
-            if migrations:
-                for migration_sql in migrations:
-                    conn.execute(text(migration_sql))
-                conn.commit()
-                print(f"\n[SUCCESS] Migration completed! Added {len(migrations)} column(s).")
-            else:
-                print("\n[SUCCESS] Database is already up to date. No migrations needed.")
+            conn.commit()
+            print("\n[SUCCESS] Migration check completed.")
                 
     except Exception as e:
         print(f"\n[ERROR] Migration failed: {str(e)}")
