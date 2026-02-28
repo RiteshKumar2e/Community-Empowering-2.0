@@ -63,10 +63,13 @@ def _build_engine():
     url = DATABASE_URL
 
     if url.startswith("sqlite+libsql://"):
-        # Turso remote — StaticPool avoids threading issues
+        # Turso remote — StaticPool avoids threading issues.
+        # isolation_level=None prevents SQLAlchemy from running
+        # "PRAGMA read_uncommitted" which Turso rejects with HTTP 405.
         from sqlalchemy.pool import StaticPool
         return create_engine(
             url,
+            isolation_level=None,
             connect_args={"check_same_thread": False},
             poolclass=StaticPool,
         )
