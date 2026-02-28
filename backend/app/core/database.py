@@ -127,16 +127,17 @@ def _build_engine():
 
     if url.startswith("sqlite+libsql://"):
         from sqlalchemy.pool import StaticPool
-        
-        connect_args = {"check_same_thread": False}
+
+        # sqlalchemy-libsql requires authToken in the URL, not in connect_args.
+        # Passing it via connect_args causes:
+        #   TypeError: connect() got an unexpected keyword argument 'authToken'
         if token:
-            # Pass to both possible keys just in case
-            connect_args["auth_token"] = token
-            connect_args["authToken"] = token
-            
+            separator = "&" if "?" in url else "?"
+            url = f"{url}{separator}authToken={token}"
+
         return create_engine(
             url,
-            connect_args=connect_args,
+            connect_args={"check_same_thread": False},
             poolclass=StaticPool,
         )
 
