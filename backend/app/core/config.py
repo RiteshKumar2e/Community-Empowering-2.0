@@ -41,6 +41,18 @@ class Settings(BaseSettings):
         url = self._db_url
         if url.startswith("postgres://"):
             url = url.replace("postgres://", "postgresql://", 1)
+        # Handle Turso libsql format
+        if url.startswith("libsql://"):
+            # SQLAlchemy with libsql-client expects sqlite+libsql://
+            url = url.replace("libsql://", "sqlite+libsql://", 1)
+            
+            # Append auth token if present in environment
+            auth_token = os.getenv("TURSO_AUTH_TOKEN")
+            if auth_token:
+                if "?" in url:
+                    url += f"&auth_token={auth_token}"
+                else:
+                    url += f"?auth_token={auth_token}"
         return url
     
     # AI & Service API Keys
@@ -58,7 +70,13 @@ class Settings(BaseSettings):
         if not self.BREVO_API_KEY: missing.append("BREVO_API_KEY (for emails)")
         if not self.GEMINI_API_KEY and not self.GROQ_API_KEY: missing.append("AI_API_KEY (for Chatbot)")
         
-        if self.DATABASE_URL.startswith("sqlite"):
+        if self.DATABASE_URL.startswith("sqlite+libsql") and not os.getenv("TURSO_AUTH_TOKEN"):
+            print("\n" + "!"*50)
+            print("⚠️ WARNING: Using Turso but TURSO_AUTH_TOKEN is not set.")
+            print("Please set TURSO_AUTH_TOKEN in your .env file.")
+            print("!"*50 + "\n")
+
+        if self.DATABASE_URL.startswith("sqlite://"):
             print("\n" + "-"*50)
             print("ℹ️  Using SQLite. Note: On Render, data clears on redeploy.")
             print("   To persist data, use Render Postgres or a Persistent Disk.")

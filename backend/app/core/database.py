@@ -3,9 +3,9 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from app.core.config import settings
 
-# SQLite needs check_same_thread=False for FastAPI
+# SQLite needs check_same_thread=False for FastAPI local files
 connect_args = {}
-if settings.DATABASE_URL.startswith("sqlite"):
+if settings.DATABASE_URL.startswith("sqlite://"):
     connect_args = {"check_same_thread": False}
 
 # Handle engine configuration for different databases
