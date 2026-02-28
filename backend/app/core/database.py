@@ -142,20 +142,28 @@ def _build_engine():
 
     if url.startswith("sqlite+libsql://"):
         from sqlalchemy.pool import StaticPool
+        import libsql_experimental as libsql
 
-        # sqlalchemy-libsql requires authToken in the URL, not in connect_args.
-        # Passing it via connect_args causes:
-        #   TypeError: connect() got an unexpected keyword argument 'authToken'
-        if token:
-            separator = "&" if "?" in url else "?"
-            url = f"{url}{separator}authToken={token}"
-            print(f"[DB] Connection: URL assembled with authToken (total length: {len(url)} chars)")
-        else:
-            print("[DB] WARNING: No authToken in URL — connection will likely fail!")
+        # Extract the host from the URL
+        host = url.split("?")[0].replace("sqlite+libsql://", "").rstrip("/")
+
+        # Use creator to bypass SQLAlchemy's URL parsing entirely.
+        # SQLAlchemy strips query params like authToken from the URL before
+        # passing to the driver, so we must connect directly.
+        def _creator():
+            conn = libsql.connect(
+                host,
+                auth_token=token or "",
+                scheme="https",
+            )
+            return conn
+
+        print(f"[DB] Connection: Using direct libsql.connect to {host}")
+        print(f"[DB] Connection: auth_token provided = {bool(token)}")
 
         return create_engine(
-            url,
-            connect_args={"check_same_thread": False},
+            "sqlite+libsql://",
+            creator=_creator,
             poolclass=StaticPool,
         )
 
