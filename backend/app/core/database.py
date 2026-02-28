@@ -70,45 +70,49 @@ _sqlite_base.SQLiteDialect._get_table_pragma = _safe_get_table_pragma
 #   3. Local SQLite fallback
 # =========================================================================
 
-def _resolve_url():
-    turso_env = os.environ.get("TURSO_DATABASE_URL", "").strip()
-    # Default to the standalone token if provided
+def _resolve_url_and_token():
+    """Extract host and auth token from environment variables."""
+    turso_url = os.environ.get("TURSO_DATABASE_URL", "").strip()
     auth_token = os.environ.get("TURSO_AUTH_TOKEN", "").strip()
-
-    if turso_env:
-        # Extract base and possibly existing params
-        if "?" in turso_env:
-            base, qs = turso_env.split("?", 1)
+    
+    # 1. Handle Turso URL if present
+    if turso_url:
+        # Parse query params if present
+        if "?" in turso_url:
+            base, qs = turso_url.split("?", 1)
             params = parse_qs(qs)
-            # URL query parameters take priority for token if present
-            if "authToken" in params:
-                auth_token = params["authToken"][0]
-            elif "auth_token" in params:
-                auth_token = params["auth_token"][0]
+            # Extract token from URL if it's there (overrides standalone env var)
+            url_token = params.get("authToken", params.get("auth_token", [None]))[0]
+            if url_token:
+                auth_token = url_token
         else:
-            base = turso_env
-
-        # Strip protocol (libsql://, https://, etc) to get clean host for dialect
+            base = turso_url
+            
+        # Clean the host
         host = base.replace("libsql://", "").replace("https://", "").replace("http://", "").rstrip("/")
         
-        # Build the final URL with necessary parameters for Turso/libsql
-        # We use 'authToken' (camelCase) because it is the standard for URL-based auth in Turso
-        url = f"sqlite+libsql://{host}?secure=true"
-        if auth_token:
-            url += f"&authToken={auth_token}"
-        
-        return url
+        # Build the SQLAlchemy URL (without the sensitive token if possible, or with it strictly formatted)
+        # We pass the token in connect_args for better reliability with sqlalchemy-libsql
+        final_url = f"sqlite+libsql://{host}?secure=true"
+        return final_url, auth_token
 
-    # Fallback: raw DATABASE_URL (for PostgreSQl or local SQLite)
+    # 2. Fallback: standard DATABASE_URL
     env_url = os.environ.get("DATABASE_URL", "sqlite:///./community_ai.db").strip()
     if env_url.startswith("postgres://"):
         env_url = env_url.replace("postgres://", "postgresql://", 1)
-    return env_url
+    
+    return env_url, None
 
 
-DATABASE_URL = _resolve_url()
+# Resolve at module level
+DATABASE_URL, DATABASE_TOKEN = _resolve_url_and_token()
+
 _display_url = DATABASE_URL.split("?")[0]
-print(f"[DB] Connecting to: {_display_url}")
+print(f"[DB] Target: {_display_url}")
+if DATABASE_TOKEN:
+    print(f"[DB] Auth: Token detected (length: {len(DATABASE_TOKEN)})")
+else:
+    print("[DB] Auth: No specialized auth token found (using URL or local)")
 
 
 # =========================================================================
@@ -117,23 +121,17 @@ print(f"[DB] Connecting to: {_display_url}")
 
 def _build_engine():
     url = DATABASE_URL
+    token = DATABASE_TOKEN
 
     if url.startswith("sqlite+libsql://"):
-        # sqlalchemy-libsql dialect — StaticPool for thread safety
         from sqlalchemy.pool import StaticPool
-        
-        # Extract the token specifically for connect_args which usually expects 'auth_token' (snake_case)
-        token = None
-        if "authToken=" in url:
-            token = url.split("authToken=")[1].split("&")[0]
         
         connect_args = {"check_same_thread": False}
         if token:
+            # Pass to both possible keys just in case
             connect_args["auth_token"] = token
-            print(f"[DB] Authentication token enabled ({len(token)} chars).")
-        else:
-            print("[DB] WARNING: No authentication token found for Turso connection.")
-
+            connect_args["authToken"] = token
+            
         return create_engine(
             url,
             connect_args=connect_args,
