@@ -74,33 +74,42 @@ def _resolve_url_and_token():
     """Extract host and auth token from environment variables."""
     turso_url = os.environ.get("TURSO_DATABASE_URL", "").strip()
     auth_token = os.environ.get("TURSO_AUTH_TOKEN", "").strip()
-    
+
+    # Also check DATABASE_URL — it may contain a libsql:// URL with ?authToken=
+    database_url = os.environ.get("DATABASE_URL", "").strip()
+
     # 1. Handle Turso URL if present
-    if turso_url:
+    url_to_parse = turso_url or database_url
+    if url_to_parse and ("libsql://" in url_to_parse or "turso.io" in url_to_parse):
         # Parse query params if present
-        if "?" in turso_url:
-            base, qs = turso_url.split("?", 1)
+        if "?" in url_to_parse:
+            base, qs = url_to_parse.split("?", 1)
             params = parse_qs(qs)
             # Extract token from URL if it's there (overrides standalone env var)
             url_token = params.get("authToken", params.get("auth_token", [None]))[0]
-            if url_token:
+            if url_token and len(url_token) > len(auth_token):
                 auth_token = url_token
         else:
-            base = turso_url
-            
+            base = url_to_parse
+
         # Clean the host
-        host = base.replace("libsql://", "").replace("https://", "").replace("http://", "").rstrip("/")
-        
-        # Build the SQLAlchemy URL (without the sensitive token if possible, or with it strictly formatted)
-        # We pass the token in connect_args for better reliability with sqlalchemy-libsql
+        host = base.replace("libsql://", "").replace("https://", "").replace("http://", "").replace("sqlite+libsql://", "").rstrip("/")
+
+        # Build the SQLAlchemy URL — token will be appended in _build_engine
         final_url = f"sqlite+libsql://{host}?secure=true"
+
+        # Validate token length — real Turso JWTs are 200+ chars
+        if auth_token and len(auth_token) < 50:
+            print(f"[DB] WARNING: Auth token is suspiciously short ({len(auth_token)} chars). "
+                  "Turso JWTs are typically 200+ chars. Check TURSO_AUTH_TOKEN env var.")
+
         return final_url, auth_token
 
     # 2. Fallback: standard DATABASE_URL
-    env_url = os.environ.get("DATABASE_URL", "sqlite:///./community_ai.db").strip()
+    env_url = database_url or "sqlite:///./community_ai.db"
     if env_url.startswith("postgres://"):
         env_url = env_url.replace("postgres://", "postgresql://", 1)
-    
+
     return env_url, None
 
 
