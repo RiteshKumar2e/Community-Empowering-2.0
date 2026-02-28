@@ -137,25 +137,30 @@ def _build_engine():
 
     if url.startswith("sqlite+libsql://"):
         from sqlalchemy.pool import StaticPool
-        import libsql_experimental as libsql
         
-        # Extract the database URL/host from the SQLAlchemy URL
-        # sqlite+libsql://host?secure=true -> host
+        # Clean the host for the engine URL
         host = url.split("?")[0].replace("sqlite+libsql://", "").rstrip("/")
         
-        # Use creator to connect directly with auth_token
-        def _creator():
-            # libsql.connect accepts: database URL, auth_token parameter
-            # The database URL should be the full libsql:// URL with protocol
-            db_url = f"libsql://{host}"
-            return libsql.connect(db_url, auth_token=token or "")
+        # Use the standard protocol format for Turso: sqlite+libsql://[host]
+        # We pass the auth_token via connect_args for maximum reliability.
+        # '?secure=true' is added to force HTTPS and avoid 308 redirects.
+        sqlalchemy_url = f"sqlite+libsql://{host}?secure=true"
         
-        print(f"[DB] Using libsql.connect with creator for {host}")
-        print(f"[DB] Auth token provided: {bool(token)}")
+        connect_args = {
+            "check_same_thread": False,
+        }
+        
+        if token:
+            # We use strictly 'auth_token' (snake_case) because the LibSQL python 
+            # driver connect() function does NOT accept 'authToken' (camelCase).
+            connect_args["auth_token"] = token
+            print(f"[DB] Initializing Turso connection to {host} (auth_token enabled)")
+        else:
+            print(f"[DB] WARNING: Initializing Turso connection to {host} WITHOUT auth_token")
 
         return create_engine(
-            "sqlite+libsql://",
-            creator=_creator,
+            sqlalchemy_url,
+            connect_args=connect_args,
             poolclass=StaticPool,
         )
 

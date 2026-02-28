@@ -9,13 +9,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-DATABASE_URL = os.getenv("DATABASE_URL")
-
-if not DATABASE_URL:
-    print("Error: DATABASE_URL not found in environment variables")
-    exit(1)
-
-engine = create_engine(DATABASE_URL)
+# Import correct engine from app core to ensure Turso compatibility
+from app.core.database import engine
 
 migrations = [
     # Add views column to forum_replies
@@ -27,10 +22,10 @@ migrations = [
     # Create forum_reply_likes table
     """
     CREATE TABLE IF NOT EXISTS forum_reply_likes (
-        id SERIAL PRIMARY KEY,
+        id INTEGER PRIMARY KEY,
         reply_id INTEGER REFERENCES forum_replies(id) ON DELETE CASCADE,
         user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         UNIQUE(reply_id, user_id)
     );
     """,
@@ -38,10 +33,10 @@ migrations = [
     # Create forum_reply_views table
     """
     CREATE TABLE IF NOT EXISTS forum_reply_views (
-        id SERIAL PRIMARY KEY,
+        id INTEGER PRIMARY KEY,
         reply_id INTEGER REFERENCES forum_replies(id) ON DELETE CASCADE,
         user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         UNIQUE(reply_id, user_id)
     );
     """,
