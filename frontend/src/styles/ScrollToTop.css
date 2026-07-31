@@ -2,8 +2,8 @@
   /* Positioned to the right of the floating chatbot launcher by default */
   position: fixed;
   bottom: 2rem;
-  right: calc(2rem + 92px); /* 2rem (chat wrapper) + 80px (chat toggle) + ~12px gap */
-  left: auto;
+  right: calc(2rem + 122px) !important; /* moved a bit left: 2rem + 80px toggle + ~40px gap */
+  left: auto !important;
   z-index: 10001;
   opacity: 0;
   visibility: hidden;
@@ -44,7 +44,8 @@
   /* On small screens place the button closer to the viewport edge */
   .scroll-to-top {
     bottom: 1.25rem;
-    right: calc(1rem + 72px); /* chat wrapper right 1rem + 60px toggle + 12px gap */
+    right: calc(1rem + 102px) !important; /* moved left on small screens: 1rem + 60px toggle + ~40px gap */
+    left: auto !important;
   }
 }
 
@@ -52,8 +53,8 @@
   /* When chatbot is moved to the left on very small screens,
      ensure the scroll button stays at the right edge to avoid overlap. */
   .scroll-to-top {
-    right: 1rem;
-    left: auto;
+    right: 1rem !important;
+    left: auto !important;
     bottom: 1rem;
   }
 }

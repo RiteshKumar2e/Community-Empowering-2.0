@@ -584,8 +584,8 @@
   /* Position to the right beside the floating chatbot launcher */
   position: fixed;
   bottom: 2rem;
-  right: calc(2rem + 92px);
-  left: auto;
+  right: calc(2rem + 122px) !important;
+  left: auto !important;
   z-index: 10001;
   display: grid;
   place-items: center;
@@ -610,15 +610,16 @@
 @media (max-width: 640px) {
   .landing .scroll-to-top {
     bottom: 1.25rem;
-    right: calc(1rem + 72px);
+    right: calc(1rem + 102px) !important;
+    left: auto !important;
   }
 }
 
 @media (max-width: 480px) {
   /* On very small viewports the chatbot moves to the left, keep the scroll button at the right edge */
   .landing .scroll-to-top {
-    right: 1rem;
-    left: auto;
+    right: 1rem !important;
+    left: auto !important;
     bottom: 1rem;
   }
 }
