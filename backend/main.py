@@ -3,6 +3,13 @@ from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 import os
+import warnings
+# Silence specific websockets deprecation warning coming from third-party internals
+warnings.filterwarnings(
+    "ignore",
+    category=DeprecationWarning,
+    message=r".*ConnectionClosed.code is deprecated; use Protocol.close_code or ConnectionClosed.rcvd.code.*"
+)
 from app.core.config import settings
 from app.core.database import engine, Base
 from app.models import models  # Import models to register them
