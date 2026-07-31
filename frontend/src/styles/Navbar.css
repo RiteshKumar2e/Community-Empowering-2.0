@@ -130,8 +130,10 @@
   gap: var(--space-2);
 }
 
-.btn-signin,
-.btn-admin {
+/* Sign In is the only auth action in the navbar. The /admin-login route still
+   exists and works, it just isn't advertised on the public site.
+   (.btn-admin is styled by Auth.css, for the Admin Login page's own button.) */
+.btn-signin {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -143,35 +145,17 @@
   line-height: 1;
   border-radius: var(--radius-lg);
   border: 1px solid transparent;
+  background-color: var(--primary-600);
+  color: var(--text-on-accent);
   cursor: pointer;
   white-space: nowrap;
   text-decoration: none;
   transition: background-color var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
 }
 
-/* Sign In is the visitor's primary action, so it carries the accent fill.
-   Admin Login is a rarely-used staff route and stays quiet — previously it
-   was the loudest thing on the public page. Swap the two blocks to reverse. */
-.btn-signin {
-  background-color: var(--primary-600);
-  color: var(--text-on-accent);
-}
-
 .btn-signin:hover {
   background-color: var(--primary-700);
   color: var(--text-on-accent);
-}
-
-.btn-admin {
-  background-color: transparent;
-  color: var(--text-secondary);
-  border-color: var(--border-strong);
-}
-
-.btn-admin:hover {
-  background-color: var(--bg-hover);
-  color: var(--text-primary);
-  border-color: var(--text-tertiary);
 }
 
 /* --- Profile dropdown --- */

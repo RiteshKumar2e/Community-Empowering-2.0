@@ -162,7 +162,6 @@ const Navbar = () => {
                         ) : (
                             <div className="auth-nav-buttons">
                                 <Link to="/login" className="btn-signin">Sign In</Link>
-                                <Link to="/admin-login" className="btn-admin">Admin Login</Link>
                             </div>
                         )}
                     </div>
@@ -243,9 +242,6 @@ const Navbar = () => {
                                 <div className="mobile-auth-actions">
                                     <Link to="/login" className="btn-signin mobile-auth-btn" onClick={() => setMobileMenuOpen(false)}>
                                         <User size={18} /> Sign In
-                                    </Link>
-                                    <Link to="/admin-login" className="btn-admin mobile-auth-btn" onClick={() => setMobileMenuOpen(false)}>
-                                        <Shield size={18} /> Admin Login
                                     </Link>
                                 </div>
                                 <div className="menu-divider"></div>
