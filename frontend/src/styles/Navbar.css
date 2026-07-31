@@ -468,5 +468,11 @@
 @media (max-width: 640px) {
   .navbar-container {
     gap: var(--space-3);
+    padding: 0 var(--space-4);
+  }
+
+  /* Keep the wordmark from squeezing the theme toggle and hamburger out. */
+  .logo-text {
+    font-size: var(--text-base);
   }
 }
