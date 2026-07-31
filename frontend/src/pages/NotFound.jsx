@@ -2,13 +2,52 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Home, RefreshCcw, Trophy } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { DINO_SPRITES_1X } from '../constants/assets';
 import '../styles/NotFound.css';
 
-// Decoded once at module load — creating this inside the render loop
-// allocated a new Image on every animation frame.
-const dinoSprites = new Image();
-dinoSprites.src = DINO_SPRITES_1X;
+// The runner and cactus are drawn with canvas primitives rather than a sprite
+// sheet. The bundled DINO_SPRITES_1X data URI was a truncated paste — no IEND
+// chunk and a base64 length not divisible by 4 — so the browser rejected it
+// with ERR_INVALID_URL and nothing was ever painted. Drawing the shapes keeps
+// the game working with no binary asset to go stale.
+const drawRunner = (ctx, dino, color, legPhase) => {
+    const { x, y, width: w, height: h } = dino;
+    ctx.fillStyle = color;
+
+    // Body
+    ctx.fillRect(x, y + h * 0.32, w * 0.62, h * 0.42);
+    // Tail
+    ctx.fillRect(x - w * 0.16, y + h * 0.36, w * 0.2, h * 0.16);
+    // Head
+    ctx.fillRect(x + w * 0.5, y, w * 0.5, h * 0.3);
+    // Snout
+    ctx.fillRect(x + w * 0.86, y + h * 0.18, w * 0.22, h * 0.1);
+    // Eye (punched out)
+    ctx.clearRect(x + w * 0.78, y + h * 0.08, 3, 3);
+    // Legs alternate so the runner reads as moving
+    const legY = y + h * 0.74;
+    const legH = h * 0.26;
+    if (legPhase === 0) {
+        ctx.fillRect(x + w * 0.08, legY, w * 0.16, legH);
+        ctx.fillRect(x + w * 0.38, legY, w * 0.16, legH * 0.6);
+    } else {
+        ctx.fillRect(x + w * 0.08, legY, w * 0.16, legH * 0.6);
+        ctx.fillRect(x + w * 0.38, legY, w * 0.16, legH);
+    }
+};
+
+const drawCactus = (ctx, obs, color) => {
+    const { x, y, width: w, height: h } = obs;
+    ctx.fillStyle = color;
+
+    // Trunk
+    ctx.fillRect(x + w * 0.35, y, w * 0.3, h);
+    // Left arm
+    ctx.fillRect(x, y + h * 0.3, w * 0.18, h * 0.28);
+    ctx.fillRect(x, y + h * 0.3, w * 0.45, w * 0.22);
+    // Right arm
+    ctx.fillRect(x + w * 0.82, y + h * 0.22, w * 0.18, h * 0.34);
+    ctx.fillRect(x + w * 0.55, y + h * 0.22, w * 0.45, w * 0.22);
+};
 
 const NotFound = () => {
     const navigate = useNavigate();
@@ -129,23 +168,25 @@ const NotFound = () => {
             }
         }
 
+        // Theme-aware palette, read once per frame from the active theme.
+        const styles = getComputedStyle(document.body);
+        const groundColor = styles.getPropertyValue('--border-strong').trim() || '#9aa1ac';
+        const runnerColor = styles.getPropertyValue('--text-primary').trim() || '#16191d';
+        const cactusColor = styles.getPropertyValue('--success-600').trim() || '#059669';
+
         // Draw Ground
         ctx.beginPath();
         ctx.moveTo(0, groundY);
         ctx.lineTo(canvas.width, groundY);
-        ctx.strokeStyle = getComputedStyle(document.body)
-            .getPropertyValue('--border-strong').trim() || '#9aa1ac';
+        ctx.strokeStyle = groundColor;
         ctx.lineWidth = 2;
         ctx.stroke();
 
-        // Draw Dino — sprite mapping from Chrome Dino, running frame toggle
-        const frameX = (Math.floor(Date.now() / 100) % 2) === 0 ? 936 : 980;
-        ctx.drawImage(dinoSprites, frameX, 2, 44, 47, dino.x, dino.y, dino.width, dino.height);
+        // Draw runner, alternating legs to suggest a stride
+        drawRunner(ctx, dino, runnerColor, Math.floor(Date.now() / 120) % 2);
 
         // Draw Obstacles (Cactus)
-        obstacles.forEach(obs => {
-            ctx.drawImage(dinoSprites, 446, 2, 34, 70, obs.x, obs.y, obs.width, obs.height);
-        });
+        obstacles.forEach(obs => drawCactus(ctx, obs, cactusColor));
 
         requestRef.current = requestAnimationFrame(update);
     }, [gameState, score, highScore]);
