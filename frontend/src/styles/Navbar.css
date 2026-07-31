@@ -14,9 +14,12 @@
   border-bottom: 1px solid var(--border-color);
 }
 
-/* Full-bleed: the logo sits hard left and the actions hard right, rather than
-   inside the 1120px content container the .container class would impose. */
-.navbar-container {
+/* Full-bleed: the logo sits hard left and the actions hard right.
+   The element is <div class="container navbar-container">, and .container caps
+   it at 1120px. Both selectors are single-class, so the winner would come down
+   to file order — and Vite emits index.css AFTER this file, so .container won.
+   Qualifying with .navbar makes it (0,2,0) and order-independent. */
+.navbar .navbar-container {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -466,7 +469,7 @@
 }
 
 @media (max-width: 640px) {
-  .navbar-container {
+  .navbar .navbar-container {
     gap: var(--space-3);
     padding: 0 var(--space-4);
   }
