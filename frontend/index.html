@@ -10,9 +10,10 @@
   <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#0d0f12" media="(prefers-color-scheme: dark)">
 
-  <!-- Allow cross-origin for Google OAuth -->
-  <meta http-equiv="Cross-Origin-Opener-Policy" content="same-origin-allow-popups">
-  <meta http-equiv="Cross-Origin-Embedder-Policy" content="unsafe-none">
+  <!-- NOTE: Cross-Origin-Opener-Policy cannot be set from a <meta http-equiv>
+       tag - browsers ignore it there. The two meta tags that used to live here
+       did nothing. It is now sent as a real header from vercel.json, which is
+       what actually lets the Google Sign-In popup post its credential back. -->
 
   <title>Community AI - Empowering Communities Through Technology</title>
 

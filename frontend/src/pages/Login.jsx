@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { GoogleLogin } from '@react-oauth/google'
 import { useAuth } from '../contexts/AuthContext'
@@ -47,7 +47,11 @@ const Login = () => {
         setLoading(false)
     }
 
-    const handleGoogleSuccess = async (credentialResponse) => {
+    // Memoised: <GoogleLogin> re-runs google.accounts.id.initialize() whenever
+    // its callback props change identity. Without this they were rebuilt on
+    // every keystroke in the email/password fields, which is the repeated
+    // "google.accounts.id.initialize() is called multiple times" console warning.
+    const handleGoogleSuccess = useCallback(async (credentialResponse) => {
         setError('')
         setLoading(true)
         try {
@@ -66,15 +70,15 @@ const Login = () => {
         } finally {
             setLoading(false)
         }
-    }
+    }, [googleLogin])
 
-    const handleVerifyOtp = async (otp) => {
+    const handleVerifyOtp = useCallback(async (otp) => {
         await verifyGoogleOtp(emailForOtp, otp)
-    }
+    }, [verifyGoogleOtp, emailForOtp])
 
-    const handleGoogleError = () => {
+    const handleGoogleError = useCallback(() => {
         setError('Google sign-in failed. Please try again.')
-    }
+    }, [])
 
     return (
         <div className="auth-page">

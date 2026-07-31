@@ -117,11 +117,18 @@
 
 .auth-page .form-group {
   margin-bottom: 0;
+  /* Grid children default to min-width:auto and refuse to shrink, which lets
+     long option text push a select wider than its column. */
+  min-width: 0;
 }
 
+/* Full width, not two columns: these two fields are selects whose labels and
+   placeholders ("Select your language", "Enter community type") are far too
+   long for a ~190px half-column inside a 420px card, and a <select> clips
+   rather than wrapping. */
 .auth-page .form-row {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-4);
 }
 
@@ -160,6 +167,20 @@
   font-family: inherit;
   font-size: var(--text-base);
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+/* This selector is (0,2,1) and outranks .form-select (0,1,0), so the shared
+   padding above was overwriting the right padding that reserves room for the
+   dropdown chevron — the arrow then overlapped the label text. Restore it and
+   re-declare the chevron here so the two can't drift apart again. */
+.auth-page .auth-form select {
+  appearance: none;
+  padding-right: var(--space-8);
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%236f7681' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right var(--space-3) center;
+  cursor: pointer;
+  text-overflow: ellipsis;
 }
 
 .auth-page .auth-form input::placeholder {
@@ -414,10 +435,6 @@ body.light-theme .auth-page .error-message {
 
   .auth-page .auth-card {
     padding: var(--space-5);
-  }
-
-  .auth-page .form-row {
-    grid-template-columns: minmax(0, 1fr);
   }
 
   .auth-page .back-to-home-btn {

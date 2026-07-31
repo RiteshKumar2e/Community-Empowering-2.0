@@ -76,11 +76,18 @@ const Profile = () => {
 
     // Helper to get correctly formatted image URL
     const getProfileImage = () => {
-        if (user?.profileImage) {
-            const baseUrl = api.defaults.baseURL.replace('/api', '')
-            return `${baseUrl}${user.profileImage}`
+        const image = user?.profileImage
+        if (!image) return null
+
+        // Google sign-in stores an absolute avatar URL (https://lh3.googleusercontent.com/...).
+        // Prefixing that with the API host produced ".../api...https://lh3..." — a malformed
+        // URL the browser rejects with ERR_INVALID_URL. Only uploads need the host prepended.
+        if (/^(https?:)?\/\//i.test(image) || image.startsWith('data:')) {
+            return image
         }
-        return null
+
+        const baseUrl = (api.defaults.baseURL || '').replace(/\/api\/?$/, '')
+        return `${baseUrl}${image.startsWith('/') ? '' : '/'}${image}`
     }
 
     return (
