@@ -585,3 +585,63 @@ body:not(.light-theme) .voice-btn:hover {
         bottom: 1.5rem;
     }
 }
+
+/* ===================================
+   RESPONSIVE FITTING
+   The panel is a fixed 420x650, which overflows any viewport
+   shorter than ~730px (most phones in landscape, small laptops)
+   and any narrower than 452px. These clamp it to the viewport
+   without changing how it looks on a normal desktop.
+   =================================== */
+
+@media (max-width: 768px),
+(max-height: 780px) {
+    .chatbot-container {
+        width: min(420px, calc(100vw - 2rem));
+        /* svh tracks the real viewport once mobile browser chrome collapses. */
+        height: min(650px, calc(100svh - 9rem));
+    }
+}
+
+@media (max-width: 480px) {
+    .side-chatbot-wrapper {
+        /* Anchor both edges so the panel can use the full width. */
+        left: 1rem;
+        align-items: flex-end;
+    }
+
+    .chatbot-container {
+        width: 100%;
+        height: calc(100svh - 8.5rem);
+        margin-bottom: 1rem;
+        border-radius: 20px;
+    }
+
+    /* 80px is a lot of thumb real estate on a phone. */
+    .chatbot-toggle-btn {
+        width: 60px;
+        height: 60px;
+        border-radius: 18px;
+    }
+
+    .chatbot-header {
+        padding: 0.75rem 1rem;
+        gap: 0.75rem;
+    }
+
+    .bot-avatar {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+    }
+
+    .chatbot-messages {
+        padding: 1.25rem 1rem;
+        gap: 1rem;
+    }
+
+    .message {
+        max-width: 90%;
+        padding: 0.85rem 1rem;
+    }
+}

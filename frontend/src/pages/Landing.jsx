@@ -2,14 +2,10 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { useLanguage } from '../contexts/LanguageContext'
 import { ArrowRight, MessageSquare, BookOpen, Search, Mic, Globe, Zap, Target, Heart, Award, CheckCircle, Star, ArrowUp, Github, Linkedin, Mail } from 'lucide-react'
-import ThreeBackground from '../components/ThreeBackground'
-import SignInPromptModal from '../components/SignInPromptModal'
 import ExploreModal from '../components/ExploreModal'
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import '../styles/Landing.css'
-import '../styles/Cursor.css'
-import '../styles/MiniFeatures.css'
 
 const Landing = () => {
     const { isAuthenticated } = useAuth()
@@ -203,8 +199,6 @@ const Landing = () => {
 
     return (
         <div className="landing">
-            <ThreeBackground />
-
             {/* Hero Section */}
             <section id="home" className="hero">
                 <div className="container">
@@ -559,9 +553,6 @@ const Landing = () => {
                 isOpen={showExploreModal}
                 onClose={() => setShowExploreModal(false)}
             />
-
-            {/* Sign In Prompt Modal */}
-            <SignInPromptModal />
         </div>
     )
 }

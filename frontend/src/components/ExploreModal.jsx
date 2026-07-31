@@ -1,21 +1,29 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Zap, Shield, TrendingUp } from 'lucide-react';
+import { Sparkles, Zap, Shield, TrendingUp, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import '../styles/SignInPromptModal.css';
+import '../styles/ExploreModal.css';
 
 const ExploreModal = ({ isOpen, onClose }) => {
     const navigate = useNavigate();
-    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
+    // Close on Escape, and restore background scrolling when open.
     useEffect(() => {
-        const handleResize = () => {
-            setIsMobile(window.innerWidth <= 768);
-        };
+        if (!isOpen) return;
 
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
+        const onKeyDown = (e) => {
+            if (e.key === 'Escape') onClose();
+        };
+        document.addEventListener('keydown', onKeyDown);
+
+        const previousOverflow = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+
+        return () => {
+            document.removeEventListener('keydown', onKeyDown);
+            document.body.style.overflow = previousOverflow;
+        };
+    }, [isOpen, onClose]);
 
     const handleSignIn = () => {
         onClose();
@@ -61,13 +69,6 @@ const ExploreModal = ({ isOpen, onClose }) => {
         }
     ];
 
-    // Check if light theme
-    const isLightTheme = document.body.classList.contains('light-theme');
-
-    const handleMandatoryAlert = () => {
-        alert("Sign in is mandatory to access all features of Community AI!");
-    };
-
     return (
         <AnimatePresence>
             {isOpen && (
@@ -75,53 +76,30 @@ const ExploreModal = ({ isOpen, onClose }) => {
                     {/* Backdrop */}
                     <motion.div
                         className="signin-prompt-backdrop"
-                        style={{
-                            position: 'fixed',
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            bottom: 0,
-                            background: 'rgba(0, 0, 0, 0.8)',
-                            backdropFilter: 'blur(10px)',
-                            zIndex: 999998,
-                            display: 'block'
-                        }}
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        onClick={handleMandatoryAlert}
+                        onClick={onClose}
                     />
 
-                    {/* Modal - Theme Aware & Responsive */}
                     <motion.div
                         className="signin-prompt-modal"
-                        style={{
-                            position: 'fixed',
-                            top: isMobile ? '50%' : '22%',
-                            left: isMobile ? '50%' : '30%',
-                            transform: 'translate(-50%, -50%)',
-                            zIndex: 999999,
-                            display: 'block',
-                            background: isLightTheme
-                                ? 'linear-gradient(135deg, #ffffff 0%, #f9faff 100%)'
-                                : 'rgba(26, 26, 36, 0.85)',
-                            backdropFilter: isLightTheme ? 'none' : 'blur(20px)',
-                            padding: '28px',
-                            borderRadius: '24px',
-                            maxWidth: '480px',
-                            width: '88%',
-                            maxHeight: '65vh',
-                            overflowY: 'auto',
-                            overflowX: 'hidden',
-                            border: isLightTheme
-                                ? '2px solid rgba(99, 102, 241, 0.2)'
-                                : '2px solid rgba(99, 102, 241, 0.4)'
-                        }}
-                        initial={{ opacity: 0, scale: 0.8, y: 50 }}
+                        role="dialog"
+                        aria-modal="true"
+                        aria-label="Explore Community AI"
+                        initial={{ opacity: 0, scale: 0.97, y: 8 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.8, y: 50 }}
-                        transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                        exit={{ opacity: 0, scale: 0.97, y: 8 }}
+                        transition={{ duration: 0.16, ease: 'easeOut' }}
                     >
+                        <button
+                            className="signin-prompt-close"
+                            onClick={onClose}
+                            aria-label="Close"
+                        >
+                            <X size={20} />
+                        </button>
+
                         <div className="signin-prompt-header">
                             <div className="signin-prompt-icon-wrapper">
                                 <Sparkles className="signin-prompt-icon" size={40} />

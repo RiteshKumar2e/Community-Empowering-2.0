@@ -5,6 +5,11 @@ import { useNavigate } from 'react-router-dom';
 import { DINO_SPRITES_1X } from '../constants/assets';
 import '../styles/NotFound.css';
 
+// Decoded once at module load — creating this inside the render loop
+// allocated a new Image on every animation frame.
+const dinoSprites = new Image();
+dinoSprites.src = DINO_SPRITES_1X;
+
 const NotFound = () => {
     const navigate = useNavigate();
     const [score, setScore] = useState(0);
@@ -128,23 +133,18 @@ const NotFound = () => {
         ctx.beginPath();
         ctx.moveTo(0, groundY);
         ctx.lineTo(canvas.width, groundY);
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+        ctx.strokeStyle = getComputedStyle(document.body)
+            .getPropertyValue('--border-strong').trim() || '#9aa1ac';
         ctx.lineWidth = 2;
         ctx.stroke();
 
-        // Draw Dino
-        const img = new Image();
-        img.src = DINO_SPRITES_1X;
-
-        // Use sprite mapping from Chrome Dino
-        // Dino running frame toggle
+        // Draw Dino — sprite mapping from Chrome Dino, running frame toggle
         const frameX = (Math.floor(Date.now() / 100) % 2) === 0 ? 936 : 980;
-        ctx.drawImage(img, frameX, 2, 44, 47, dino.x, dino.y, dino.width, dino.height);
+        ctx.drawImage(dinoSprites, frameX, 2, 44, 47, dino.x, dino.y, dino.width, dino.height);
 
         // Draw Obstacles (Cactus)
         obstacles.forEach(obs => {
-            // Cactus sprite at 446 in 2x/1x mapping variations
-            ctx.drawImage(img, 446, 2, 34, 70, obs.x, obs.y, obs.width, obs.height);
+            ctx.drawImage(dinoSprites, 446, 2, 34, 70, obs.x, obs.y, obs.width, obs.height);
         });
 
         requestRef.current = requestAnimationFrame(update);
@@ -161,8 +161,6 @@ const NotFound = () => {
 
     return (
         <div className="not-found-container">
-            <div className="gradient-bg"></div>
-
             <motion.div
                 className="not-found-content"
                 initial={{ opacity: 0, y: 20 }}
@@ -240,28 +238,6 @@ const NotFound = () => {
                     </div>
                 </div>
             </motion.div>
-
-            <div className="floating-particles">
-                {[...Array(20)].map((_, i) => (
-                    <motion.div
-                        key={i}
-                        className="particle"
-                        animate={{
-                            y: [0, -window.innerHeight],
-                            opacity: [0, 0.5, 0],
-                        }}
-                        transition={{
-                            duration: Math.random() * 10 + 5,
-                            repeat: Infinity,
-                            ease: "linear"
-                        }}
-                        style={{
-                            left: `${Math.random() * 100}%`,
-                            bottom: `-10px`,
-                        }}
-                    />
-                ))}
-            </div>
         </div>
     );
 };

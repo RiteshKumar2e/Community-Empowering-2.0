@@ -1,0 +1,177 @@
+/* ===================================
+   EXPLORE MODAL
+   Class names keep the signin-prompt-* prefix from when this
+   sheet was shared with the (now removed) auto sign-in popup.
+   =================================== */
+
+.signin-prompt-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal-backdrop);
+  background-color: rgba(0, 0, 0, 0.55);
+}
+
+/* Centred with inset+margin rather than translate(-50%,-50%): Framer Motion
+   writes its own inline `transform` for the enter/exit animation, which would
+   overwrite a centring translate and leave the dialog off-screen. */
+.signin-prompt-modal {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  z-index: var(--z-modal);
+  width: calc(100% - var(--space-8));
+  max-width: 440px;
+  height: max-content;
+  max-height: min(80svh, calc(100svh - var(--space-8)));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--space-6);
+  background-color: var(--bg-elevated);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-xl);
+}
+
+.signin-prompt-close {
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-4);
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.signin-prompt-close:hover {
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.signin-prompt-close svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* --- Header --- */
+
+.signin-prompt-header {
+  margin-bottom: var(--space-5);
+  text-align: center;
+}
+
+.signin-prompt-icon-wrapper {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin: 0 auto var(--space-4);
+  color: var(--primary-500);
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xl);
+}
+
+.signin-prompt-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.signin-prompt-header h2 {
+  font-size: var(--text-lg);
+  font-weight: 650;
+  margin-bottom: var(--space-1);
+}
+
+.signin-prompt-header p {
+  font-size: var(--text-base);
+  color: var(--text-tertiary);
+  margin-bottom: 0;
+}
+
+/* --- Feature list --- */
+
+.signin-prompt-features {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+}
+
+.signin-prompt-feature {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+}
+
+.signin-prompt-feature .feature-icon {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  color: var(--text-muted);
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+}
+
+.signin-prompt-feature .feature-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.signin-prompt-feature .feature-content {
+  min-width: 0;
+}
+
+.signin-prompt-feature .feature-content h3 {
+  font-size: var(--text-base);
+  font-weight: 600;
+  margin-bottom: 0;
+}
+
+.signin-prompt-feature .feature-content p {
+  font-size: var(--text-sm);
+  color: var(--text-tertiary);
+  margin-bottom: 0;
+}
+
+/* --- Action --- */
+
+.signin-prompt-actions {
+  display: flex;
+}
+
+.btn-signin-primary {
+  width: 100%;
+  height: 42px;
+  font-family: inherit;
+  font-size: var(--text-md);
+  font-weight: 500;
+  color: var(--text-on-accent);
+  background-color: var(--primary-600);
+  border: none;
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.btn-signin-primary:hover {
+  background-color: var(--primary-700);
+}
+
+@media (max-width: 480px) {
+  .signin-prompt-modal {
+    padding: var(--space-5);
+  }
+}

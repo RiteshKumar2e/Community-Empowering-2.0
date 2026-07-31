@@ -4,7 +4,6 @@ import { GoogleOAuthProvider } from '@react-oauth/google'
 import { AuthProvider } from './contexts/AuthContext'
 import { LanguageProvider } from './contexts/LanguageContext'
 import Navbar from './components/Navbar'
-import ParticleCursor from './components/ParticleCursor'
 import Landing from './pages/Landing'
 import Login from './pages/Login'
 import Register from './pages/Register'
@@ -40,7 +39,6 @@ function App() {
                 <AuthProvider>
                     <LanguageProvider>
                         <div className="app">
-                            <ParticleCursor />
                             <Navbar />
                             <Routes>
                                 <Route path="/" element={<Landing />} />
