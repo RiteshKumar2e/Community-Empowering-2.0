@@ -1,15 +1,13 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { GoogleLogin } from '@react-oauth/google'
 import { useAuth } from '../contexts/AuthContext'
 import { useLanguage } from '../contexts/LanguageContext'
 import { Mail, Lock, AlertCircle, Loader, ArrowLeft, Eye, EyeOff } from 'lucide-react'
-import OTPModal from '../components/OTPModal'
 
 import '../styles/Auth.css'
 
 const Login = () => {
-    const { login, googleLogin, verifyGoogleOtp } = useAuth()
+    const { login } = useAuth()
     const { t } = useLanguage()
 
     useEffect(() => {
@@ -21,8 +19,6 @@ const Login = () => {
     })
     const [error, setError] = useState('')
     const [loading, setLoading] = useState(false)
-    const [isOtpOpen, setIsOtpOpen] = useState(false)
-    const [emailForOtp, setEmailForOtp] = useState('')
     const [showPassword, setShowPassword] = useState(false)
 
     const handleChange = (e) => {
@@ -46,39 +42,6 @@ const Login = () => {
 
         setLoading(false)
     }
-
-    // Memoised: <GoogleLogin> re-runs google.accounts.id.initialize() whenever
-    // its callback props change identity. Without this they were rebuilt on
-    // every keystroke in the email/password fields, which is the repeated
-    // "google.accounts.id.initialize() is called multiple times" console warning.
-    const handleGoogleSuccess = useCallback(async (credentialResponse) => {
-        setError('')
-        setLoading(true)
-        try {
-            const result = await googleLogin(credentialResponse.credential)
-            if (result.success) {
-                if (result.requiresOtp) {
-                    setEmailForOtp(result.email)
-                    setIsOtpOpen(true)
-                }
-                // If not requiresOtp, AuthContext already handles navigation
-            } else {
-                setError(result.error)
-            }
-        } catch (err) {
-            setError('An error occurred during Google login.')
-        } finally {
-            setLoading(false)
-        }
-    }, [googleLogin])
-
-    const handleVerifyOtp = useCallback(async (otp) => {
-        await verifyGoogleOtp(emailForOtp, otp)
-    }, [verifyGoogleOtp, emailForOtp])
-
-    const handleGoogleError = useCallback(() => {
-        setError('Google sign-in failed. Please try again.')
-    }, [])
 
     return (
         <div className="auth-page">
@@ -167,23 +130,6 @@ const Login = () => {
                             )}
                         </button>
 
-                        <div className="auth-divider">
-                            <span>OR</span>
-                        </div>
-
-                        <div className="google-login-wrapper">
-                            <GoogleLogin
-                                onSuccess={handleGoogleSuccess}
-                                onError={handleGoogleError}
-                                theme="outline"
-                                size="large"
-                                text="signin_with"
-                                width="320"
-                                logo_alignment="center"
-                                useOneTap={false}
-                                auto_select={false}
-                            />
-                        </div>
                     </form>
 
                     <div className="auth-footer">
@@ -195,15 +141,8 @@ const Login = () => {
                         </p>
                     </div>
                 </div>
-            </div >
-            <OTPModal
-                isOpen={isOtpOpen}
-                onClose={() => setIsOtpOpen(false)}
-                email={emailForOtp}
-                onVerify={handleVerifyOtp}
-                loading={loading}
-            />
-        </div >
+            </div>
+        </div>
     )
 }
 
