@@ -581,10 +581,12 @@
    =================================== */
 
 .landing .scroll-to-top {
+  /* Position to the right beside the floating chatbot launcher */
   position: fixed;
-  bottom: var(--space-6);
-  left: var(--space-6);
-  z-index: var(--z-sticky);
+  bottom: 2rem;
+  right: calc(2rem + 92px);
+  left: auto;
+  z-index: 10001;
   display: grid;
   place-items: center;
   width: 38px;
@@ -597,12 +599,28 @@
   cursor: pointer;
   opacity: 0;
   visibility: hidden;
-  transition: opacity var(--transition-base), visibility var(--transition-base), background-color var(--transition-fast), color var(--transition-fast);
+  transition: opacity var(--transition-base), visibility var(--transition-base), background-color var(--transition-fast), color var(--transition-fast), right 0.18s ease;
 }
 
 .landing .scroll-to-top.visible {
   opacity: 1;
   visibility: visible;
+}
+
+@media (max-width: 640px) {
+  .landing .scroll-to-top {
+    bottom: 1.25rem;
+    right: calc(1rem + 72px);
+  }
+}
+
+@media (max-width: 480px) {
+  /* On very small viewports the chatbot moves to the left, keep the scroll button at the right edge */
+  .landing .scroll-to-top {
+    right: 1rem;
+    left: auto;
+    bottom: 1rem;
+  }
 }
 
 .landing .scroll-to-top:hover {

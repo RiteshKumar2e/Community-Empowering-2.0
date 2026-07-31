@@ -1,18 +1,13 @@
-/* ===================================
-   SCROLL TO TOP (shared component)
-   The Landing page renders its own button; this one is
-   used on Resources and Learning Hub. Kept on the left so
-   it never collides with the floating chatbot launcher.
-   =================================== */
-
 .scroll-to-top {
+  /* Positioned to the right of the floating chatbot launcher by default */
   position: fixed;
-  bottom: var(--space-6);
-  left: var(--space-6);
-  z-index: var(--z-sticky);
+  bottom: 2rem;
+  right: calc(2rem + 92px); /* 2rem (chat wrapper) + 80px (chat toggle) + ~12px gap */
+  left: auto;
+  z-index: 10001;
   opacity: 0;
   visibility: hidden;
-  transition: opacity var(--transition-base), visibility var(--transition-base);
+  transition: opacity var(--transition-base), visibility var(--transition-base), right 0.18s ease;
 }
 
 .scroll-to-top.visible {
@@ -46,8 +41,19 @@
 }
 
 @media (max-width: 640px) {
+  /* On small screens place the button closer to the viewport edge */
   .scroll-to-top {
-    bottom: var(--space-4);
-    left: var(--space-4);
+    bottom: 1.25rem;
+    right: calc(1rem + 72px); /* chat wrapper right 1rem + 60px toggle + 12px gap */
+  }
+}
+
+@media (max-width: 480px) {
+  /* When chatbot is moved to the left on very small screens,
+     ensure the scroll button stays at the right edge to avoid overlap. */
+  .scroll-to-top {
+    right: 1rem;
+    left: auto;
+    bottom: 1rem;
   }
 }
