@@ -24,6 +24,9 @@ const Login = () => {
     const [isOtpOpen, setIsOtpOpen] = useState(false)
     const [emailForOtp, setEmailForOtp] = useState('')
     const [showPassword, setShowPassword] = useState(false)
+    // Google renders its button at a fixed pixel width (200–400), so fit it to
+    // the card on small phones instead of letting it overflow.
+    const [googleBtnWidth] = useState(() => Math.max(200, Math.min(320, window.innerWidth - 80)))
 
     const handleChange = (e) => {
         setFormData({
@@ -178,7 +181,7 @@ const Login = () => {
                                 theme="outline"
                                 size="large"
                                 text="signin_with"
-                                width="320"
+                                width={String(googleBtnWidth)}
                                 logo_alignment="center"
                                 useOneTap={false}
                                 auto_select={false}

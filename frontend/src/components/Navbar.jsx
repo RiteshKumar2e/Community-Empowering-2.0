@@ -170,6 +170,8 @@ const Navbar = () => {
                     <button
                         className="mobile-menu-btn hide-desktop"
                         onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                        aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+                        aria-expanded={mobileMenuOpen}
                     >
                         {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
                     </button>
@@ -186,7 +188,7 @@ const Navbar = () => {
                         </Link>
                         <div className="mobile-menu-controls">
                             <ThemeToggle />
-                            <button className="mobile-menu-btn" onClick={() => setMobileMenuOpen(false)}>
+                            <button className="mobile-menu-btn" onClick={() => setMobileMenuOpen(false)} aria-label="Close menu">
                                 <X size={24} />
                             </button>
                         </div>

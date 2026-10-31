@@ -26,6 +26,8 @@ const Register = () => {
     const [loading, setLoading] = useState(false)
     const [showPassword, setShowPassword] = useState(false)
     const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+    // Honeypot: hidden from people, but form-filling bots tend to fill it in.
+    const [website, setWebsite] = useState('')
 
     const handleChange = (e) => {
         setFormData({
@@ -39,7 +41,21 @@ const Register = () => {
         e.preventDefault()
         setError('')
 
+        if (website) return
+
         // Validation
+        if (formData.name.trim().length < 2) {
+            setError('Please enter your full name')
+            return
+        }
+
+        // Indian mobile number, optionally prefixed with +91 or 0
+        const phoneDigits = formData.phone.replace(/[\s-]/g, '')
+        if (!/^(\+91|0)?[6-9]\d{9}$/.test(phoneDigits)) {
+            setError('Please enter a valid 10-digit mobile number')
+            return
+        }
+
         if (formData.password !== formData.confirmPassword) {
             setError('Passwords do not match')
             return
@@ -111,6 +127,17 @@ const Register = () => {
                                 <span>{error}</span>
                             </div>
                         )}
+
+                        <input
+                            type="text"
+                            name="website"
+                            value={website}
+                            onChange={(e) => setWebsite(e.target.value)}
+                            tabIndex="-1"
+                            autoComplete="off"
+                            aria-hidden="true"
+                            style={{ position: 'absolute', left: '-9999px', width: 1, height: 1, opacity: 0 }}
+                        />
 
                         <div className="form-group">
                             <label htmlFor="name" className="form-label">

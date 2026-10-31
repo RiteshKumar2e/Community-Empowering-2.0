@@ -537,6 +537,7 @@
   cursor: pointer;
   text-align: left;
   text-decoration: none;
+  overflow-wrap: anywhere;
   transition: color var(--transition-fast);
 }
 

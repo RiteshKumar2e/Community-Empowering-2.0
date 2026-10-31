@@ -222,13 +222,12 @@ const Landing = () => {
                         </p>
 
                         <div className="hero-actions">
-                            <button onClick={() => setShowExploreModal(true)} className="btn btn-explore">
+                            <Link to={isAuthenticated ? '/dashboard' : '/register'} className="btn btn-explore">
+                                {isAuthenticated ? 'Go to Dashboard' : 'Get Started Free'}
+                                <ArrowRight size={20} />
+                            </Link>
+                            <button onClick={() => setShowExploreModal(true)} className="btn btn-learn">
                                 Explore Solutions
-                                <ArrowRight size={20} />
-                            </button>
-                            <button onClick={() => scrollToSection('about')} className="btn btn-learn">
-                                Learn More
-                                <ArrowRight size={20} />
                             </button>
                         </div>
 
@@ -497,13 +496,13 @@ const Landing = () => {
                             </div>
                             <h5 className="connect-title">Connect With Us</h5>
                             <div className="footer-social-links">
-                                <a href="https://github.com/RiteshKumar2e" target="_blank" rel="noopener noreferrer" className="social-icon-link">
+                                <a href="https://github.com/RiteshKumar2e" target="_blank" rel="noopener noreferrer" className="social-icon-link" aria-label="GitHub">
                                     <Github size={24} />
                                 </a>
-                                <a href="https://www.linkedin.com/in/ritesh-kumar-b3a654253" target="_blank" rel="noopener noreferrer" className="social-icon-link">
+                                <a href="https://www.linkedin.com/in/ritesh-kumar-b3a654253" target="_blank" rel="noopener noreferrer" className="social-icon-link" aria-label="LinkedIn">
                                     <Linkedin size={24} />
                                 </a>
-                                <a href="mailto:riteshkumar90359@gmail.com" className="social-icon-link">
+                                <a href="mailto:riteshkumar90359@gmail.com" className="social-icon-link" aria-label="Email us">
                                     <Mail size={24} />
                                 </a>
                             </div>
@@ -518,8 +517,9 @@ const Landing = () => {
 
                         <div className="footer-column">
                             <h5>Legal</h5>
-                            <a href="#privacy">Privacy Policy</a>
-                            <a href="#terms">Terms</a>
+                            <Link to="/privacy">Privacy Policy</Link>
+                            <Link to="/terms">Terms &amp; Conditions</Link>
+                            <a href="mailto:riteshkumar90359@gmail.com">riteshkumar90359@gmail.com</a>
                         </div>
                     </div>
 

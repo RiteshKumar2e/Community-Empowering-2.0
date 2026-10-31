@@ -14,6 +14,7 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
-    sourcemap: true,
+    // Public source maps would publish the full original source code
+    sourcemap: false,
   }
 })

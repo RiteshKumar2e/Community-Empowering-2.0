@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /
+
+# Signed-in and admin areas have nothing for search engines to index
+Disallow: /admin
+Disallow: /admin-login
+Disallow: /dashboard
+Disallow: /assistant
+Disallow: /profile
+Disallow: /resources
+Disallow: /learning
+Disallow: /feedback
+Disallow: /forum
+
+Sitemap: https://communityai.co.in/sitemap.xml

@@ -26,6 +26,7 @@ const Feedback = () => {
     const [submitted, setSubmitted] = useState(false)
     const [loading, setLoading] = useState(false)
     const [showAlert, setShowAlert] = useState(false)
+    const [submitError, setSubmitError] = useState('')
 
     const categories = [
         {
@@ -62,10 +63,16 @@ const Feedback = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault()
+        setSubmitError('')
 
         if (!category || rating === 0 || !message.trim()) {
             setShowAlert(true);
             setTimeout(() => setShowAlert(false), 3000);
+            return;
+        }
+
+        if (message.trim().length < 10) {
+            setSubmitError('Please write at least 10 characters so we can understand your feedback.');
             return;
         }
 
@@ -97,12 +104,16 @@ const Feedback = () => {
                     navigate('/dashboard');
                 }, 2500);
             } else {
-                const errorData = await response.json();
-                alert(errorData.detail || 'Failed to submit feedback.');
+                const errorData = await response.json().catch(() => ({}));
+                setSubmitError(
+                    response.status === 401
+                        ? 'Your session has expired. Please sign in again.'
+                        : errorData.detail || 'We couldn\'t submit your feedback. Please try again.'
+                );
             }
         } catch (error) {
             console.error('Feedback submission error:', error);
-            alert('Connection error. Please check your backend.');
+            setSubmitError('We couldn\'t reach the server. Check your internet connection and try again.');
         } finally {
             setLoading(false);
         }
@@ -211,6 +222,8 @@ const Feedback = () => {
                                             onMouseEnter={() => setHoverRating(star)}
                                             onMouseLeave={() => setHoverRating(0)}
                                             onClick={() => setRating(star)}
+                                            aria-label={`${star} star${star > 1 ? 's' : ''}`}
+                                            aria-pressed={rating === star}
                                         >
                                             <Star size={36} fill={(hoverRating || rating) >= star ? "currentColor" : "none"} />
                                         </motion.button>
@@ -249,6 +262,10 @@ const Feedback = () => {
                                 }}
                                 required
                             />
+
+                            {submitError && (
+                                <p className="feedback-error" role="alert">{submitError}</p>
+                            )}
 
                             <button
                                 type="submit"

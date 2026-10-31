@@ -1,27 +1,35 @@
-import { useEffect } from 'react'
-import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom'
+import { lazy, Suspense } from 'react'
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
 import { GoogleOAuthProvider } from '@react-oauth/google'
 import { AuthProvider } from './contexts/AuthContext'
 import { LanguageProvider } from './contexts/LanguageContext'
 import Navbar from './components/Navbar'
 import Landing from './pages/Landing'
-import Login from './pages/Login'
-import Register from './pages/Register'
-import Dashboard from './pages/Dashboard'
-import AIAssistant from './pages/AIAssistant'
-import Resources from './pages/Resources'
-import LearningHub from './pages/LearningHub'
-import Profile from './pages/Profile'
 import ProtectedRoute from './components/ProtectedRoute'
-import AdminLogin from './pages/AdminLogin'
-import AdminDashboard from './pages/AdminDashboard'
 import SideChatBot from './components/SideChatBot'
-import Feedback from './pages/Feedback'
-import Forum from './pages/Forum'
-import NotFound from './pages/NotFound'
+import PageMeta from './components/PageMeta'
 
-// Google OAuth Client ID - Replace with your actual client ID
+// Google OAuth Client ID. This is a public identifier (it ships in every
+// sign-in request), not a secret, so a fallback here is safe.
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "951248037202-st6tgbo07tjljditc95n7kuvgqr7a7mg.apps.googleusercontent.com"
+
+// Every page except the landing page is loaded on demand, so first-time
+// visitors only download the code for the page they open.
+const Login = lazy(() => import('./pages/Login'))
+const Register = lazy(() => import('./pages/Register'))
+const Dashboard = lazy(() => import('./pages/Dashboard'))
+const AIAssistant = lazy(() => import('./pages/AIAssistant'))
+const Resources = lazy(() => import('./pages/Resources'))
+const LearningHub = lazy(() => import('./pages/LearningHub'))
+const Profile = lazy(() => import('./pages/Profile'))
+const AdminLogin = lazy(() => import('./pages/AdminLogin'))
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard'))
+const Feedback = lazy(() => import('./pages/Feedback'))
+const Forum = lazy(() => import('./pages/Forum'))
+const NotFound = lazy(() => import('./pages/NotFound'))
+const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'))
+const Terms = lazy(() => import('./pages/Terms'))
+const CookieConsent = lazy(() => import('./components/CookieConsent'))
 
 
 
@@ -39,12 +47,16 @@ function App() {
                 <AuthProvider>
                     <LanguageProvider>
                         <div className="app">
+                            <PageMeta />
                             <Navbar />
+                            <Suspense fallback={<div className="page-loading" aria-busy="true" />}>
                             <Routes>
                                 <Route path="/" element={<Landing />} />
                                 <Route path="/login" element={<Login />} />
                                 <Route path="/register" element={<Register />} />
                                 <Route path="/admin-login" element={<AdminLogin />} />
+                                <Route path="/privacy" element={<PrivacyPolicy />} />
+                                <Route path="/terms" element={<Terms />} />
 
                                 {/* Protected Routes */}
                                 <Route path="/dashboard" element={
@@ -89,7 +101,11 @@ function App() {
                                 } />
                                 <Route path="*" element={<NotFound />} />
                             </Routes>
+                            </Suspense>
                             <ChatBotCondition />
+                            <Suspense fallback={null}>
+                                <CookieConsent />
+                            </Suspense>
                         </div>
                     </LanguageProvider>
                 </AuthProvider>

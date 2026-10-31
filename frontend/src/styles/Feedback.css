@@ -299,3 +299,12 @@
     padding: var(--space-5);
   }
 }
+
+.feedback-error {
+  margin: var(--space-3) 0 0;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg);
+  background-color: var(--error-50);
+  color: var(--error-700);
+  font-size: 0.9rem;
+}

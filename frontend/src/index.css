@@ -73,7 +73,7 @@
   --text-primary: #f2f4f7;
   --text-secondary: #b6bcc6;
   --text-tertiary: #8b929c;
-  --text-muted: #6f7681;
+  --text-muted: #7f8793; /* 4.5:1+ on dark backgrounds (WCAG AA) */
   --text-on-accent: #ffffff;
 
   /* --- Lines --- */
@@ -165,8 +165,8 @@ body.light-theme {
 
   --text-primary: #16191d;
   --text-secondary: #4d545e;
-  --text-tertiary: #6f7681;
-  --text-muted: #9aa1ac;
+  --text-tertiary: #686f79; /* 4.5:1+ on light backgrounds (WCAG AA) */
+  --text-muted: #6a6f77;
   --text-on-accent: #ffffff;
 
   --border-color: #e4e7eb;
@@ -1077,4 +1077,9 @@ pre {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* Placeholder while a lazily loaded page downloads (see App.jsx) */
+.page-loading {
+  min-height: 100svh;
 }
