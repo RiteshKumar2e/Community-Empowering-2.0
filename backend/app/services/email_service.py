@@ -1,4 +1,5 @@
 import os
+from html import escape
 import threading
 import traceback
 import requests
@@ -57,17 +58,23 @@ class EmailService:
     # ------------------------------------------------------------------
     
     def send_otp(self, user_email: str, otp: str, purpose: str = "google_login") -> bool:
-        """Send OTP to user with INSTANT priority - Optimized for BackgroundTasks.
-        purpose: "google_login" (default) or "password_reset"."""
+        """Send a one-time code. purpose: "google_login" (default),
+        "email_verification" or "password_reset"."""
         try:
-            if purpose == "password_reset":
-                subject = f"🔐 {otp} is your {self.company_name} password reset code"
-            elif purpose == "email_verification":
-                subject = f"✉️ {otp} is your {self.company_name} email verification code"
-            else:
-                subject = f"🔐 {otp} is your {self.company_name} Verification Code"
-            html_body = self._generate_otp_html(otp, purpose)
-            self._dispatch_api(user_email, subject, html_body, priority=True)
+            heading, _, purpose_label, minutes, intro = self._otp_details(purpose)
+            subject = f"{otp} is your {self.company_name} verification code"
+            html_body = self._generate_otp_html(otp, purpose, user_email)
+            text_body = (
+                f"{self.company_name} - {heading}\n\n{intro}\n\n"
+                f"Your verification code: {otp}\n"
+                f"Purpose: {purpose_label}\n"
+                f"Valid for {minutes} minutes. Can be used only once.\n\n"
+                f"Do not share this code with anyone. {self.company_name} staff will never ask for it.\n"
+                f"If you did not make this request, you can ignore this email.\n\n"
+                f"{self.company_name} is an independent information service, not a government website.\n"
+                f"{self.app_url}"
+            )
+            self._dispatch_api(user_email, subject, html_body, priority=True, text_body=text_body)
             print(f"✅ OTP sent successfully to {mask_email(user_email)}")
             return True
         except Exception as e:
@@ -130,7 +137,7 @@ class EmailService:
         except Exception as e:
             print(f"❌ Market Update Email Failed: {str(e)}")
 
-    def _dispatch_api(self, to_email: str, subject: str, html_body: str, priority: bool = False):
+    def _dispatch_api(self, to_email: str, subject: str, html_body: str, priority: bool = False, text_body: str = None):
         """Internal dispatcher using Brevo HTTPS API with ULTRA-FAST deliverability"""
         if not self.api_key:
             return
@@ -147,7 +154,7 @@ class EmailService:
             "to": [{"email": to_email}],
             "subject": subject,
             "htmlContent": html_body,
-            "textContent": f"Your verification code is: {otp_val}. This code expires in 10 minutes."
+            "textContent": text_body or f"Your verification code is: {otp_val}."
         }
         
         # ULTRA-FAST: 3 seconds for OTP, 8 seconds for others
@@ -165,136 +172,138 @@ class EmailService:
     # HTML TEMPLATES
     # ------------------------------------------------------------------
     
-    def _generate_otp_html(self, otp: str, purpose: str = "google_login") -> str:
-        if purpose == "email_verification":
-            heading = "Confirm Your Email"
-            intro = "Thanks for creating your account! Enter this code on Community AI to confirm your email address. This code will expire in <strong>30 minutes</strong>."
-        elif purpose == "password_reset":
-            heading = "Reset Your Password"
-            intro = "We received a request to reset your password. Use the code below to choose a new one. This code will expire in <strong>15 minutes</strong>. If you didn't ask for this, you can ignore this email."
-        else:
-            heading = "Verify Your Account"
-            intro = "Welcome! Use the verification code below to complete your Google sign-in. This code will expire in <strong>10 minutes</strong>."
-        """Generate beautiful HTML template for OTP email"""
-        current_year = datetime.now().year
-        return f"""
-<!DOCTYPE html>
+    # Wording per purpose: (English heading, Hindi heading, purpose label,
+    # minutes valid, intro). Minutes must match the expiry set in api/auth.py.
+    _OTP_PURPOSES = {
+        "email_verification": (
+            "Confirm your email address", "ईमेल पता सत्यापन", "Email verification", 30,
+            "Thank you for registering with Community AI. Enter the code below on the website to confirm your email address.",
+        ),
+        "password_reset": (
+            "Reset your password", "पासवर्ड रीसेट", "Password reset", 15,
+            "We received a request to reset the password for your Community AI account. Enter the code below to set a new password.",
+        ),
+        "google_login": (
+            "Verify your sign-in", "साइन-इन सत्यापन", "Sign in with Google", 10,
+            "Enter the code below on the website to complete your sign-in with Google.",
+        ),
+    }
+
+    def _otp_details(self, purpose: str):
+        return self._OTP_PURPOSES.get(purpose, self._OTP_PURPOSES["google_login"])
+
+    def _generate_otp_html(self, otp: str, purpose: str = "google_login", to_email: str = "") -> str:
+        """Formal, plain email (navy header, white body, no gradients or emoji)
+        that renders the same in Gmail, Outlook and phone mail apps. Says
+        clearly that Community AI is not a government service."""
+        heading, heading_hi, purpose_label, minutes, intro = self._otp_details(purpose)
+        issued = datetime.now(timezone(timedelta(hours=5, minutes=30))).strftime("%d %b %Y, %I:%M %p IST")
+        year = datetime.now().year
+        email_row = ""
+        if to_email:
+            email_row = f"""
+                <tr>
+                    <td style="padding:10px 14px;border-top:1px solid #e3e8f0;color:#5b6475;font-size:13px;width:38%;">Email address</td>
+                    <td style="padding:10px 14px;border-top:1px solid #e3e8f0;color:#111827;font-size:13px;font-weight:600;word-break:break-all;">{escape(to_email)}</td>
+                </tr>"""
+        return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verification Code - {self.company_name}</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{heading} - {self.company_name}</title>
 </head>
-<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f3f4f6;">
-    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f3f4f6; padding: 40px 20px;">
-        <tr>
-            <td align="center">
-                <table width="500" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);">
-                    
-                    <!-- Header with Gradient -->
-                    <tr>
-                        <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 30px; text-align: center;">
-                            <div style="font-size: 48px; margin-bottom: 15px;">🔐</div>
-                            <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700; letter-spacing: -0.5px;">
-                                {heading}
-                            </h1>
-                            <p style="margin: 10px 0 0 0; color: #e0e7ff; font-size: 15px; font-weight: 500;">
-                                {self.company_name}
-                            </p>
-                        </td>
-                    </tr>
-                    
-                    <!-- Main Content -->
-                    <tr>
-                        <td style="padding: 40px 35px;">
-                            <p style="margin: 0 0 25px 0; color: #4b5563; font-size: 16px; line-height: 1.7; text-align: center;">
-                                {intro}
-                            </p>
-                            
-                            <!-- OTP Box -->
-                            <div style="background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%); border: 3px solid #667eea; border-radius: 12px; padding: 30px; margin: 0 0 30px 0; text-align: center; box-shadow: 0 4px 6px rgba(102, 126, 234, 0.1);">
-                                <p style="margin: 0 0 10px 0; color: #6b7280; font-size: 13px; text-transform: uppercase; font-weight: 600; letter-spacing: 1px;">
-                                    Your Verification Code
-                                </p>
-                                <h2 style="margin: 0; color: #1f2937; font-size: 42px; font-weight: 800; letter-spacing: 8px; font-family: 'Courier New', monospace;">
-                                    {otp}
-                                </h2>
-                            </div>
-                            
-                            <!-- Security Notice -->
-                            <div style="background-color: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 8px; padding: 20px; margin-bottom: 25px;">
-                                <p style="margin: 0 0 10px 0; color: #92400e; font-size: 14px; font-weight: 600;">
-                                    🛡️ Security Notice
-                                </p>
-                                <p style="margin: 0; color: #78350f; font-size: 13px; line-height: 1.6;">
-                                    Never share this code with anyone. {self.company_name} will never ask for your verification code via phone or email.
-                                </p>
-                            </div>
-                            
-                            <!-- Help Text -->
-                            <p style="margin: 0; color: #9ca3af; font-size: 13px; text-align: center; line-height: 1.6;">
-                                If you didn't request this code, you can safely ignore this email. Someone may have entered your email address by mistake.
-                            </p>
-                        </td>
-                    </tr>
-                    
-                    <!-- Divider -->
-                    <tr>
-                        <td style="padding: 0 35px;">
-                            <div style="border-top: 1px solid #e5e7eb; margin: 0 0 30px 0;"></div>
-                        </td>
-                    </tr>
-                    
-                    <!-- Additional Info -->
-                    <tr>
-                        <td style="padding: 0 35px 40px 35px;">
-                            <div style="background-color: #eff6ff; border-radius: 10px; padding: 20px; text-align: center;">
-                                <p style="margin: 0 0 12px 0; color: #1e40af; font-size: 14px; font-weight: 600;">
-                                    📱 Need Help?
-                                </p>
-                                <p style="margin: 0; color: #1e3a8a; font-size: 13px; line-height: 1.6;">
-                                    If you're having trouble signing in, please contact our support team at 
-                                    <a href="mailto:{self.admin_email}" style="color: #667eea; text-decoration: none; font-weight: 600;">{self.admin_email}</a>
-                                </p>
-                            </div>
-                        </td>
-                    </tr>
-                    
-                    <!-- Footer -->
-                    <tr>
-                        <td style="background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%); padding: 30px; text-align: center; border-top: 1px solid #e5e7eb;">
-                            <p style="margin: 0 0 8px 0; color: #6b7280; font-size: 13px; line-height: 1.6;">
-                                This is an automated message from {self.company_name}
-                            </p>
-                            <p style="margin: 0 0 15px 0; color: #9ca3af; font-size: 12px;">
-                                © {current_year} {self.company_name}. All rights reserved.
-                            </p>
-                            <div style="margin-top: 15px;">
-                                <a href="{self.app_url}" style="color: #667eea; text-decoration: none; margin: 0 10px; font-size: 12px; font-weight: 500;">Visit Website</a>
-                                <span style="color: #d1d5db;">|</span>
-                                <a href="{self.app_url}/privacy" style="color: #667eea; text-decoration: none; margin: 0 10px; font-size: 12px; font-weight: 500;">Privacy Policy</a>
-                                <span style="color: #d1d5db;">|</span>
-                                <a href="mailto:{self.admin_email}" style="color: #667eea; text-decoration: none; margin: 0 10px; font-size: 12px; font-weight: 500;">Support</a>
-                            </div>
-                        </td>
-                    </tr>
-                    
-                </table>
-                
-                <!-- Email Client Compatibility Note -->
-                <table width="500" cellpadding="0" cellspacing="0" style="margin-top: 20px;">
-                    <tr>
-                        <td style="text-align: center; padding: 0 20px;">
-                            <p style="margin: 0; color: #9ca3af; font-size: 11px; line-height: 1.5;">
-                                If you're having trouble viewing this email, please ensure images are enabled in your email client.
-                            </p>
-                        </td>
-                    </tr>
-                </table>
-                
-            </td>
-        </tr>
-    </table>
+<body style="margin:0;padding:0;background-color:#eef1f5;font-family:Arial,Helvetica,sans-serif;">
+<div style="display:none;max-height:0;overflow:hidden;">Your {self.company_name} code is {otp}. Valid for {minutes} minutes. Do not share it with anyone.</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#eef1f5;padding:24px 12px;">
+<tr><td align="center">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background-color:#ffffff;border:1px solid #d6dce5;">
+
+    <!-- Header -->
+    <tr>
+        <td style="background-color:#0f1f3d;padding:18px 28px;border-bottom:4px solid #2350c4;">
+            <p style="margin:0;color:#ffffff;font-size:20px;font-weight:bold;letter-spacing:0.2px;">{self.company_name}</p>
+            <p style="margin:4px 0 0 0;color:#b9c6e0;font-size:12px;">Government scheme information, explained in your language</p>
+        </td>
+    </tr>
+
+    <!-- Title -->
+    <tr>
+        <td style="padding:26px 28px 6px 28px;">
+            <p style="margin:0;color:#5b6475;font-size:12px;text-transform:uppercase;letter-spacing:1px;">One-Time Password (OTP)</p>
+            <h1 style="margin:6px 0 2px 0;color:#0f1f3d;font-size:22px;font-weight:bold;">{heading}</h1>
+            <p style="margin:0;color:#5b6475;font-size:14px;">{heading_hi}</p>
+        </td>
+    </tr>
+
+    <!-- Body -->
+    <tr>
+        <td style="padding:16px 28px 8px 28px;">
+            <p style="margin:0 0 20px 0;color:#1f2937;font-size:15px;line-height:1.6;">{intro}</p>
+
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #2350c4;background-color:#f4f7fd;">
+                <tr>
+                    <td align="center" style="padding:18px 12px;">
+                        <p style="margin:0 0 8px 0;color:#1a367f;font-size:12px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;">Your verification code</p>
+                        <p style="margin:0;color:#0f1f3d;font-size:34px;font-weight:bold;letter-spacing:10px;font-family:'Courier New',Courier,monospace;">{otp}</p>
+                        <p style="margin:10px 0 0 0;color:#5b6475;font-size:13px;">Valid for <strong style="color:#111827;">{minutes} minutes</strong> &middot; can be used only once</p>
+                    </td>
+                </tr>
+            </table>
+
+            <!-- Request details -->
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:20px 0 0 0;border:1px solid #e3e8f0;">
+                <tr>
+                    <td style="padding:10px 14px;color:#5b6475;font-size:13px;width:38%;">Purpose</td>
+                    <td style="padding:10px 14px;color:#111827;font-size:13px;font-weight:600;">{purpose_label}</td>
+                </tr>{email_row}
+                <tr>
+                    <td style="padding:10px 14px;border-top:1px solid #e3e8f0;color:#5b6475;font-size:13px;">Requested on</td>
+                    <td style="padding:10px 14px;border-top:1px solid #e3e8f0;color:#111827;font-size:13px;font-weight:600;">{issued}</td>
+                </tr>
+            </table>
+
+            <!-- Security notice -->
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:20px 0 0 0;">
+                <tr>
+                    <td style="border-left:4px solid #b45309;background-color:#fff8eb;padding:14px 16px;">
+                        <p style="margin:0 0 6px 0;color:#7c2d12;font-size:14px;font-weight:bold;">Do not share this code</p>
+                        <p style="margin:0;color:#7c2d12;font-size:13px;line-height:1.55;">{self.company_name} staff will never ask for this code by phone, SMS, WhatsApp or email. Anyone asking for it may be trying to take over your account.<br>यह कोड किसी के साथ साझा न करें।</p>
+                    </td>
+                </tr>
+            </table>
+
+            <p style="margin:20px 0 0 0;color:#5b6475;font-size:13px;line-height:1.6;">If you did not make this request, you can ignore this email. Your account stays safe and no changes will be made.</p>
+        </td>
+    </tr>
+
+    <!-- Help -->
+    <tr>
+        <td style="padding:18px 28px 24px 28px;">
+            <p style="margin:0;padding-top:16px;border-top:1px solid #e3e8f0;color:#5b6475;font-size:13px;line-height:1.6;">
+                Need help? Write to <a href="mailto:{self.admin_email}" style="color:#2350c4;">{self.admin_email}</a>
+            </p>
+        </td>
+    </tr>
+
+    <!-- Footer -->
+    <tr>
+        <td style="background-color:#f6f8fb;border-top:1px solid #d6dce5;padding:18px 28px;">
+            <p style="margin:0 0 8px 0;color:#5b6475;font-size:12px;line-height:1.6;">
+                {self.company_name} is an independent information service. It is not a government website and is not affiliated with any government department. Apply for schemes only through official government portals.
+            </p>
+            <p style="margin:0 0 8px 0;color:#5b6475;font-size:12px;">
+                <a href="{self.app_url}" style="color:#2350c4;">communityai.co.in</a> &nbsp;|&nbsp;
+                <a href="{self.app_url}/privacy" style="color:#2350c4;">Privacy Policy</a> &nbsp;|&nbsp;
+                <a href="{self.app_url}/terms" style="color:#2350c4;">Terms</a>
+            </p>
+            <p style="margin:0;color:#8a93a3;font-size:11px;">This is an automated email. Please do not reply. &copy; {year} {self.company_name}</p>
+        </td>
+    </tr>
+
+</table>
+</td></tr>
+</table>
 </body>
 </html>
 """
