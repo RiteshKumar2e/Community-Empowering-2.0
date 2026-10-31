@@ -1,17 +1,18 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional
 from app.core.database import get_db
 from app.models.models import Query, User
 from app.api.users import get_current_user
 from app.services.ai_service import AIService
+from app.core.rate_limit import ai_limiter, AI_MAX_MESSAGE_CHARS
 
 router = APIRouter()
 ai_service = AIService()
 
 class ChatRequest(BaseModel):
-    message: str
+    message: str = Field(..., min_length=1, max_length=AI_MAX_MESSAGE_CHARS)
     language: str = "en"
     context: Optional[dict] = None
 
@@ -25,7 +26,7 @@ class RecommendationResponse(BaseModel):
     description: str
     category: str
 
-@router.post("/chat", response_model=ChatResponse)
+@router.post("/chat", response_model=ChatResponse, dependencies=[Depends(ai_limiter)])
 async def chat(
     request: ChatRequest,
     current_user: User = Depends(get_current_user),
@@ -38,18 +39,18 @@ async def chat(
         message=request.message,
         language=request.language
     )
-    
+
     # Get AI response
     response_text = await ai_service.get_chat_response(
         message=request.message,
         language=request.language,
         context=request.context
     )
-    
+
     query.response = response_text
     db.add(query)
     db.commit()
-    
+
     return {
         "message": response_text,
         "language": request.language
@@ -68,5 +69,5 @@ async def get_recommendations(
             "language": current_user.language
         }
     )
-    
+
     return recommendations

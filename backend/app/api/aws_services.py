@@ -3,12 +3,16 @@ AI Services API Endpoints
 Provides REST API endpoints for Amazon Q, Groq, and Gemini AI services.
 """
 
-from fastapi import APIRouter, HTTPException, status
-from pydantic import BaseModel
+from fastapi import APIRouter, HTTPException, status, Depends
+from pydantic import BaseModel, Field
 from typing import Optional, Dict, List
 from app.services.enhanced_ai_service import EnhancedAIService
+from app.core.rate_limit import ai_limiter, AI_MAX_MESSAGE_CHARS
+from app.api.users import get_current_user
 
-router = APIRouter(prefix="/api/aws", tags=["AI Services"])
+# Not used by the frontend. Login + rate limit required: these call paid AI
+# services and were previously open to anyone on the internet.
+router = APIRouter(prefix="/api/aws", tags=["AI Services"], dependencies=[Depends(get_current_user), Depends(ai_limiter)])
 
 # Initialize enhanced AI service
 enhanced_ai_service = EnhancedAIService()
@@ -16,7 +20,7 @@ enhanced_ai_service = EnhancedAIService()
 
 # Request/Response Models
 class ChatRequest(BaseModel):
-    message: str
+    message: str = Field(..., min_length=1, max_length=AI_MAX_MESSAGE_CHARS)
     language: str = "en"
     context: Optional[Dict] = None
     model: Optional[str] = None
@@ -85,19 +89,19 @@ async def enhanced_chat(request: ChatRequest):
             model=request.model,
             use_q=request.use_amazon_q
         )
-        
+
         provider = enhanced_ai_service._get_primary_provider()
-        
+
         return ChatResponse(
             response=response,
             provider=provider,
             language=request.language
         )
-    
+
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Chat service error: {str(e)}"
+            detail="Chat service error. Please try again."
         )
 
 
@@ -111,7 +115,7 @@ async def get_service_status():
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Status check error: {str(e)}"
+            detail="Status check error. Please try again."
         )
 
 
@@ -130,7 +134,7 @@ async def get_available_models():
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Models list error: {str(e)}"
+            detail="Models list error. Please try again."
         )
 
 
@@ -158,21 +162,21 @@ async def ask_amazon_q(request: ChatRequest):
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                 detail="Amazon Q service not available"
             )
-        
+
         result = await enhanced_ai_service.q_service.ask_question(
             question=request.message,
             context=request.context,
             user_id=request.context.get('user_id') if request.context else None
         )
-        
+
         return result
-    
+
     except HTTPException:
         raise
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Amazon Q error: {str(e)}"
+            detail="Amazon Q error. Please try again."
         )
 
 
@@ -186,13 +190,13 @@ async def analyze_query(request: QueryAnalysisRequest):
             query=request.query,
             context=request.context
         )
-        
+
         return result
-    
+
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Query analysis error: {str(e)}"
+            detail="Query analysis error. Please try again."
         )
 
 
@@ -207,13 +211,13 @@ async def generate_learning_path(request: LearningPathRequest):
             current_skills=request.current_skills,
             context=request.context
         )
-        
+
         return result
-    
+
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Learning path generation error: {str(e)}"
+            detail="Learning path generation error. Please try again."
         )
 
 
@@ -227,13 +231,13 @@ async def get_business_insights(request: BusinessInsightsRequest):
             metrics=request.metrics,
             time_period=request.time_period
         )
-        
+
         return result
-    
+
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Business insights error: {str(e)}"
+            detail="Business insights error. Please try again."
         )
 
 
@@ -248,13 +252,13 @@ async def recommend_schemes(request: SchemeRecommendationRequest):
             community_type=request.community_type,
             additional_filters=request.additional_filters
         )
-        
+
         return result
-    
+
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Scheme recommendation error: {str(e)}"
+            detail="Scheme recommendation error. Please try again."
         )
 
 
@@ -269,16 +273,16 @@ async def detect_language(text: str):
             if any(ord(char) > 2304 and ord(char) < 2431 for char in text):
                 return {"text": text, "detected_language": "hi"}
             return {"text": text, "detected_language": "en"}
-        
+
         language = await enhanced_ai_service.q_service.detect_language(text)
-        
+
         return {
             "text": text,
             "detected_language": language
         }
-    
+
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Language detection error: {str(e)}"
+            detail="Language detection error. Please try again."
         )

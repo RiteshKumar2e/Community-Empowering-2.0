@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from app.core.database import get_db
 from app.models.models import User
 from app.api.users import get_current_user
@@ -10,9 +10,9 @@ from app.core.privacy import mask_email
 router = APIRouter()
 
 class FeedbackRequest(BaseModel):
-    category: str
-    rating: int
-    message: str
+    category: str = Field(..., max_length=40)
+    rating: int = Field(..., ge=1, le=5)
+    message: str = Field(..., min_length=1, max_length=3000)
 
 @router.post("")
 async def submit_feedback(

@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "lint": "eslint src --ext js,jsx",
     "build:spa": "vite build",
-    "test:seo": "node scripts/check-seo.mjs"
+    "test:seo": "node scripts/check-seo.mjs",
+    "test:security": "node scripts/check-redirects.mjs"
   },
   "dependencies": {
     "@react-oauth/google": "^0.13.4",

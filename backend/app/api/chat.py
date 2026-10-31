@@ -56,6 +56,9 @@ async def websocket_endpoint(
                 message_data = json.loads(data)
                 # message_data format: {"text": "...", "receiver_id": int | None, "is_private": bool}
                 text = message_data.get("text")
+                # Cap message size (stored and broadcast to everyone in the chat).
+                if not isinstance(text, str) or len(text) > 1000:
+                    continue
                 receiver_id = message_data.get("receiver_id")
                 is_private = message_data.get("is_private", False)
                 

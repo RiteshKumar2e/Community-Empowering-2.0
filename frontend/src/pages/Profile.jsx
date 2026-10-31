@@ -66,8 +66,13 @@ const Profile = () => {
     const handleSave = async () => {
         setLoading(true)
         try {
-            const response = await api.put('/users/me', formData)
-            updateUser(response.data)
+            const { token, ...updated } = (await api.put('/users/me', formData)).data
+            // Changing the email issues a new login token (tokens are tied to the email).
+            if (token) {
+                localStorage.setItem('token', token)
+                api.defaults.headers.common['Authorization'] = `Bearer ${token}`
+            }
+            updateUser({ ...user, ...updated })
             setIsEditing(false)
         } catch (error) {
             console.error('Failed to update profile:', error)

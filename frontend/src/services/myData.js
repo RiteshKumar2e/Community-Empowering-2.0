@@ -94,6 +94,13 @@ export const getRecentlyViewed = () => read(RECENTLY_VIEWED, [])
 // Where to send the user after they sign up / sign in (e.g. back to the scheme
 // they wanted to apply for). Only same-site paths are accepted.
 const POST_AUTH_REDIRECT = 'post-auth-redirect'
+
+// Same-site paths only. Blocks "//evil.com", "/\evil.com" (browsers treat \ as /,
+// see CVE-2025-68470), "javascript:" and anything with control characters.
+export const isSafeInternalPath = (path) =>
+    typeof path === 'string' &&
+    /^\/[A-Za-z0-9\-._~/?#=&%]*$/.test(path) &&
+    !path.startsWith('//')
 export const setPostAuthRedirect = (path) => {
     try { sessionStorage.setItem(POST_AUTH_REDIRECT, path) } catch { /* ignore */ }
 }
@@ -101,7 +108,7 @@ export const takePostAuthRedirect = () => {
     try {
         const path = sessionStorage.getItem(POST_AUTH_REDIRECT)
         sessionStorage.removeItem(POST_AUTH_REDIRECT)
-        return path && path.startsWith('/') && !path.startsWith('//') ? path : null
+        return isSafeInternalPath(path) ? path : null
     } catch { return null }
 }
 

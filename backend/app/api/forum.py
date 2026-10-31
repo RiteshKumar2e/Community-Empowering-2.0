@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 from typing import List, Optional
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 from datetime import datetime
 import json
 
@@ -14,10 +14,10 @@ router = APIRouter(prefix="/api/forum", tags=["forum"])
 
 # Pydantic Schemas
 class CategoryCreate(BaseModel):
-    name: str
-    description: Optional[str] = None
-    icon: Optional[str] = None
-    color: Optional[str] = None
+    name: str = Field(..., min_length=2, max_length=60)
+    description: Optional[str] = Field(None, max_length=300)
+    icon: Optional[str] = Field(None, max_length=8)
+    color: Optional[str] = Field(None, max_length=20)
 
 class CategoryResponse(BaseModel):
     id: int
@@ -31,10 +31,10 @@ class CategoryResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 class DiscussionCreate(BaseModel):
-    title: str
-    content: str
+    title: str = Field(..., min_length=3, max_length=200)
+    content: str = Field(..., min_length=1, max_length=10000)
     category_id: int
-    tags: Optional[List[str]] = []
+    tags: Optional[List[str]] = Field(default_factory=list, max_length=10)
 
 class LatestReplySchema(BaseModel):
     content: str
@@ -64,7 +64,7 @@ class DiscussionResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 class ReplyCreate(BaseModel):
-    content: str
+    content: str = Field(..., min_length=1, max_length=5000)
 
 class ReplyResponse(BaseModel):
     id: int
@@ -97,6 +97,14 @@ class ContributorResponse(BaseModel):
 # Helper function to check if user is admin
 def is_admin(user: User) -> bool:
     return user.is_admin or user.email == "riteshkumar90359@gmail.com"
+
+
+def visible_email(viewer: Optional[User], author: Optional[User]) -> Optional[str]:
+    """Forum lists are public: only the author themself or an admin may see
+    an author's email (they used to be readable by anyone)."""
+    if author is None or viewer is None:
+        return None
+    return author.email if (viewer.id == author.id or is_admin(viewer)) else None
 
 # Categories Endpoints
 @router.get("/categories", response_model=List[CategoryResponse])
@@ -227,6 +235,9 @@ async def get_discussions(
     # Apply joinedload after filtering to avoid GROUP BY conflicts
     query = query.options(joinedload(ForumDiscussion.user))
     
+    # Bound pagination so one request can't pull the whole table.
+    skip = max(0, skip)
+    limit = max(1, min(limit, 100))
     discussions = query.offset(skip).limit(limit).all()
     
     if not discussions:
@@ -291,7 +302,7 @@ async def get_discussions(
             "created_at": disc.created_at,
             "updated_at": disc.updated_at,
             "user_name": disc.user.name if disc.user else "Unknown",
-            "user_email": disc.user.email if disc.user else "",
+            "user_email": visible_email(current_user, disc.user),
             "tags": tag_list,
             "reply_count": reply_count_map.get(disc.id, 0),
             "latest_reply": latest_info,
@@ -376,7 +387,7 @@ async def get_discussion(
         "created_at": discussion.created_at,
         "updated_at": discussion.updated_at,
         "user_name": user.name if user else "Unknown",
-        "user_email": user.email if user else "",
+        "user_email": visible_email(current_user, user),
         "tags": tags,
         "reply_count": reply_count,
         "is_liked": is_liked if current_user else False
@@ -489,7 +500,7 @@ async def get_replies(
             "created_at": reply.created_at,
             "updated_at": reply.updated_at,
             "user_name": user.name if user else "Unknown",
-            "user_email": user.email if user else "",
+            "user_email": visible_email(current_user, user),
             "is_liked": is_liked
         })
     

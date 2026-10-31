@@ -15,6 +15,7 @@ _DB_FILE = os.path.join(tempfile.mkdtemp(), "test.db")
 os.environ["TURSO_DATABASE_URL"] = ""
 os.environ["TURSO_AUTH_TOKEN"] = ""
 os.environ["DATABASE_URL"] = f"sqlite:///{_DB_FILE}"
+os.environ["DEBUG"] = "false"  # behave like production
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import pytest  # noqa: E402

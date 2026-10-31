@@ -41,8 +41,45 @@ app = FastAPI(
     title="Community AI Platform API",
     description="AI-powered platform for community access to information and resources",
     version="1.0.0",
-    lifespan=lifespan
+    lifespan=lifespan,
+    # Interactive API docs only when DEBUG=true (they map every endpoint for attackers).
+    docs_url="/docs" if settings.DEBUG else None,
+    redoc_url="/redoc" if settings.DEBUG else None,
+    openapi_url="/openapi.json" if settings.DEBUG else None,
 )
+
+# --- Security middleware -----------------------------------------------------
+from fastapi import Request
+from fastapi.responses import JSONResponse
+
+MAX_BODY_BYTES = 1 * 1024 * 1024          # 1 MB for normal API calls
+MAX_UPLOAD_BYTES = 5 * 1024 * 1024        # 5 MB for the profile photo upload
+
+
+@app.middleware("http")
+async def security_middleware(request: Request, call_next):
+    # Reject oversized bodies early (stops memory/CPU exhaustion via huge JSON).
+    limit = MAX_UPLOAD_BYTES if request.url.path.endswith("/me/photo") else MAX_BODY_BYTES
+    length = request.headers.get("content-length")
+    if length and length.isdigit() and int(length) > limit:
+        return JSONResponse({"detail": "Request is too large."}, status_code=413)
+
+    response = await call_next(request)
+    response.headers.setdefault("X-Content-Type-Options", "nosniff")
+    response.headers.setdefault("X-Frame-Options", "DENY")
+    response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+    response.headers.setdefault("Permissions-Policy", "camera=(), geolocation=(), payment=()")
+    # API responses can contain personal data: never let proxies/CDNs cache them.
+    if request.url.path.startswith("/api/"):
+        response.headers.setdefault("Cache-Control", "no-store")
+    return response
+
+
+@app.exception_handler(Exception)
+async def unhandled_error(request: Request, exc: Exception):
+    # Log the details on the server; never send stack traces or DB errors to clients.
+    print(f"[ERROR] {request.method} {request.url.path}: {type(exc).__name__}: {exc}")
+    return JSONResponse({"detail": "Something went wrong. Please try again."}, status_code=500)
 
 # Ensure uploads directory exists
 os.makedirs("uploads/profiles", exist_ok=True)
@@ -53,7 +90,9 @@ app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.ALLOWED_ORIGINS,
+    # Never "*" together with credentials: that would let any website make
+    # logged-in requests on a user's behalf. Only explicit origins are kept.
+    allow_origins=[o for o in settings.ALLOWED_ORIGINS if o.strip() not in ("*", "null")],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -117,7 +156,6 @@ async def root():
     return {
         "message": "Community AI Platform API",
         "version": "1.0.0",
-        "docs": "/docs"
     }
 
 @app.get("/health")

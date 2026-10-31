@@ -8,6 +8,11 @@ import time
 from collections import defaultdict, deque
 
 from fastapi import HTTPException, Request, status
+import os
+
+# Number of reverse proxies in front of the app that append to X-Forwarded-For
+# (Render: 1). Set to 0 when running without a proxy.
+TRUSTED_PROXY_HOPS = int(os.environ.get("TRUSTED_PROXY_HOPS", "1"))
 
 
 class RateLimiter:
@@ -20,10 +25,14 @@ class RateLimiter:
 
     @staticmethod
     def _client_ip(request: Request) -> str:
-        # Render/Vercel put the real client first in X-Forwarded-For.
-        forwarded = request.headers.get("x-forwarded-for", "")
-        if forwarded:
-            return forwarded.split(",")[0].strip()
+        # X-Forwarded-For is "client-supplied, ..., added-by-our-proxy". Only the
+        # entries appended by our own proxies can be trusted: anything to their
+        # left can be forged by the caller to dodge the limit. Render adds one
+        # hop, so we read the TRUSTED_PROXY_HOPS-th entry from the right.
+        hops = TRUSTED_PROXY_HOPS
+        forwarded = [p.strip() for p in request.headers.get("x-forwarded-for", "").split(",") if p.strip()]
+        if hops > 0 and len(forwarded) >= hops:
+            return forwarded[-hops]
         return request.client.host if request.client else "unknown"
 
     def __call__(self, request: Request) -> None:
@@ -45,3 +54,14 @@ login_limiter = RateLimiter(max_calls=10, period_seconds=60, scope="login")
 register_limiter = RateLimiter(max_calls=5, period_seconds=600, scope="register")
 password_reset_limiter = RateLimiter(max_calls=5, period_seconds=900, scope="password-reset")
 verification_limiter = RateLimiter(max_calls=10, period_seconds=900, scope="email-verification")
+# Google-login OTP: per-IP limits plus a per-account wrong-guess counter
+# (see auth.verify_google_otp). otp_failures maps user id -> wrong guesses.
+otp_verify_limiter = RateLimiter(max_calls=10, period_seconds=600, scope="otp-verify")
+otp_resend_limiter = RateLimiter(max_calls=3, period_seconds=600, scope="otp-resend")
+otp_failures: dict = {}
+
+# AI endpoints call paid LLM APIs: cap per-IP usage to stop cost abuse.
+ai_limiter = RateLimiter(max_calls=20, period_seconds=60, scope="ai")
+
+# Longest message accepted by any AI endpoint (characters).
+AI_MAX_MESSAGE_CHARS = 2000

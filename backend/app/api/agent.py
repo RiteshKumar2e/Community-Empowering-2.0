@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Header
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional, Dict, Any
 from app.core.database import get_db
 from app.models.models import User
@@ -9,6 +9,7 @@ from app.core.security import decode_access_token
 from app.services.ai_service import AIService
 from app.services.search_service import search_service
 import json
+from app.core.rate_limit import ai_limiter, AI_MAX_MESSAGE_CHARS
 
 router = APIRouter()
 ai_service = AIService()
@@ -23,13 +24,13 @@ async def get_current_user_from_token(
     """Get current user from token, returns None if not authenticated"""
     if not credentials:
         return None
-    
+
     try:
         token = credentials.credentials
         payload = decode_access_token(token)
         if not payload:
             return None
-        
+
         email = payload.get("sub")
         user = db.query(User).filter(User.email == email).first()
         return user
@@ -37,7 +38,7 @@ async def get_current_user_from_token(
         return None
 
 class AgentChatRequest(BaseModel):
-    message: str
+    message: str = Field(..., min_length=1, max_length=AI_MAX_MESSAGE_CHARS)
     language: str = "en"
     context: Optional[dict] = None
 
@@ -45,7 +46,7 @@ class AgentChatResponse(BaseModel):
     response: str
     meta: Dict[str, Any]
 
-@router.post("/chat", response_model=AgentChatResponse)
+@router.post("/chat", response_model=AgentChatResponse, dependencies=[Depends(ai_limiter)])
 async def agent_chat(
     request: AgentChatRequest,
     current_user: Optional[User] = Depends(get_current_user_from_token),
@@ -59,7 +60,7 @@ async def agent_chat(
     # NEW: Search Integration
     search_triggers = ["search", "google", "latest", "find", "current", "news", "scheme", "update", "browser", "chrome"]
     needs_search = any(trigger in request.message.lower() for trigger in search_triggers)
-    
+
     search_results = ""
     if needs_search:
         print(f"🌐 Triggering Web Search for: {request.message}")
@@ -71,7 +72,7 @@ async def agent_chat(
 
     prompt = f"""
     The following is a message from a user on our Community Empowering platform.
-    
+
     {search_block}
 
     Analyze the message and provide:
@@ -92,10 +93,10 @@ async def agent_chat(
         }}
     }}
     """
-    
+
     try:
         raw_response = await ai_service.get_chat_response(prompt, language=request.language)
-        
+
         # More robust JSON extraction using regex
         import re
         json_match = re.search(r'(\{.+\})', raw_response, re.DOTALL)
@@ -105,7 +106,7 @@ async def agent_chat(
         else:
             # Fallback if no JSON found
             data = {"response": raw_response, "meta": {"type": "inquiry", "category": "general", "priority": "low"}}
-            
+
         final_response = data.get("response", "I'm here to help.")
         final_meta = data.get("meta", {"type": "inquiry", "category": "general", "priority": "low"})
 
@@ -113,7 +114,7 @@ async def agent_chat(
         if current_user:
             from app.models.models import Query
             from app.services.activity_tracker import ActivityTracker
-            
+
             # Save to Query table
             query = Query(
                 user_id=current_user.id,
@@ -122,7 +123,7 @@ async def agent_chat(
                 language=request.language
             )
             db.add(query)
-            
+
             # Log activity
             ActivityTracker.log_ai_query(
                 db=db,
@@ -130,7 +131,7 @@ async def agent_chat(
                 query_text=request.message,
                 language=request.language
             )
-            
+
             db.commit()
 
         return AgentChatResponse(
@@ -141,7 +142,7 @@ async def agent_chat(
         # Fallback if AI fails
         print(f"Agent Chat Error: {e}")
         fallback_text = await ai_service.get_chat_response(request.message, language=request.language)
-        
+
         if current_user:
             from app.models.models import Query
             query = Query(user_id=current_user.id, message=request.message, response=fallback_text, language=request.language)

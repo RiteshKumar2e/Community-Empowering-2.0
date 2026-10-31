@@ -6,10 +6,13 @@ from typing import List, Optional
 class Settings(BaseSettings):
     # App Settings
     APP_NAME: str = "Community AI Platform"
-    DEBUG: bool = True
-    
-    # Security - Fixed key to prevent session loss on redeploy
-    SECRET_KEY: str = os.getenv("SECRET_KEY", "community-ai-platform-super-stable-key-123-fixed")
+    DEBUG: bool = False
+
+    # JWT signing key. MUST be set in the environment (Render > Environment).
+    # The old hard-coded fallback was public on GitHub, so anyone could forge
+    # login tokens. If it's missing we use a random per-process key: tokens
+    # stop working after a restart, but they can never be forged.
+    SECRET_KEY: str = ""
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 30  # 30 days
     
@@ -74,3 +77,10 @@ class Settings(BaseSettings):
         extra = "ignore"
 
 settings = Settings()
+
+_LEAKED_DEFAULT_KEYS = {"community-ai-platform-super-stable-key-123-fixed"}
+if not settings.SECRET_KEY or len(settings.SECRET_KEY) < 32 or settings.SECRET_KEY in _LEAKED_DEFAULT_KEYS:
+    import secrets as _secrets
+    print("[SECURITY] SECRET_KEY is missing, too short or a known public value. "
+          "Using a random key for this process; set a strong SECRET_KEY in the environment.")
+    settings.SECRET_KEY = _secrets.token_urlsafe(48)

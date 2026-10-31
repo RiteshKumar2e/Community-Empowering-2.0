@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, File, UploadFile
 from sqlalchemy.orm import Session
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, EmailStr
 from typing import Optional
 import os
 import shutil
@@ -9,6 +9,12 @@ from app.core.database import get_db
 from app.models.models import User
 from app.api.auth import oauth2_scheme
 from app.core.security import decode_access_token
+from app.core.security import create_access_token
+from app.models.models import EmailVerification
+
+# Admin rights are partly tied to this address (see admin.verify_admin), so no
+# other account may switch to it.
+PROTECTED_EMAILS = {"riteshkumar90359@gmail.com"}
 
 router = APIRouter()
 
@@ -23,25 +29,26 @@ class StatsResponse(BaseModel):
     achievementsEarned: int
 
 class UserUpdate(BaseModel):
-    name: Optional[str] = None
-    email: Optional[str] = None
-    phone: Optional[str] = None
-    location: Optional[str] = None
-    language: Optional[str] = None
-    communityType: Optional[str] = None
+    # Validated on the server: these values are shown to other users (forum, chat).
+    name: Optional[str] = Field(None, min_length=2, max_length=100)
+    email: Optional[EmailStr] = None
+    phone: Optional[str] = Field(None, max_length=20, pattern=r"^[0-9+\-\s]*$")
+    location: Optional[str] = Field(None, max_length=120)
+    language: Optional[str] = Field(None, max_length=10)
+    communityType: Optional[str] = Field(None, max_length=30)
 
 async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     """Get current authenticated user"""
     payload = decode_access_token(token)
     if not payload:
         raise HTTPException(status_code=401, detail="Invalid authentication credentials")
-    
+
     email = payload.get("sub")
     user = db.query(User).filter(User.email == email).first()
-    
+
     if not user:
         raise HTTPException(status_code=401, detail="User not found (database may have reset)")
-    
+
     return user
 
 async def get_current_user_optional(token: Optional[str] = Depends(oauth2_scheme), db: Session = Depends(get_db)):
@@ -61,16 +68,16 @@ async def get_current_user_optional(token: Optional[str] = Depends(oauth2_scheme
 async def get_user_stats(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Get user statistics"""
     from app.models.models import Query, Enrollment, UserActivity
-    
+
     queries_count = db.query(Query).filter(Query.user_id == current_user.id).count()
     courses_enrolled = db.query(Enrollment).filter(Enrollment.user_id == current_user.id).count()
-    
+
     # Count resource views AND platform visits from UserActivity
     resources_viewed = db.query(UserActivity).filter(
         UserActivity.user_id == current_user.id,
         UserActivity.activity_type.in_(['resource_view', 'platform_visit'])
     ).count()
-    
+
     # Calculate achievements (dynamic based on activity)
     achievements = 0
     if queries_count >= 5:
@@ -81,7 +88,7 @@ async def get_user_stats(current_user: User = Depends(get_current_user), db: Ses
         achievements += 1
     if queries_count >= 20:
         achievements += 2
-    
+
     return {
         "queriesCount": queries_count,
         "coursesEnrolled": courses_enrolled,
@@ -94,15 +101,15 @@ async def get_user_activity(current_user: User = Depends(get_current_user), db: 
     """Get user recent activity"""
     from app.models.models import UserActivity
     from datetime import timezone, timedelta
-    
+
     # IST is UTC+5:30
     IST = timezone(timedelta(hours=5, minutes=30))
-    
+
     # Get recent activities from UserActivity table
     recent_activities = db.query(UserActivity).filter(
         UserActivity.user_id == current_user.id
     ).order_by(UserActivity.created_at.desc()).limit(15).all()
-    
+
     activity = []
     for act in recent_activities:
         # Format activity description based on type
@@ -116,16 +123,16 @@ async def get_user_activity(current_user: User = Depends(get_current_user), db: 
             icon = '🌐'
         else:
             icon = '✨'
-        
+
         # Convert UTC to IST
         utc_time = act.created_at.replace(tzinfo=timezone.utc)
         ist_time = utc_time.astimezone(IST)
-            
+
         activity.append({
             "description": f"{icon} {act.activity_description}",
             "timestamp": ist_time.strftime("%d %b %Y, %I:%M %p")
         })
-    
+
     return activity
 
 @router.get("/me")
@@ -152,30 +159,38 @@ async def update_user_info(
     try:
         if user_data.name is not None:
             current_user.name = user_data.name
-            
+
+        new_token = None
         if user_data.email is not None:
             # Check if email is already taken
             if user_data.email != current_user.email:
+                if user_data.email.lower() in PROTECTED_EMAILS:
+                    raise HTTPException(status_code=400, detail="Email already registered")
                 existing_user = db.query(User).filter(User.email == user_data.email).first()
                 if existing_user:
                     raise HTTPException(status_code=400, detail="Email already registered")
                 current_user.email = user_data.email
-                
+                # A new address must be confirmed again, and login tokens are
+                # tied to the email, so issue a fresh one.
+                db.query(EmailVerification).filter(EmailVerification.user_id == current_user.id).delete()
+                current_user.google_email_verified = False
+                new_token = create_access_token(data={"sub": user_data.email})
+
         if user_data.phone is not None:
             current_user.phone = user_data.phone
-            
+
         if user_data.location is not None:
             current_user.location = user_data.location
-            
+
         if user_data.language is not None:
             current_user.language = user_data.language
-            
+
         if user_data.communityType is not None:
             current_user.community_type = user_data.communityType
-            
+
         db.commit()
         db.refresh(current_user)
-        
+
         return {
             "id": current_user.id,
             "name": current_user.name,
@@ -184,7 +199,8 @@ async def update_user_info(
             "location": current_user.location,
             "language": current_user.language,
             "communityType": current_user.community_type,
-            "profileImage": current_user.profile_image
+            "profileImage": current_user.profile_image,
+            **({"token": new_token, "emailVerified": False} if new_token else {}),
         }
     except HTTPException:
         db.rollback()
@@ -192,7 +208,24 @@ async def update_user_info(
     except Exception as e:
         db.rollback()
         print(f"Error updating profile: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Failed to update profile: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to update profile. Please try again.")
+
+MAX_PHOTO_BYTES = 2 * 1024 * 1024
+_IMAGE_SIGNATURES = [
+    (b"\xff\xd8\xff", ".jpg"),
+    (b"\x89PNG\r\n\x1a\n", ".png"),
+    (b"GIF87a", ".gif"),
+    (b"GIF89a", ".gif"),
+]
+
+
+def _image_extension(data: bytes):
+    """Return the extension for a real JPEG/PNG/GIF, else None."""
+    for signature, ext in _IMAGE_SIGNATURES:
+        if data.startswith(signature):
+            return ext
+    return None
+
 
 @router.post("/me/photo")
 async def upload_profile_photo(
@@ -201,28 +234,32 @@ async def upload_profile_photo(
     db: Session = Depends(get_db)
 ):
     """Upload profile photo"""
-    # Check file extension
-    allowed_extensions = [".jpg", ".jpeg", ".png", ".gif"]
-    ext = os.path.splitext(file.filename)[1].lower()
-    if ext not in allowed_extensions:
-        raise HTTPException(status_code=400, detail="Invalid file type")
-    
-    # Create unique filename
+    # Read at most MAX_PHOTO_BYTES (+1 to detect larger files) and decide the
+    # type from the file's actual bytes, not its name: a renamed HTML/SVG file
+    # must never be stored and served from our domain.
+    data = await file.read(MAX_PHOTO_BYTES + 1)
+    if len(data) > MAX_PHOTO_BYTES:
+        raise HTTPException(status_code=413, detail="Photo must be 2 MB or smaller")
+    ext = _image_extension(data)
+    if not ext:
+        raise HTTPException(status_code=400, detail="Please upload a JPG, PNG or GIF image")
+
+    # Server-generated name only (no user-controlled path parts).
     filename = f"user_{current_user.id}_{datetime.now().strftime('%Y%m%d%H%M%S')}{ext}"
     file_path = os.path.join(UPLOAD_DIR, filename)
-    
+
     # Save file
     try:
         with open(file_path, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
-        
+            buffer.write(data)
+
         # Update user profile_image path
         # In a real app, you might serve this via a dedicated static route or CDN
         relative_path = f"/uploads/profiles/{filename}"
         current_user.profile_image = relative_path
         db.commit()
         db.refresh(current_user)
-        
+
         return {"profileImage": relative_path}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Could not save file: {str(e)}")
+        raise HTTPException(status_code=500, detail="Could not save file. Please try again.")
