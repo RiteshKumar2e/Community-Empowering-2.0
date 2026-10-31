@@ -36,7 +36,8 @@ const CookieConsent = lazy(() => import('./components/CookieConsent'))
 const ChatBotCondition = () => {
     const location = useLocation();
     // Hide floating chatbot on assistant page and forum page (due to live chat)
-    if (location.pathname === '/assistant' || location.pathname === '/forum') return null;
+    // and on login/register, where it would sit on top of the form's main button.
+    if (['/assistant', '/forum', '/login', '/register'].includes(location.pathname)) return null;
     return <SideChatBot />;
 };
 

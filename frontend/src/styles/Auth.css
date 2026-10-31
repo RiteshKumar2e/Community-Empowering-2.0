@@ -437,7 +437,13 @@ body.light-theme .auth-page .error-message {
     padding: var(--space-5);
   }
 
+  /* On phones a fixed button sits on top of the card; keep it in the flow instead. */
   .auth-page .back-to-home-btn {
-    left: var(--space-4);
+    position: static;
+    margin-bottom: var(--space-4);
+  }
+
+  .auth-page {
+    padding-top: calc(var(--navbar-height) + var(--space-4));
   }
 }

@@ -1,11 +1,14 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { useLanguage } from '../contexts/LanguageContext'
-import { ArrowRight, MessageSquare, BookOpen, Search, Mic, Globe, Zap, Target, Heart, Award, CheckCircle, Star, ArrowUp, Github, Linkedin, Mail } from 'lucide-react'
+import { ArrowRight, MessageSquare, BookOpen, Search, Mic, Globe, Zap, Target, Heart, Award, CheckCircle, Star, ArrowUp, Github, Linkedin, Mail, UserPlus, SlidersHorizontal, Sparkles } from 'lucide-react'
 import ExploreModal from '../components/ExploreModal'
-import { useEffect, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import LandingHero from '../components/LandingHero'
+import CountUp from '../components/CountUp'
+import { useEffect, useRef, useState } from 'react'
+import { motion, AnimatePresence, useScroll, useSpring, useReducedMotion } from 'framer-motion'
 import '../styles/Landing.css'
+import '../styles/LandingInteractive.css'
 
 const Landing = () => {
     const { isAuthenticated } = useAuth()
@@ -14,6 +17,38 @@ const Landing = () => {
     const [selectedFeature, setSelectedFeature] = useState(null)
     const [showScrollTop, setShowScrollTop] = useState(false)
     const [showExploreModal, setShowExploreModal] = useState(false)
+    const [activeStep, setActiveStep] = useState(0)
+    const [stepsTouched, setStepsTouched] = useState(false)
+    const landingRef = useRef(null)
+    const reduceMotion = useReducedMotion()
+    const { scrollYProgress } = useScroll()
+    const progressScale = useSpring(scrollYProgress, { stiffness: 140, damping: 30, restDelta: 0.001 })
+
+    // Fade sections in as they scroll into view.
+    useEffect(() => {
+        const root = landingRef.current
+        if (!root || reduceMotion || !('IntersectionObserver' in window)) return
+        const sections = root.querySelectorAll('section:not(.hero)')
+        root.classList.add('reveal-ready')
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('in-view')
+                    observer.unobserve(entry.target)
+                }
+            })
+        }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' })
+        sections.forEach((s) => observer.observe(s))
+        return () => observer.disconnect()
+    }, [reduceMotion])
+
+    // "How it works" walks through its steps on its own until clicked.
+    useEffect(() => {
+        if (stepsTouched || reduceMotion) return
+        const id = setInterval(() => setActiveStep((s) => (s + 1) % 3), 3500)
+        return () => clearInterval(id)
+    }, [stepsTouched, reduceMotion])
+
     // Scroll to Top Logic
     useEffect(() => {
         const handleScroll = () => {
@@ -198,40 +233,21 @@ const Landing = () => {
     ]
 
     return (
-        <div className="landing">
+        <div className="landing" ref={landingRef}>
+            <motion.div className="scroll-progress" style={{ scaleX: progressScale }} aria-hidden="true" />
+
             {/* Hero Section */}
-            <section id="home" className="hero">
-                <div className="container">
-                    <div className="hero-content">
-                        <div className="hero-badge">
-                            <span className="badge badge-primary">
-                                <span className="badge-icon">✨</span>
-                                AI-Powered Innovation
-                            </span>
+            <LandingHero isAuthenticated={isAuthenticated} />
+
+            {/* Stats strip */}
+            <section className="stats-strip" aria-label="Community AI in numbers">
+                <div className="container stats-strip-grid">
+                    {stats.map((stat) => (
+                        <div key={stat.label} className="stats-strip-item">
+                            <div className="stats-strip-value"><CountUp value={stat.value} /></div>
+                            <div className="stats-strip-label">{stat.label}</div>
                         </div>
-
-                        <h1 className="hero-title">
-                            <span className="title-white">Community AI -</span>{' '}
-                            <span className="title-purple-light">Empowering</span>
-                            <br />
-                            <span className="title-purple-light">Communities Through AI</span>
-                        </h1>
-
-                        <p className="hero-subtitle">
-                            Access government schemes, education, and opportunities through voice-first AI assistance in your language
-                        </p>
-
-                        <div className="hero-actions">
-                            <Link to={isAuthenticated ? '/dashboard' : '/register'} className="btn btn-explore">
-                                {isAuthenticated ? 'Go to Dashboard' : 'Get Started Free'}
-                                <ArrowRight size={20} />
-                            </Link>
-                            <button onClick={() => setShowExploreModal(true)} className="btn btn-learn">
-                                Explore Solutions
-                            </button>
-                        </div>
-
-                    </div>
+                    ))}
                 </div>
             </section>
 
@@ -301,15 +317,15 @@ const Landing = () => {
                             <div className="about-stats-card">
                                 <h3>Making Real Impact</h3>
                                 <div className="impact-stat">
-                                    <div className="impact-number">10,000+</div>
+                                    <div className="impact-number"><CountUp value="10,000+" /></div>
                                     <div className="impact-label">Users Helped</div>
                                 </div>
                                 <div className="impact-stat">
-                                    <div className="impact-number">50+</div>
+                                    <div className="impact-number"><CountUp value="50+" /></div>
                                     <div className="impact-label">Schemes Listed</div>
                                 </div>
                                 <div className="impact-stat">
-                                    <div className="impact-number">5+</div>
+                                    <div className="impact-number"><CountUp value="5+" /></div>
                                     <div className="impact-label">Languages</div>
                                 </div>
                             </div>
@@ -357,6 +373,13 @@ const Landing = () => {
                                 <div className="feature-glow" style={{ background: feature.color }}></div>
                             </div>
                         ))}
+                    </div>
+
+                    <div className="section-cta">
+                        <button onClick={() => setShowExploreModal(true)} className="btn btn-learn">
+                            Explore All Solutions
+                            <ArrowRight size={18} />
+                        </button>
                     </div>
                 </div>
             </section>
@@ -461,24 +484,60 @@ const Landing = () => {
                         <p>Get started in three simple steps</p>
                     </div>
 
+                    <div className="steps-track" aria-hidden="true">
+                        <motion.div
+                            className="steps-track-fill"
+                            initial={false}
+                            animate={{ width: `${(activeStep / 2) * 100}%` }}
+                            transition={{ type: 'spring', stiffness: 90, damping: 20 }}
+                        />
+                    </div>
+
                     <div className="steps-grid">
-                        <div className="step-card">
-                            <div className="step-number">1</div>
-                            <h4>Create Account</h4>
-                            <p>Sign up with your details and select your preferred language</p>
-                        </div>
+                        {[
+                            { icon: <UserPlus size={22} />, title: 'Create Account', text: 'Sign up in about a minute with your name, mobile number and language.', time: '~1 min' },
+                            { icon: <SlidersHorizontal size={22} />, title: 'Choose Your Needs', text: "Tell us who you are: student, farmer, worker, business owner or senior citizen.", time: '~20 sec' },
+                            { icon: <Sparkles size={22} />, title: 'Get AI Assistance', text: 'Ask anything by text or voice and get answers and schemes picked for you.', time: 'Instant' },
+                        ].map((s, i) => (
+                            <button
+                                key={s.title}
+                                type="button"
+                                className={`step-card interactive-step ${i === activeStep ? 'active' : ''} ${i < activeStep ? 'done' : ''}`}
+                                onClick={() => { setStepsTouched(true); setActiveStep(i) }}
+                                aria-pressed={i === activeStep}
+                            >
+                                <div className="step-number">{i < activeStep ? <CheckCircle size={20} /> : i + 1}</div>
+                                <div className="step-icon">{s.icon}</div>
+                                <h4>{s.title}</h4>
+                                <p>{s.text}</p>
+                                <span className="step-time">{s.time}</span>
+                            </button>
+                        ))}
+                    </div>
 
-                        <div className="step-card">
-                            <div className="step-number">2</div>
-                            <h4>Choose Your Needs</h4>
-                            <p>Tell us what you're looking for - schemes, education, or resources</p>
-                        </div>
+                    <div className="section-cta">
+                        <Link to={isAuthenticated ? '/assistant' : '/register'} className="btn btn-explore">
+                            {isAuthenticated ? 'Open the AI Assistant' : 'Start Step 1 Now'}
+                            <ArrowRight size={18} />
+                        </Link>
+                    </div>
+                </div>
+            </section>
 
-                        <div className="step-card">
-                            <div className="step-number">3</div>
-                            <h4>Get AI Assistance</h4>
-                            <p>Interact with our AI assistant via text or voice in your language</p>
+            {/* Final call to action */}
+            <section className="final-cta">
+                <div className="container">
+                    <div className="final-cta-card">
+                        <div>
+                            <h2>Your benefits are waiting. Don't leave them unclaimed.</h2>
+                            <p>Join thousands of people who found schemes, scholarships and jobs they didn't know about. It's free.</p>
                         </div>
+                        <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+                            <Link to={isAuthenticated ? '/dashboard' : '/register'} className="btn final-cta-btn">
+                                {isAuthenticated ? 'Go to My Dashboard' : 'Create Free Account'}
+                                <ArrowRight size={20} />
+                            </Link>
+                        </motion.div>
                     </div>
                 </div>
             </section>
