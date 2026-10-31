@@ -42,7 +42,7 @@ const Navbar = () => {
                     </Link>
                     <div className="navbar-actions">
                         <LanguageToggle />
-                        <FontSizeControl />
+                        <FontSizeControl className="hide-xs" />
                         <ThemeToggle />
                     </div>
                 </div>
@@ -193,8 +193,6 @@ const Navbar = () => {
                             <span className="logo-text">Community AI</span>
                         </Link>
                         <div className="mobile-menu-controls">
-                            <LanguageToggle />
-                            <FontSizeControl />
                             <ThemeToggle />
                             <button className="mobile-menu-btn" onClick={() => setMobileMenuOpen(false)} aria-label="Close menu">
                                 <X size={24} />
@@ -203,6 +201,17 @@ const Navbar = () => {
                     </div>
 
                     <div className="mobile-menu-content">
+                        {/* Display settings get their own row: they don't fit in the header on phones. */}
+                        <div className="mobile-display-settings">
+                            <div className="mobile-setting">
+                                <span>Language</span>
+                                <LanguageToggle />
+                            </div>
+                            <div className="mobile-setting">
+                                <span>Text size</span>
+                                <FontSizeControl />
+                            </div>
+                        </div>
                         {isAuthenticated ? (
                             <>
                                 <div className="mobile-user-info">
