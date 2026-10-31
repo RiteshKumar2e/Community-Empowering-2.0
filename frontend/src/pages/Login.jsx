@@ -26,6 +26,14 @@ const Login = () => {
     const [emailForOtp, setEmailForOtp] = useState('')
     const [showPassword, setShowPassword] = useState(false)
     const [pendingCount] = useState(() => getPendingResult()?.schemes?.length || 0)
+    // Set by AuthContext when a saved session stopped being valid.
+    const [sessionExpired] = useState(() => {
+        try {
+            const v = sessionStorage.getItem('session-expired') === '1'
+            sessionStorage.removeItem('session-expired')
+            return v
+        } catch { return false }
+    })
     // Google renders its button at a fixed pixel width (200–400), so fit it to
     // the card on small phones instead of letting it overflow.
     const [googleBtnWidth] = useState(() => Math.max(200, Math.min(320, window.innerWidth - 80)))
@@ -100,6 +108,12 @@ const Login = () => {
                         <h1>Welcome Back</h1>
                         <p>Sign in to access your community dashboard</p>
                     </div>
+
+                    {sessionExpired && (
+                        <p className="session-note" role="status">
+                            Your session has expired. Please sign in again.
+                        </p>
+                    )}
 
                     {pendingCount > 0 && (
                         <p className="pending-note" role="status">

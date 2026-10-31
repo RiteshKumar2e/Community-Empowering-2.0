@@ -26,18 +26,19 @@ api.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response?.status === 401) {
-            // Check if this is a background tracking request
-            const isTrackingRequest = error.config?.url?.includes('/tracking/') ||
-                error.config?.url?.includes('/log/');
+            const url = error.config?.url || ''
+            // /auth/* 401s are expected answers (wrong password, wrong OTP), and
+            // background tracking calls must never sign anyone out.
+            const isAuthCall = url.includes('/auth/')
+            const isTrackingRequest = url.includes('/tracking/') || url.includes('/log/')
+            const sentToken = Boolean(error.config?.headers?.Authorization)
 
-            if (!isTrackingRequest) {
-                // Only clear session for critical failed requests
-                console.warn('Session might be invalid, but NOT forcing logout as per user preference.');
-                // We keep the token in localStorage and only let the user logout manually
-                // unless it's a critical auth-required page refresh that will naturally 
-                // prompt for login if data fails to load.
-            } else {
-                console.log('Background tracking failed (401), ignoring to prevent logout.');
+            if (sentToken && !isAuthCall && !isTrackingRequest) {
+                // The server no longer accepts this login token (expired, or the
+                // signing key changed). Staying "signed in" would just make every
+                // page fail, so AuthContext clears the session and asks the user
+                // to sign in again.
+                window.dispatchEvent(new Event('auth:expired'))
             }
         }
         return Promise.reject(error)

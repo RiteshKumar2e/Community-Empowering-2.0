@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../services/api'
-import { syncPending, takePostAuthRedirect } from '../services/myData'
+import { syncPending, takePostAuthRedirect, setPostAuthRedirect } from '../services/myData'
 import { trackEvent } from '../utils/analytics'
 
 // Exported so the build-time prerenderer can render public pages as a
@@ -40,6 +40,28 @@ export const AuthProvider = ({ children }) => {
 
         setLoading(false)
     }, [])
+
+    // api.js fires "auth:expired" when the server rejects the saved token.
+    // Clear the dead session; on a signed-in-only page, send the user to log
+    // in and bring them back afterwards. Public pages just carry on signed out.
+    useEffect(() => {
+        const PRIVATE_PREFIXES = ['/dashboard', '/assistant', '/resources', '/learning', '/profile', '/feedback', '/forum', '/admin']
+        const onExpired = () => {
+            if (!localStorage.getItem('token')) return // already handled
+            localStorage.removeItem('token')
+            localStorage.removeItem('user')
+            delete api.defaults.headers.common['Authorization']
+            setUser(null)
+            const path = window.location.pathname
+            if (PRIVATE_PREFIXES.some((p) => path === p || path.startsWith(`${p}/`))) {
+                try { sessionStorage.setItem('session-expired', '1') } catch { /* ignore */ }
+                setPostAuthRedirect(path)
+                navigate('/login', { replace: true })
+            }
+        }
+        window.addEventListener('auth:expired', onExpired)
+        return () => window.removeEventListener('auth:expired', onExpired)
+    }, [navigate])
 
     // After any successful sign-in: upload progress the visitor made before
     // signing in (eligibility result, bookmarks), then record the event.
