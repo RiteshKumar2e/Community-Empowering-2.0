@@ -5,6 +5,20 @@ import google.generativeai as genai
 from app.core.config import settings
 from app.services.search_service import search_service
 
+def _models_from_env(name: str, default: List[str]) -> List[str]:
+    value = os.environ.get(name, "").strip()
+    return [m.strip() for m in value.split(",") if m.strip()] if value else default
+
+
+_GONE_MARKERS = ("model_not_found", "decommissioned", "does not exist", "is not found",
+                 "no longer available", "not supported for generatecontent")
+
+
+def _model_is_gone(error: Exception) -> bool:
+    text = str(error).lower()
+    return any(marker in text for marker in _GONE_MARKERS)
+
+
 class AIService:
     """AI Service with cascading fallback: Groq → Gemini"""
     
@@ -26,38 +40,25 @@ class AIService:
             except Exception as e:
                 print(f"Failed to initialize Gemini: {e}")
         
-        # High-performance Groq Models (Top 40)
-        self.groq_models = [
-            "llama-3.1-8b-instant",
-            "llama-3.2-1b-preview", "llama-3.2-3b-preview", "llama-3.2-11b-text-preview",
-            "llama-3.2-90b-text-preview", "llama3-70b-8192", "llama3-8b-8192",
-            "llama3-70b-instruct", "llama3-8b-instruct", "mixtral-8x7b-32768",
-            "gemma2-9b-it", "gemma-7b-it", "llama-guard-3-8b", 
-            "llava-v1.5-7b-4096-preview", "whisper-large-v3", "distil-whisper-large-v3-en",
-            "llama-2-70b-chat", "llama-2-13b-chat", "llama-2-7b-chat",
-            "mixtral-8x22b-instruct-v0.1", "mixtral-8x22b-v0.1", "codellama-34b-instruct",
-            "codellama-70b-instruct", "falcon-180b-chat", "qwen-2.5-72b-instruct",
-            "qwen-2.5-7b-instruct", "mistral-large-latest", "mistral-medium-latest",
-            "mistral-small-latest", "pixtral-12b-2409", "internlm2-20b-chat",
-            "deepseek-coder-33b-instruct", "deepseek-llm-67b-chat", "phosphor-llama-3-8b",
-            "llama-3-groq-8b-tool-use-preview", "llama-3-groq-70b-tool-use-preview",
-            "hermes-3-llama-3.1-8b", "hermes-3-llama-3.1-70b"
-        ]
-        
-        # Gemini Models (10 models)
-        self.gemini_models = [
-            "gemini-2.0-flash-exp",
-            "gemini-2.5-pro",
+        # Models to try, best first. Providers retire models regularly; when that
+        # happens, set GROQ_MODELS / GEMINI_MODELS (comma-separated) in the
+        # environment instead of changing code. Checked against both providers'
+        # live model lists on 31 Oct 2026.
+        self.groq_models = _models_from_env("GROQ_MODELS", [
+            "openai/gpt-oss-20b",     # fast, good multilingual answers
+            "openai/gpt-oss-120b",    # stronger, slower
+            "qwen/qwen3.8-27b",
+        ])
+        self.gemini_models = _models_from_env("GEMINI_MODELS", [
+            "gemini-flash-latest",       # alias Google keeps pointed at the current Flash
+            "gemini-3.5-flash",
             "gemini-2.5-flash",
-            "gemini-2.5-flash-8b",
-            "gemini-2.0-pro",
-            "gemini-pro",
-            "gemini-pro-vision",
-            "gemini-ultra",
-            "gemini-1.5-pro-latest",
-            "gemini-1.5-flash-latest"
-        ]
-        
+            "gemini-flash-lite-latest",
+        ])
+        # Models the provider told us no longer exist: skipped for the rest of
+        # this process instead of being retried on every message.
+        self._dead_models = set()
+
         # System prompts for different languages
         self.system_prompts = {
             "auto": """You are the official AI Assistant of the 'Community AI' platform.
@@ -213,6 +214,11 @@ class AIService:
             return None
         
         try:
+            extra = {}
+            if model.startswith("openai/gpt-oss"):
+                # Reasoning models: keep thinking short so answers come back fast
+                # and the token budget goes to the reply.
+                extra["extra_body"] = {"reasoning_effort": "low"}
             chat_completion = self.groq_client.chat.completions.create(
                 messages=[
                     {"role": "system", "content": system_prompt},
@@ -220,11 +226,17 @@ class AIService:
                 ],
                 model=model,
                 temperature=0.7,
-                max_tokens=1024
+                max_tokens=2048,
+                timeout=30,
+                **extra,
             )
-            return chat_completion.choices[0].message.content
+            return chat_completion.choices[0].message.content or None
         except Exception as e:
-            print(f"Groq error with model {model}: {e}")
+            if _model_is_gone(e):
+                self._dead_models.add(model)
+                print(f"Groq model {model} is no longer available; skipping it from now on")
+            else:
+                print(f"Groq error with model {model}: {type(e).__name__}")
             return None
     
     async def _try_gemini(self, message: str, system_prompt: str, model: str) -> Optional[str]:
@@ -236,9 +248,13 @@ class AIService:
             gemini_model = genai.GenerativeModel(model)
             full_prompt = f"{system_prompt}\n\nUser: {message}\nAssistant:"
             response = gemini_model.generate_content(full_prompt)
-            return response.text
+            return response.text or None
         except Exception as e:
-            print(f"Gemini error with model {model}: {e}")
+            if _model_is_gone(e):
+                self._dead_models.add(model)
+                print(f"Gemini model {model} is no longer available; skipping it from now on")
+            else:
+                print(f"Gemini error with model {model}: {type(e).__name__}")
             return None
     
     async def get_chat_response(
@@ -262,6 +278,8 @@ class AIService:
         # Phase 1: Try Groq (Primary)
         print("Attempting Groq API...")
         for groq_model in self.groq_models:
+            if groq_model in self._dead_models:
+                continue
             response = await self._try_groq(message, system_prompt, groq_model)
             if response:
                 print(f"✓ Success with Groq model: {groq_model}")
@@ -271,6 +289,8 @@ class AIService:
         
         # Phase 2: Try Gemini (Secondary Fallback)
         for gemini_model in self.gemini_models:
+            if gemini_model in self._dead_models:
+                continue
             response = await self._try_gemini(message, system_prompt, gemini_model)
             if response:
                 print(f"✓ Success with Gemini model: {gemini_model}")
