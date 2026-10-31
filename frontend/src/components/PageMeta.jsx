@@ -1,44 +1,34 @@
 import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
-import { loadAnalytics, trackPageView } from '../utils/analytics'
+import { getRouteMeta } from '../seo/routes'
 
-const SITE = 'Community AI'
-const DEFAULT_DESCRIPTION =
-    'Find government schemes, scholarships, learning resources and local help with Community AI, a free AI assistant that answers in your language.'
-
-// Per-route <title> and meta description. Unknown paths fall through to the 404 entry.
-const PAGES = {
-    '/': { title: `${SITE} – Government Schemes, Education & Resources in Your Language` },
-    '/login': { title: `Sign In | ${SITE}`, description: 'Sign in to Community AI to ask questions, track schemes and join the community forum.' },
-    '/register': { title: `Create a Free Account | ${SITE}`, description: 'Create a free Community AI account to get personalised help with government schemes, education and local resources.' },
-    '/admin-login': { title: `Admin Sign In | ${SITE}` },
-    '/dashboard': { title: `Dashboard | ${SITE}` },
-    '/assistant': { title: `AI Assistant | ${SITE}` },
-    '/resources': { title: `Resources | ${SITE}` },
-    '/learning': { title: `Learning Hub | ${SITE}` },
-    '/profile': { title: `My Profile | ${SITE}` },
-    '/feedback': { title: `Feedback | ${SITE}` },
-    '/forum': { title: `Community Forum | ${SITE}` },
-    '/admin': { title: `Admin Dashboard | ${SITE}` },
-    '/privacy': { title: `Privacy Policy | ${SITE}`, description: 'How Community AI collects, uses and protects your personal information.' },
-    '/terms': { title: `Terms & Conditions | ${SITE}`, description: 'The terms that apply when you use Community AI.' },
+// Keeps <title>, description, canonical and robots in sync with the route.
+// Public pages also get these tags in their prerendered HTML at build time
+// (scripts/prerender.mjs); this keeps them right during client navigation.
+const setTag = (selector, create, value) => {
+    let el = document.head.querySelector(selector)
+    if (value == null) {
+        el?.remove()
+        return
+    }
+    if (!el) {
+        el = create()
+        document.head.appendChild(el)
+    }
+    el.setAttribute(el.tagName === 'LINK' ? 'href' : 'content', value)
 }
-const NOT_FOUND = { title: `Page Not Found | ${SITE}` }
 
 const PageMeta = () => {
     const { pathname } = useLocation()
 
+    // GA4 page views come from the Google tag's history-change tracking
+    // (see utils/analytics.js), so nothing is sent from here.
     useEffect(() => {
-        loadAnalytics()
-    }, [])
-
-    useEffect(() => {
-        const page = PAGES[pathname] || NOT_FOUND
-        document.title = page.title
-        document
-            .querySelector('meta[name="description"]')
-            ?.setAttribute('content', page.description || DEFAULT_DESCRIPTION)
-        trackPageView(pathname, page.title)
+        const meta = getRouteMeta(pathname)
+        document.title = meta.title
+        setTag('meta[name="description"]', () => Object.assign(document.createElement('meta'), { name: 'description' }), meta.description)
+        setTag('link[rel="canonical"]', () => Object.assign(document.createElement('link'), { rel: 'canonical' }), meta.canonical)
+        setTag('meta[name="robots"]', () => Object.assign(document.createElement('meta'), { name: 'robots' }), meta.index ? null : 'noindex, follow')
     }, [pathname])
 
     return null

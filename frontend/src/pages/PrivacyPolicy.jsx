@@ -50,9 +50,12 @@ const PrivacyPolicy = () => {
                 <h2>Cookies and local storage</h2>
                 <p>
                     We store your login session, theme and language preference in your browser's
-                    local storage. These are needed for the site to work. If we enable analytics,
-                    it only runs after you accept it in the cookie banner, and you can change that
-                    choice by clearing your browser's site data.
+                    local storage. These are needed for the site to work. We use Google Analytics to
+                    understand which pages are useful. Analytics cookies are only set after you click
+                    “Accept” in the cookie banner; until then Google Analytics runs in a cookieless
+                    mode and cannot recognise you across visits. We never send your name, email,
+                    phone number or eligibility answers to analytics. You can change your choice by
+                    clearing your browser's site data.
                 </p>
 
                 <h2>How long we keep data</h2>

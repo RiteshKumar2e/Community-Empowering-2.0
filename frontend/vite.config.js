@@ -24,5 +24,7 @@ export default defineConfig({
     outDir: 'dist',
     // Public source maps would publish the full original source code
     sourcemap: false,
+    // Read by scripts/prerender.mjs to link each page's CSS; deleted afterwards.
+    manifest: true,
   }
 })

@@ -7,6 +7,7 @@ import {
     UserCheck, FileText, BarChart3, Clock, Trash2, Heart, ExternalLink, Radar
 } from 'lucide-react'
 import api from '../services/api'
+import AdminGrowthPanel from '../components/AdminGrowthPanel'
 import '../styles/AdminDashboard.css'
 
 const AdminDashboard = () => {
@@ -401,6 +402,12 @@ const AdminDashboard = () => {
                         Overview
                     </button>
                     <button
+                        className={`admin-tab ${activeTab === 'growth' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('growth')}
+                    >
+                        Growth
+                    </button>
+                    <button
                         className={`admin-tab ${activeTab === 'manage' ? 'active' : ''}`}
                         onClick={() => setActiveTab('manage')}
                     >
@@ -431,6 +438,8 @@ const AdminDashboard = () => {
                         Activity Feed
                     </button>
                 </div>
+
+                {activeTab === 'growth' && <AdminGrowthPanel />}
 
                 {activeTab === 'overview' && (
                     <>

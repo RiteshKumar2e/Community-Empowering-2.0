@@ -1,7 +1,9 @@
 User-agent: *
 Allow: /
 
-# Signed-in and admin areas have nothing for search engines to index
+# Signed-in account areas. These pages are also served with
+# <meta name="robots" content="noindex"> and the API requires a login token;
+# this file only keeps crawlers from wasting time on them.
 Disallow: /admin
 Disallow: /admin-login
 Disallow: /dashboard
@@ -11,5 +13,6 @@ Disallow: /resources
 Disallow: /learning
 Disallow: /feedback
 Disallow: /forum
+Disallow: /api/
 
 Sitemap: https://communityai.co.in/sitemap.xml

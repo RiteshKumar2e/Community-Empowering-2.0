@@ -1,0 +1,237 @@
+/* ===================================
+   ADMIN: GROWTH & RETENTION TAB
+   Single-series bar color validated with the dataviz palette script:
+   --primary-600 on light surfaces, --primary-500 on dark.
+   =================================== */
+
+.growth-panel {
+  --growth-bar: var(--primary-600);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+body:not(.light-theme) .growth-panel {
+  --growth-bar: var(--primary-500);
+}
+
+.growth-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.growth-head h2 {
+  margin: 0;
+  font-size: var(--text-xl);
+}
+
+.growth-periods {
+  display: inline-flex;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.growth-periods button {
+  padding: 6px 12px;
+  font-family: inherit;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  background: var(--bg-card);
+  border: none;
+  border-left: 1px solid var(--border-color);
+  cursor: pointer;
+}
+
+.growth-periods button:first-child {
+  border-left: none;
+}
+
+.growth-periods button.active {
+  color: #fff;
+  background-color: var(--primary-600);
+}
+
+.growth-source {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--text-tertiary);
+}
+
+.growth-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: var(--space-3);
+}
+
+.growth-tile {
+  padding: var(--space-4);
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xl);
+}
+
+.growth-tile-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.growth-tile-value {
+  margin-top: var(--space-1);
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.growth-tile-note {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+}
+
+.growth-subtitle {
+  margin: var(--space-2) 0 var(--space-2);
+  font-size: var(--text-md);
+}
+
+.growth-empty {
+  padding: var(--space-5);
+  font-size: var(--text-sm);
+  color: var(--text-tertiary);
+  text-align: center;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-lg);
+}
+
+/* --- Bar chart --- */
+
+.growth-chart {
+  margin: 0;
+  padding: var(--space-4);
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xl);
+}
+
+.growth-bars {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: 2px; /* surface gap between adjacent bars */
+  height: 160px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.growth-bar-hit {
+  display: flex;
+  flex: 1;
+  align-items: flex-end;
+  height: 100%;
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: default;
+}
+
+.growth-bar {
+  display: block;
+  width: 100%;
+  max-width: 18px;
+  margin: 0 auto;
+  background-color: var(--growth-bar);
+  border-radius: 4px 4px 0 0;
+}
+
+.growth-bar-hit:hover .growth-bar,
+.growth-bar-hit:focus-visible .growth-bar {
+  opacity: 0.8;
+}
+
+.growth-bar-hit:focus-visible {
+  outline: 2px solid var(--primary-500);
+  outline-offset: 2px;
+}
+
+.growth-tooltip {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  padding: 6px 10px;
+  font-size: var(--text-xs);
+  color: var(--text-primary);
+  white-space: nowrap;
+  pointer-events: none;
+  background-color: var(--bg-elevated, var(--bg-card));
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+}
+
+.growth-tooltip span {
+  color: var(--text-tertiary);
+}
+
+.growth-axis {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+}
+
+.growth-table {
+  margin-top: var(--space-3);
+  font-size: var(--text-sm);
+}
+
+.growth-table summary {
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.growth-table table,
+.growth-simple-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+}
+
+.growth-table th,
+.growth-table td,
+.growth-simple-table td {
+  padding: 6px 8px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.growth-table td:last-child,
+.growth-simple-table td:last-child {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.growth-columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--space-5);
+}
+
+.growth-definitions ul {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-left: var(--space-5);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}

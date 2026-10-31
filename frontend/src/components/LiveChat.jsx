@@ -61,7 +61,9 @@ const LiveChat = () => {
             wsProtocol = 'ws';
         }
 
-        const wsUrl = `${wsProtocol}://${wsHost}/ws/chat/${user.id}`;
+        // The server checks this token matches user.id before accepting the socket.
+        const token = localStorage.getItem('token');
+        const wsUrl = `${wsProtocol}://${wsHost}/ws/chat/${user.id}?token=${encodeURIComponent(token || '')}`;
         let socket = null;
         let isMounted = true;
         let reconnectTimeout = null;
@@ -69,7 +71,7 @@ const LiveChat = () => {
         const connect = () => {
             if (!isMounted) return;
 
-            console.log(`📡 Connecting to WebSocket: ${wsUrl}`);
+            console.log(`📡 Connecting to WebSocket: ${wsProtocol}://${wsHost}/ws/chat/${user.id}`);
             socket = new WebSocket(wsUrl);
 
             socket.onopen = () => {

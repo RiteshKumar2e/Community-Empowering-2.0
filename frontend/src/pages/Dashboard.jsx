@@ -5,6 +5,7 @@ import { MessageSquare, BookOpen, Search, TrendingUp, Award, Users } from 'lucid
 import { Link } from 'react-router-dom'
 import api from '../services/api'
 import '../styles/Dashboard.css'
+import MySchemesPanel from '../components/MySchemesPanel'
 
 const Dashboard = () => {
     const { user } = useAuth()
@@ -80,6 +81,9 @@ const Dashboard = () => {
                         </span>
                     </div>
                 </div>
+
+                {/* Saved schemes, eligibility results, suggestions */}
+                <MySchemesPanel communityType={user?.communityType} />
 
                 {/* Stats Grid */}
                 <div className="stats-section">

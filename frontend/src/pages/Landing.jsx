@@ -9,6 +9,7 @@ import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence, useScroll, useSpring, useReducedMotion } from 'framer-motion'
 import '../styles/Landing.css'
 import '../styles/LandingInteractive.css'
+import { trackOnce } from '../utils/analytics'
 
 const Landing = () => {
     const { isAuthenticated } = useAuth()
@@ -25,6 +26,10 @@ const Landing = () => {
     const progressScale = useSpring(scrollYProgress, { stiffness: 140, damping: 30, restDelta: 0.001 })
 
     // Fade sections in as they scroll into view.
+    useEffect(() => {
+        trackOnce('landing_page_view')
+    }, [])
+
     useEffect(() => {
         const root = landingRef.current
         if (!root || reduceMotion || !('IntersectionObserver' in window)) return
@@ -568,6 +573,15 @@ const Landing = () => {
                         </div>
 
                         <div className="footer-column">
+                            <h5>Schemes</h5>
+                            <Link to="/schemes">All Government Schemes</Link>
+                            <Link to="/eligibility">Eligibility Checker</Link>
+                            <Link to="/schemes/category/students">For Students</Link>
+                            <Link to="/schemes/category/farmers">For Farmers</Link>
+                            <Link to="/schemes/category/women">For Women</Link>
+                        </div>
+
+                        <div className="footer-column">
                             <h5>Ecosystem</h5>
                             <button onClick={() => scrollToSection('about')} className="footer-scroll-link">About</button>
                             <button onClick={() => scrollToSection('team')} className="footer-scroll-link">The Team</button>
@@ -578,11 +592,16 @@ const Landing = () => {
                             <h5>Legal</h5>
                             <Link to="/privacy">Privacy Policy</Link>
                             <Link to="/terms">Terms &amp; Conditions</Link>
+                            <Link to="/editorial-policy">Editorial Policy</Link>
                             <a href="mailto:riteshkumar90359@gmail.com">riteshkumar90359@gmail.com</a>
                         </div>
                     </div>
 
                     <div className="footer-bottom">
+                        <p className="footer-disclaimer">
+                            Community AI is an independent information platform and is not affiliated with the Government of India
+                            or any state government. Always confirm scheme details on the official portal.
+                        </p>
                         <p>&copy; 2026 Community AI. Built with ❤️ for communities across India</p>
                     </div>
                 </div>

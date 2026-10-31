@@ -1,17 +1,19 @@
 from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-from pydantic import BaseModel, EmailStr, ConfigDict
+from pydantic import BaseModel, EmailStr, ConfigDict, Field
 from typing import Optional
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from google.oauth2 import id_token
 from google.auth.transport import requests
 from app.core.config import settings
 from app.core.database import get_db
 from app.core.security import verify_password, get_password_hash, create_access_token
-from app.models.models import User
+from app.models.models import User, PasswordResetCode
+from app.core.rate_limit import login_limiter, register_limiter, password_reset_limiter
 from app.services.email_service import email_service
 import os
+from app.core.privacy import mask_email
 
 router = APIRouter()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/auth/login")
@@ -20,17 +22,29 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/auth/login")
 google_request = requests.Request()
 
 class UserRegister(BaseModel):
-    name: str
+    # Same rules as the signup form, enforced here so they can't be bypassed.
+    name: str = Field(..., min_length=2, max_length=100)
     email: EmailStr
-    phone: str
-    password: str
-    location: str
-    language: str = "en"
-    communityType: str = "general"
+    phone: str = Field(..., pattern=r"^(\+91|0)?[\s-]*[6-9](?:[\s-]*\d){9}$")
+    # bcrypt only uses the first 72 bytes of a password.
+    password: str = Field(..., min_length=6, max_length=72)
+    location: str = Field(..., min_length=2, max_length=120)
+    language: str = Field("en", max_length=10)
+    communityType: str = Field("general", max_length=30)
 
 class UserLogin(BaseModel):
     email: EmailStr
-    password: str
+    password: str = Field(..., max_length=128)
+
+
+class ForgotPasswordIn(BaseModel):
+    email: EmailStr
+
+
+class ResetPasswordIn(BaseModel):
+    email: EmailStr
+    code: str = Field(..., pattern=r"^\d{6}$")
+    new_password: str = Field(..., min_length=6, max_length=72)
 
 class Token(BaseModel):
     access_token: str
@@ -56,7 +70,7 @@ class GoogleOTPVerify(BaseModel):
     otp: str
 
 
-@router.post("/register", response_model=dict)
+@router.post("/register", response_model=dict, dependencies=[Depends(register_limiter)])
 async def register(user_data: UserRegister, db: Session = Depends(get_db)):
     """Register a new user"""
     # Check if user exists
@@ -99,7 +113,7 @@ async def register(user_data: UserRegister, db: Session = Depends(get_db)):
         }
     }
 
-@router.post("/login", response_model=dict)
+@router.post("/login", response_model=dict, dependencies=[Depends(login_limiter)])
 async def login(user_data: UserLogin, db: Session = Depends(get_db)):
     """Login user"""
     user = db.query(User).filter(User.email == user_data.email).first()
@@ -155,7 +169,7 @@ async def google_login(google_data: GoogleLogin, background_tasks: BackgroundTas
         name = idinfo.get('name', '')
         picture = idinfo.get('picture', '')
         
-        print(f"✅ Google token verified for email: {email}")
+        print(f"✅ Google token verified for email: {mask_email(email)}")
         
         if not email:
             raise HTTPException(
@@ -168,7 +182,7 @@ async def google_login(google_data: GoogleLogin, background_tasks: BackgroundTas
         
         if not user:
             # Create new user with Google account (not yet verified)
-            print(f"📝 Creating new user for: {email}")
+            print(f"📝 Creating new user for: {mask_email(email)}")
             user = User(
                 name=name,
                 email=email,
@@ -196,7 +210,7 @@ async def google_login(google_data: GoogleLogin, background_tasks: BackgroundTas
         # INSTANT FIRE-AND-FORGET EMAIL via BackgroundTasks
         background_tasks.add_task(email_service.send_otp, email, otp)
         
-        print(f"📧 OTP Dispatch Queued for {email}")
+        print(f"📧 OTP Dispatch Queued for {mask_email(email)}")
         
         return {
             "success": True,
@@ -272,7 +286,7 @@ async def verify_google_otp(otp_data: GoogleOTPVerify, db: Session = Depends(get
             )
         
         # OTP verified successfully
-        print(f"✅ OTP verified for {user.email}")
+        print(f"✅ OTP verified for {mask_email(user.email)}")
         
         # Mark email as verified, clear OTP and update login time
         user.google_email_verified = True
@@ -291,7 +305,7 @@ async def verify_google_otp(otp_data: GoogleOTPVerify, db: Session = Depends(get
         # Create access token
         access_token = create_access_token(data={"sub": user.email})
         
-        print(f"🎉 Google login successful for: {user.email}")
+        print(f"🎉 Google login successful for: {mask_email(user.email)}")
         
         # Build user data dict manually to avoid db.refresh or relationship loading delays
         user_data_resp = {
@@ -357,7 +371,7 @@ async def resend_google_otp(email_data: dict, background_tasks: BackgroundTasks,
         # Send OTP email via BackgroundTasks
         background_tasks.add_task(email_service.send_otp, email, otp)
         
-        print(f"🔄 OTP resend queued for {email}")
+        print(f"🔄 OTP resend queued for {mask_email(email)}")
         
         return {
             "success": True,
@@ -374,3 +388,67 @@ async def resend_google_otp(email_data: dict, background_tasks: BackgroundTasks,
         )
 
 
+
+
+# --- Password reset ----------------------------------------------------------
+# A 6-digit code is emailed; only its bcrypt hash is stored. Codes expire after
+# 15 minutes, allow 5 attempts, and are single-use. The request endpoint always
+# returns the same message so it can't be used to find out who has an account.
+
+RESET_CODE_TTL = timedelta(minutes=15)
+RESET_MAX_ATTEMPTS = 5
+RESET_GENERIC_MESSAGE = "If an account exists for that email, we've sent a 6-digit reset code. It expires in 15 minutes."
+
+
+@router.post("/forgot-password", dependencies=[Depends(password_reset_limiter)])
+async def forgot_password(body: ForgotPasswordIn, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == body.email).first()
+    if user and user.is_active:
+        # Invalidate any earlier unused codes.
+        db.query(PasswordResetCode).filter(
+            PasswordResetCode.user_id == user.id, PasswordResetCode.used == False  # noqa: E712
+        ).update({"used": True})
+        code = email_service.generate_otp()
+        db.add(PasswordResetCode(
+            user_id=user.id,
+            code_hash=get_password_hash(code),
+            expires_at=datetime.now(timezone.utc) + RESET_CODE_TTL,
+        ))
+        db.commit()
+        background_tasks.add_task(email_service.send_otp, user.email, code, "password_reset")
+    return {"success": True, "message": RESET_GENERIC_MESSAGE}
+
+
+@router.post("/reset-password", dependencies=[Depends(password_reset_limiter)])
+async def reset_password(body: ResetPasswordIn, db: Session = Depends(get_db)):
+    invalid = HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="That code is invalid or has expired. Request a new one.")
+    user = db.query(User).filter(User.email == body.email).first()
+    if not user:
+        raise invalid
+
+    record = (
+        db.query(PasswordResetCode)
+        .filter(PasswordResetCode.user_id == user.id, PasswordResetCode.used == False)  # noqa: E712
+        .order_by(PasswordResetCode.created_at.desc(), PasswordResetCode.id.desc())
+        .first()
+    )
+    if not record:
+        raise invalid
+
+    expires_at = record.expires_at
+    if expires_at.tzinfo is None:  # SQLite returns naive datetimes
+        expires_at = expires_at.replace(tzinfo=timezone.utc)
+    if expires_at < datetime.now(timezone.utc) or (record.attempts or 0) >= RESET_MAX_ATTEMPTS:
+        record.used = True
+        db.commit()
+        raise invalid
+
+    if not verify_password(body.code, record.code_hash):
+        record.attempts = (record.attempts or 0) + 1
+        db.commit()
+        raise invalid
+
+    record.used = True
+    user.password_hash = get_password_hash(body.new_password)
+    db.commit()
+    return {"success": True, "message": "Your password has been changed. You can now sign in."}

@@ -69,5 +69,8 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         case_sensitive = True
+        # .env also holds keys read elsewhere (AWS_*, DATABASE_URL, …); without
+        # this, pydantic-settings refuses to start on any key not declared here.
+        extra = "ignore"
 
 settings = Settings()

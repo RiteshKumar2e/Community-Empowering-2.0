@@ -9,6 +9,9 @@ import {
 } from 'lucide-react'
 import '../styles/Auth.css'
 import '../styles/RegisterWizard.css'
+import { trackOnce } from '../utils/analytics'
+import { getPendingResult } from '../services/myData'
+import { getScheme } from '../data/schemes'
 
 const STEPS = [
     { id: 'about', title: 'About you', hint: 'So we know who to help' },
@@ -101,8 +104,14 @@ const Register = () => {
     const [website, setWebsite] = useState('')
     const firstFieldRef = useRef(null)
 
+    const next = searchParams.get('next')
+    const applyScheme = next === 'apply' ? getScheme(searchParams.get('scheme') || '') : null
+    const [pendingCount] = useState(() => getPendingResult()?.schemes?.length || 0)
+
     useEffect(() => {
         window.scrollTo(0, 0)
+        trackOnce('signup_started', 'register_page', { source: next || (searchParams.get('need') ? 'landing_need' : 'direct') })
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     useEffect(() => {
@@ -239,6 +248,18 @@ const Register = () => {
                         <h1>Join Community AI</h1>
                         <p>{STEPS[step].hint}</p>
                     </div>
+
+                    {applyScheme && (
+                        <p className="pending-note" role="status">
+                            Create your free account to apply for <strong>{applyScheme.shortName}</strong>. You’ll come straight back to the scheme page with the official application link.
+                        </p>
+                    )}
+
+                    {pendingCount > 0 && (
+                        <p className="pending-note" role="status">
+                            ✓ Your {pendingCount} matched {pendingCount === 1 ? 'scheme is' : 'schemes are'} kept on this device and will be saved to your account when you finish.
+                        </p>
+                    )}
 
                     {/* Progress */}
                     <div className="wizard-progress" aria-label={`Step ${step + 1} of ${STEPS.length}`}>

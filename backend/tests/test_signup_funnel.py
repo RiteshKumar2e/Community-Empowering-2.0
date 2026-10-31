@@ -1,0 +1,165 @@
+"""Tests for signup, saved schemes, eligibility results, password reset,
+admin growth stats and the chat authorization fixes.
+
+Runs against a throwaway SQLite file. The environment is set BEFORE the app is
+imported so the real (production) database from .env is never used, and email
+sending is replaced with a stub so no real emails go out.
+
+    cd backend && python -m pytest tests -q
+"""
+import os
+import sys
+import tempfile
+
+_DB_FILE = os.path.join(tempfile.mkdtemp(), "test.db")
+os.environ["TURSO_DATABASE_URL"] = ""
+os.environ["TURSO_AUTH_TOKEN"] = ""
+os.environ["DATABASE_URL"] = f"sqlite:///{_DB_FILE}"
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+import pytest  # noqa: E402
+from fastapi.testclient import TestClient  # noqa: E402
+from starlette.websockets import WebSocketDisconnect  # noqa: E402
+
+from app.core import database  # noqa: E402
+
+assert str(database.engine.url).startswith("sqlite:///"), "tests must never run against a remote database"
+
+from app.core.database import Base, engine  # noqa: E402
+from app.core import rate_limit  # noqa: E402
+from app.services.email_service import email_service  # noqa: E402
+import main  # noqa: E402
+
+Base.metadata.create_all(bind=engine)
+client = TestClient(main.app)  # no `with`: skips startup seeding/market scan
+
+SENT_CODES = {}
+
+
+@pytest.fixture(autouse=True)
+def _no_real_email_and_fresh_limits(monkeypatch):
+    monkeypatch.setattr(email_service, "send_otp", lambda email, code, purpose="google_login": SENT_CODES.__setitem__(email, code) or True)
+    for limiter in (rate_limit.login_limiter, rate_limit.register_limiter, rate_limit.password_reset_limiter):
+        limiter._hits.clear()
+    yield
+
+
+def register(email, password="secret123", **overrides):
+    body = {
+        "name": "Test User", "email": email, "phone": "9876543210", "password": password,
+        "location": "Ranchi, Jharkhand", "language": "en", "communityType": "farmer",
+    }
+    body.update(overrides)
+    return client.post("/api/auth/register", json=body)
+
+
+def auth(token):
+    return {"Authorization": f"Bearer {token}"}
+
+
+ANSWERS = {"age": 35, "gender": "female", "occupation": "farmer", "state": "Jharkhand",
+           "taxPayer": "no", "income": "below", "daughter": "yes"}
+
+
+def test_register_validates_input_on_server():
+    assert register("short@example.com", password="123").status_code == 422
+    assert register("phone@example.com", phone="12345").status_code == 422
+    assert register("name@example.com", name="A").status_code == 422
+    assert register("ok@example.com").status_code == 200
+    assert register("ok@example.com").status_code == 400  # duplicate
+
+
+def test_login_success_and_failure():
+    register("login@example.com")
+    assert client.post("/api/auth/login", json={"email": "login@example.com", "password": "wrong-pass"}).status_code == 401
+    r = client.post("/api/auth/login", json={"email": "login@example.com", "password": "secret123"})
+    assert r.status_code == 200 and r.json()["token"]
+
+
+def test_private_routes_require_login():
+    assert client.get("/api/me/saved-schemes").status_code == 401
+    assert client.post("/api/me/saved-schemes", json={"slug": "pm-kisan"}).status_code == 401
+    assert client.get("/api/me/eligibility-results").status_code == 401
+    assert client.get("/api/chat/users").status_code == 401
+
+
+def test_saved_schemes_are_per_user():
+    a = register("alice@example.com").json()["token"]
+    b = register("bob@example.com").json()["token"]
+
+    assert client.post("/api/me/saved-schemes", json={"slug": "pm-kisan"}, headers=auth(a)).status_code == 201
+    assert client.post("/api/me/saved-schemes", json={"slug": "pm-kisan"}, headers=auth(a)).status_code == 201  # idempotent
+    assert client.post("/api/me/saved-schemes", json={"slug": "Bad Slug!"}, headers=auth(a)).status_code == 422
+
+    assert [s["slug"] for s in client.get("/api/me/saved-schemes", headers=auth(a)).json()] == ["pm-kisan"]
+    assert client.get("/api/me/saved-schemes", headers=auth(b)).json() == []
+
+    # Bob cannot delete Alice's bookmark.
+    assert client.delete("/api/me/saved-schemes/pm-kisan", headers=auth(b)).json()["removed"] is False
+    assert len(client.get("/api/me/saved-schemes", headers=auth(a)).json()) == 1
+    assert client.delete("/api/me/saved-schemes/pm-kisan", headers=auth(a)).json()["removed"] is True
+
+
+def test_eligibility_results_saved_without_sensitive_fields():
+    token = register("carol@example.com").json()["token"]
+    bad = client.post("/api/me/eligibility-results", json={"answers": {**ANSWERS, "age": 500}, "schemes": []}, headers=auth(token))
+    assert bad.status_code == 422
+
+    payload = {"answers": {**ANSWERS, "category": "sc"}, "schemes": ["pm-kisan", "pm-kisan", "../etc", "sukanya-samriddhi-yojana"]}
+    r = client.post("/api/me/eligibility-results", json=payload, headers=auth(token))
+    assert r.status_code == 201
+    saved = r.json()
+    assert "category" not in saved["answers"]
+    assert saved["schemes"] == ["pm-kisan", "sukanya-samriddhi-yojana"]
+
+    for _ in range(12):
+        client.post("/api/me/eligibility-results", json={"answers": ANSWERS, "schemes": []}, headers=auth(token))
+    assert len(client.get("/api/me/eligibility-results", headers=auth(token)).json()) == 5
+
+
+def test_password_reset_flow():
+    register("dave@example.com")
+    unknown = client.post("/api/auth/forgot-password", json={"email": "nobody@example.com"})
+    known = client.post("/api/auth/forgot-password", json={"email": "dave@example.com"})
+    assert unknown.json()["message"] == known.json()["message"]  # no account enumeration
+    code = SENT_CODES["dave@example.com"]
+    wrong = "000000" if code != "000000" else "111111"
+
+    assert client.post("/api/auth/reset-password", json={"email": "dave@example.com", "code": wrong, "new_password": "newpass123"}).status_code == 400
+    assert client.post("/api/auth/reset-password", json={"email": "dave@example.com", "code": code, "new_password": "newpass123"}).status_code == 200
+    # Single use
+    assert client.post("/api/auth/reset-password", json={"email": "dave@example.com", "code": code, "new_password": "another123"}).status_code == 400
+    assert client.post("/api/auth/login", json={"email": "dave@example.com", "password": "newpass123"}).status_code == 200
+
+
+def test_login_is_rate_limited():
+    codes = [client.post("/api/auth/login", json={"email": "x@example.com", "password": "nope-nope"}).status_code for _ in range(12)]
+    assert 429 in codes
+
+
+def test_admin_growth_requires_admin():
+    token = register("eve@example.com").json()["token"]
+    assert client.get("/api/admin/growth").status_code == 401
+    assert client.get("/api/admin/growth", headers=auth(token)).status_code == 403
+
+    from app.models.models import User
+    db = database.SessionLocal()
+    db.query(User).filter(User.email == "eve@example.com").update({"is_admin": True})
+    db.commit()
+    db.close()
+    r = client.get("/api/admin/growth?days=7", headers=auth(token))
+    assert r.status_code == 200
+    body = r.json()
+    assert body["accounts"]["total"] >= 1 and len(body["accounts"]["registrationsByDay"]) == 7
+    assert "activeRule" in body["engagement"]
+
+
+def test_chat_websocket_rejects_impersonation():
+    a = register("frank@example.com").json()
+    b = register("grace@example.com").json()
+    with pytest.raises(WebSocketDisconnect):
+        with client.websocket_connect(f"/ws/chat/{b['user']['id']}?token={a['token']}") as ws:
+            ws.receive_text()
+    with pytest.raises(WebSocketDisconnect):
+        with client.websocket_connect(f"/ws/chat/{a['user']['id']}") as ws:
+            ws.receive_text()

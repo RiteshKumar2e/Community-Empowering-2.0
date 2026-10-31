@@ -1,8 +1,18 @@
 {
+    "cleanUrls": true,
+    "trailingSlash": false,
+    "redirects": [
+        {
+            "source": "/(.*)",
+            "has": [{ "type": "host", "value": "www.communityai.co.in" }],
+            "destination": "https://communityai.co.in/$1",
+            "permanent": true
+        }
+    ],
     "rewrites": [
         {
-            "source": "/((?!api/|assets/|index\\.html).*)",
-            "destination": "/index.html"
+            "source": "/(login|register|forgot-password|admin-login|dashboard|assistant|resources|learning|profile|feedback|forum|admin)",
+            "destination": "/app"
         }
     ],
     "headers": [
@@ -28,6 +38,19 @@
                 {
                     "key": "X-Frame-Options",
                     "value": "DENY"
+                }
+            ]
+        },
+        {
+            "source": "/(login|register|forgot-password|admin-login|dashboard|assistant|resources|learning|profile|feedback|forum|admin)",
+            "headers": [
+                {
+                    "key": "X-Robots-Tag",
+                    "value": "noindex"
+                },
+                {
+                    "key": "Cache-Control",
+                    "value": "private, no-store"
                 }
             ]
         },

@@ -5,6 +5,7 @@ from app.core.database import get_db
 from app.models.models import User
 from app.api.users import get_current_user
 from app.services.email_service import email_service
+from app.core.privacy import mask_email
 
 router = APIRouter()
 
@@ -32,7 +33,7 @@ async def submit_feedback(
         
         if not success:
             # We still return 200 but log the error
-            print(f"⚠️ Feedback email failed for {current_user.email}")
+            print(f"⚠️ Feedback email failed for {mask_email(current_user.email)}")
             
         return {"status": "success", "message": "Feedback submitted successfully"}
     except Exception as e:

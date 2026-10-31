@@ -29,6 +29,11 @@ const Forum = lazy(() => import('./pages/Forum'))
 const NotFound = lazy(() => import('./pages/NotFound'))
 const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'))
 const Terms = lazy(() => import('./pages/Terms'))
+const Schemes = lazy(() => import('./pages/Schemes'))
+const SchemeDetail = lazy(() => import('./pages/SchemeDetail'))
+const EligibilityChecker = lazy(() => import('./pages/EligibilityChecker'))
+const EditorialPolicy = lazy(() => import('./pages/EditorialPolicy'))
+const ForgotPassword = lazy(() => import('./pages/ForgotPassword'))
 const CookieConsent = lazy(() => import('./components/CookieConsent'))
 
 
@@ -37,7 +42,7 @@ const ChatBotCondition = () => {
     const location = useLocation();
     // Hide floating chatbot on assistant page and forum page (due to live chat)
     // and on login/register, where it would sit on top of the form's main button.
-    if (['/assistant', '/forum', '/login', '/register'].includes(location.pathname)) return null;
+    if (['/assistant', '/forum', '/login', '/register', '/forgot-password'].includes(location.pathname)) return null;
     return <SideChatBot />;
 };
 
@@ -55,9 +60,17 @@ function App() {
                                 <Route path="/" element={<Landing />} />
                                 <Route path="/login" element={<Login />} />
                                 <Route path="/register" element={<Register />} />
+                                <Route path="/forgot-password" element={<ForgotPassword />} />
                                 <Route path="/admin-login" element={<AdminLogin />} />
                                 <Route path="/privacy" element={<PrivacyPolicy />} />
                                 <Route path="/terms" element={<Terms />} />
+
+                                {/* Public scheme information: no login required, indexable */}
+                                <Route path="/schemes" element={<Schemes />} />
+                                <Route path="/schemes/category/:category" element={<Schemes />} />
+                                <Route path="/schemes/:slug" element={<SchemeDetail />} />
+                                <Route path="/eligibility" element={<EligibilityChecker />} />
+                                <Route path="/editorial-policy" element={<EditorialPolicy />} />
 
                                 {/* Protected Routes */}
                                 <Route path="/dashboard" element={

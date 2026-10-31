@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, Depends, HTTPException, WebSocket, WebSocketDisconnect, Query, status
 from sqlalchemy.orm import Session
 from typing import List, Optional, Dict
 import json
 import datetime
 from app.core.database import get_db
+from app.core.security import decode_access_token
 from app.models.models import ChatMessage, User
 from app.api.users import get_current_user
 
@@ -32,7 +33,21 @@ class ConnectionManager:
 manager = ConnectionManager()
 
 @router.websocket("/ws/chat/{user_id}")
-async def websocket_endpoint(websocket: WebSocket, user_id: int, db: Session = Depends(get_db)):
+async def websocket_endpoint(
+    websocket: WebSocket,
+    user_id: int,
+    token: Optional[str] = Query(None),
+    db: Session = Depends(get_db),
+):
+    # Browsers can't set an Authorization header on WebSockets, so the JWT comes
+    # as ?token=. Without this check anyone could connect as any user_id, send
+    # messages in their name and read their private messages.
+    payload = decode_access_token(token) if token else None
+    user = db.query(User).filter(User.email == payload.get("sub")).first() if payload else None
+    if not user or user.id != user_id:
+        await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
+        return
+
     await manager.connect(websocket, user_id)
     try:
         while True:
@@ -126,8 +141,11 @@ async def get_chat_history(
     return result
 
 @router.get("/api/chat/users")
-async def get_chat_users(db: Session = Depends(get_db)):
-    """Get list of users for private messaging"""
+async def get_chat_users(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Get list of users for private messaging (signed-in users only)"""
     users = db.query(User).filter(User.is_active == True).all()
     return [{"id": u.id, "name": u.name} for u in users]
 @router.delete("/api/chat/message/{message_id}")

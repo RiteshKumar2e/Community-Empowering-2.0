@@ -100,8 +100,11 @@ const LandingHero = ({ isAuthenticated }) => {
         setActive(index)
     }
 
-    const ctaTo = isAuthenticated ? '/assistant' : `/register?need=${need.id}`
-    const ctaLabel = isAuthenticated ? 'Ask the AI Assistant' : 'Get My Personalised Answer'
+    // Visitors start with the free eligibility check (no sign-up); the account
+    // prompt appears only after they have useful results.
+    const ctaTo = isAuthenticated ? '/assistant' : '/eligibility'
+    const ctaLabel = isAuthenticated ? 'Ask the AI Assistant' : 'Check My Scheme Eligibility — Free'
+    const askTo = isAuthenticated ? '/assistant' : `/register?need=${need.id}`
 
     return (
         <section id="home" className="hero hero-interactive">
@@ -160,12 +163,15 @@ const LandingHero = ({ isAuthenticated }) => {
                                 <ArrowRight size={20} className="hero-cta-arrow" />
                             </Link>
                         </motion.div>
+                        <Link to="/schemes" className="hero-secondary-link">
+                            Browse Government Schemes
+                        </Link>
                     </div>
 
                     <ul className="hero-trust">
                         <li><BadgeIndianRupee size={16} /> 100% free</li>
                         <li><Languages size={16} /> 5+ languages</li>
-                        <li><ShieldCheck size={16} /> Signup in 1 minute</li>
+                        <li><ShieldCheck size={16} /> No sign-up needed to check</li>
                     </ul>
                 </motion.div>
 
@@ -223,7 +229,7 @@ const LandingHero = ({ isAuthenticated }) => {
                         </AnimatePresence>
                     </div>
 
-                    <Link to={ctaTo} className="demo-input">
+                    <Link to={askTo} className="demo-input">
                         <span>{isAuthenticated ? 'Ask your own question…' : 'Sign up free to ask your own question…'}</span>
                         <span className="demo-send"><ArrowRight size={16} /></span>
                     </Link>

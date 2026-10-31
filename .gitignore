@@ -27,6 +27,7 @@ venv.bak/
 
 # Build outputs
 dist/
+dist-prerender/
 build/
 *.egg-info/
 .eggs/

@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from app.core.config import settings
+from app.core.privacy import mask_email
 
 class EmailService:
     """
@@ -55,16 +56,20 @@ class EmailService:
     # PUBLIC METHODS
     # ------------------------------------------------------------------
     
-    def send_otp(self, user_email: str, otp: str) -> bool:
-        """Send OTP to user with INSTANT priority - Optimized for BackgroundTasks"""
+    def send_otp(self, user_email: str, otp: str, purpose: str = "google_login") -> bool:
+        """Send OTP to user with INSTANT priority - Optimized for BackgroundTasks.
+        purpose: "google_login" (default) or "password_reset"."""
         try:
-            subject = f"🔐 {otp} is your {self.company_name} Verification Code"
-            html_body = self._generate_otp_html(otp)
+            if purpose == "password_reset":
+                subject = f"🔐 {otp} is your {self.company_name} password reset code"
+            else:
+                subject = f"🔐 {otp} is your {self.company_name} Verification Code"
+            html_body = self._generate_otp_html(otp, purpose)
             self._dispatch_api(user_email, subject, html_body, priority=True)
-            print(f"✅ OTP sent successfully to {user_email}")
+            print(f"✅ OTP sent successfully to {mask_email(user_email)}")
             return True
         except Exception as e:
-            print(f"❌ CRITICAL: OTP Email Failed for {user_email}: {str(e)}")
+            print(f"❌ CRITICAL: OTP Email Failed for {mask_email(user_email)}: {str(e)}")
             return False
 
     def send_feedback_to_admin(self, user_name: str, user_email: str, category: str, rating: int, message: str) -> bool:
@@ -108,7 +113,7 @@ class EmailService:
             subject = f"✨ New Feedback: {category} ({rating}/5 Stars)"
             html_body = self._generate_feedback_html(user_name, user_email, category, rating, message)
             self._dispatch_api(self.admin_email, subject, html_body)
-            print(f"✅ Feedback sent to admin from {user_email}")
+            print(f"✅ Feedback sent to admin from {mask_email(user_email)}")
         except Exception as e:
             print(f"❌ Feedback Email Failed: {str(e)}")
 
@@ -158,7 +163,13 @@ class EmailService:
     # HTML TEMPLATES
     # ------------------------------------------------------------------
     
-    def _generate_otp_html(self, otp: str) -> str:
+    def _generate_otp_html(self, otp: str, purpose: str = "google_login") -> str:
+        if purpose == "password_reset":
+            heading = "Reset Your Password"
+            intro = "We received a request to reset your password. Use the code below to choose a new one. This code will expire in <strong>15 minutes</strong>. If you didn't ask for this, you can ignore this email."
+        else:
+            heading = "Verify Your Account"
+            intro = "Welcome! Use the verification code below to complete your Google sign-in. This code will expire in <strong>10 minutes</strong>."
         """Generate beautiful HTML template for OTP email"""
         current_year = datetime.now().year
         return f"""
@@ -180,7 +191,7 @@ class EmailService:
                         <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 30px; text-align: center;">
                             <div style="font-size: 48px; margin-bottom: 15px;">🔐</div>
                             <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700; letter-spacing: -0.5px;">
-                                Verify Your Account
+                                {heading}
                             </h1>
                             <p style="margin: 10px 0 0 0; color: #e0e7ff; font-size: 15px; font-weight: 500;">
                                 {self.company_name}
@@ -192,7 +203,7 @@ class EmailService:
                     <tr>
                         <td style="padding: 40px 35px;">
                             <p style="margin: 0 0 25px 0; color: #4b5563; font-size: 16px; line-height: 1.7; text-align: center;">
-                                Welcome! Use the verification code below to complete your Google sign-in. This code will expire in <strong>10 minutes</strong>.
+                                {intro}
                             </p>
                             
                             <!-- OTP Box -->

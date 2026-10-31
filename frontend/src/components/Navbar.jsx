@@ -18,7 +18,7 @@ const Navbar = () => {
     const isAdmin = user?.email === 'riteshkumar90359@gmail.com'
 
     // Simplified view for Auth pages
-    const isAuthPage = ['/login', '/register', '/admin-login'].includes(location.pathname)
+    const isAuthPage = ['/login', '/register', '/forgot-password', '/admin-login'].includes(location.pathname)
 
     // Handle clicking outside of profile menu and language menu to close them
     useEffect(() => {
@@ -79,10 +79,10 @@ const Navbar = () => {
                     {isAuthenticated && location.pathname !== '/' ? (
                         <>
                             <Link to="/dashboard" className={`nav-link ${isActive('/dashboard') ? 'active' : ''}`}>Dashboard</Link>
+                            <Link to="/schemes" className={`nav-link ${location.pathname.startsWith('/schemes') ? 'active' : ''}`}>Schemes</Link>
                             <Link to="/assistant" className={`nav-link ${isActive('/assistant') ? 'active' : ''}`}>AI Assistant</Link>
                             <Link to="/resources" className={`nav-link ${isActive('/resources') ? 'active' : ''}`}>Resources</Link>
                             <Link to="/learning" className={`nav-link ${isActive('/learning') ? 'active' : ''}`}>Learning Hub</Link>
-                            <Link to="/feedback" className={`nav-link ${isActive('/feedback') ? 'active' : ''}`}>Feedback</Link>
                             <Link to="/forum" className={`nav-link ${isActive('/forum') ? 'active' : ''}`}>Forum</Link>
                             {isAdmin && (
                                 <Link to="/admin" className={`nav-link admin-link ${isActive('/admin') ? 'active' : ''}`}>
@@ -93,11 +93,11 @@ const Navbar = () => {
                     ) : (
                         <>
                             <button onClick={() => scrollToSection('home')} className="nav-link">Home</button>
-                            <button onClick={() => scrollToSection('mission')} className="nav-link">Mission</button>
+                            <Link to="/schemes" className={`nav-link ${location.pathname.startsWith('/schemes') ? 'active' : ''}`}>Schemes</Link>
+                            <Link to="/eligibility" className={`nav-link ${isActive('/eligibility') ? 'active' : ''}`}>Check Eligibility</Link>
                             <button onClick={() => scrollToSection('about')} className="nav-link">About</button>
                             <button onClick={() => scrollToSection('goals')} className="nav-link">Goals</button>
                             <button onClick={() => scrollToSection('team')} className="nav-link">Team</button>
-                            <button onClick={() => scrollToSection('testimonials')} className="nav-link">Testimonials</button>
                             <button onClick={() => scrollToSection('contact')} className="nav-link">Contact</button>
                         </>
                     )}
@@ -214,6 +214,9 @@ const Navbar = () => {
                                     <Link to="/dashboard" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>
                                         <LayoutDashboard size={18} /> Dashboard
                                     </Link>
+                                    <Link to="/schemes" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>
+                                        <FileText size={18} /> Government Schemes
+                                    </Link>
                                     <Link to="/assistant" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>
                                         <MessageSquare size={18} /> AI Assistant
                                     </Link>
@@ -252,6 +255,8 @@ const Navbar = () => {
                                 </div>
                                 <div className="menu-divider"></div>
                                 <button onClick={() => scrollToSection('home')} className="mobile-link">Home</button>
+                                <Link to="/schemes" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>Government Schemes</Link>
+                                <Link to="/eligibility" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>Check Eligibility</Link>
                                 <button onClick={() => scrollToSection('mission')} className="mobile-link">Mission</button>
                                 <button onClick={() => scrollToSection('about')} className="mobile-link">About</button>
                                 <button onClick={() => scrollToSection('goals')} className="mobile-link">Goals</button>

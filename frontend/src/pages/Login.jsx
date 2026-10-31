@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { useLanguage } from '../contexts/LanguageContext'
 import { Mail, Lock, AlertCircle, Loader, ArrowLeft, Eye, EyeOff } from 'lucide-react'
 import OTPModal from '../components/OTPModal'
+import { getPendingResult } from '../services/myData'
 
 import '../styles/Auth.css'
 
@@ -24,6 +25,7 @@ const Login = () => {
     const [isOtpOpen, setIsOtpOpen] = useState(false)
     const [emailForOtp, setEmailForOtp] = useState('')
     const [showPassword, setShowPassword] = useState(false)
+    const [pendingCount] = useState(() => getPendingResult()?.schemes?.length || 0)
     // Google renders its button at a fixed pixel width (200–400), so fit it to
     // the card on small phones instead of letting it overflow.
     const [googleBtnWidth] = useState(() => Math.max(200, Math.min(320, window.innerWidth - 80)))
@@ -99,6 +101,12 @@ const Login = () => {
                         <p>Sign in to access your community dashboard</p>
                     </div>
 
+                    {pendingCount > 0 && (
+                        <p className="pending-note" role="status">
+                            ✓ Sign in to save your {pendingCount} matched {pendingCount === 1 ? 'scheme' : 'schemes'} to your account.
+                        </p>
+                    )}
+
                     <form onSubmit={handleSubmit} className="auth-form">
                         {error && (
                             <div className="error-message">
@@ -152,6 +160,7 @@ const Login = () => {
                                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                                 </button>
                             </div>
+                            <Link to="/forgot-password" className="forgot-link">Forgot password?</Link>
                         </div>
 
                         <button
@@ -185,10 +194,6 @@ const Login = () => {
                                 logo_alignment="center"
                                 useOneTap={false}
                                 auto_select={false}
-                                // FedCM shows Google's account chooser as browser UI instead of a
-                                // popup window, which avoids the popup's Cross-Origin-Opener-Policy
-                                // postMessage errors. Browsers without FedCM fall back to the popup.
-                                use_fedcm_for_button={true}
                             />
                         </div>
                     </form>

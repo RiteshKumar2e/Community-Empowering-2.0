@@ -13,7 +13,7 @@ warnings.filterwarnings(
 from app.core.config import settings
 from app.core.database import engine, Base
 from app.models import models  # Import models to register them
-from app.api import auth, users, ai, resources, learning, admin, agent, feedback, tracking, forum, chat, aws_services
+from app.api import auth, users, ai, resources, learning, admin, agent, feedback, tracking, forum, chat, aws_services, me
 from app.services.market_scanner import market_scanner
 import asyncio
 
@@ -62,6 +62,7 @@ app.add_middleware(
 # Include routers
 app.include_router(auth.router, prefix="/api/auth", tags=["Authentication"])
 app.include_router(users.router, prefix="/api/users", tags=["Users"])
+app.include_router(me.router, prefix="/api/me", tags=["My data"])
 app.include_router(ai.router, prefix="/api/ai", tags=["AI"])
 app.include_router(resources.router, prefix="/api/resources", tags=["Resources"])
 app.include_router(learning.router, prefix="/api/learning", tags=["Learning"])

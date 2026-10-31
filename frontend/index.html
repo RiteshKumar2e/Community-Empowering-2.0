@@ -1,22 +1,32 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-IN">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description"
-    content="Find government schemes, scholarships, learning resources and local help with Community AI, a free AI assistant that answers in your language.">
-  <meta name="keywords" content="AI, community, government schemes, education, resources, accessibility">
   <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#0d0f12" media="(prefers-color-scheme: dark)">
 
   <!-- NOTE: Cross-Origin-Opener-Policy cannot be set from a <meta http-equiv>
-       tag - browsers ignore it there. The two meta tags that used to live here
-       did nothing. It is now sent as a real header from vercel.json, which is
-       what actually lets the Google Sign-In popup post its credential back. -->
+       tag - browsers ignore it there. It is sent as a real header from
+       vercel.json, which is what lets the Google Sign-In popup post back. -->
 
-  <title>Community AI – Government Schemes, Education &amp; Resources in Your Language</title>
+  <!-- Per-page tags. scripts/prerender.mjs replaces everything between these
+       markers for each public page at build time; PageMeta.jsx keeps title,
+       description, canonical and robots in sync during client navigation. -->
+  <!--seo:start-->
+  <title>Community AI – Government Schemes, Scholarships &amp; Benefits Explained</title>
+  <meta name="description"
+    content="Find Indian government schemes you may be eligible for: eligibility, benefits, documents and how to apply, explained in plain language with links to official portals.">
   <link rel="canonical" href="https://communityai.co.in/">
+  <meta property="og:url" content="https://communityai.co.in/">
+  <meta property="og:title" content="Community AI – Government Schemes, Scholarships &amp; Benefits Explained">
+  <meta property="og:description"
+    content="Find Indian government schemes you may be eligible for: eligibility, benefits, documents and how to apply, explained in plain language with links to official portals.">
+  <meta name="twitter:title" content="Community AI – Government Schemes, Scholarships &amp; Benefits Explained">
+  <meta name="twitter:description"
+    content="Find Indian government schemes you may be eligible for: eligibility, benefits, documents and how to apply, explained in plain language with links to official portals.">
+  <!--seo:end-->
 
   <!-- Site icons -->
   <link rel="icon" href="/favicon.ico" sizes="48x48">
@@ -26,19 +36,39 @@
   <!-- Social preview (Open Graph / Twitter). Crawlers need absolute URLs. -->
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Community AI">
-  <meta property="og:url" content="https://communityai.co.in/">
-  <meta property="og:title" content="Community AI – Government Schemes, Education &amp; Resources">
-  <meta property="og:description"
-    content="Find government schemes, learning resources and local help with an AI assistant that speaks your language.">
+  <meta property="og:locale" content="en_IN">
   <meta property="og:image" content="https://communityai.co.in/og-image.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="Community AI logo with the tagline: government schemes, education and local resources in your language">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Community AI – Government Schemes, Education &amp; Resources">
-  <meta name="twitter:description"
-    content="Find government schemes, learning resources and local help with an AI assistant that speaks your language.">
   <meta name="twitter:image" content="https://communityai.co.in/og-image.png">
+
+  <!-- Consent Mode: analytics cookies stay off until the visitor clicks
+       "Accept" on the cookie banner (src/utils/analytics.js grants it). Must run
+       before the Google tag below. -->
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    var consented = false;
+    try { consented = localStorage.getItem('cookie-consent') === 'accepted'; } catch (e) {}
+    gtag('consent', 'default', {
+      analytics_storage: consented ? 'granted' : 'denied',
+      ad_storage: 'denied',
+      ad_user_data: 'denied',
+      ad_personalization: 'denied'
+    });
+  </script>
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-E62VV5FB9M"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-E62VV5FB9M');
+  </script>
 
   <!-- Preconnect to improve performance -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -50,7 +80,7 @@
 </head>
 
 <body class="light-theme">
-  <div id="root"></div>
+  <div id="root"><!--app-html--></div>
   <script type="module" src="/src/main.jsx"></script>
 </body>
 

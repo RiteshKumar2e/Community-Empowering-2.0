@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, Boolean, Text, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime, Boolean, Text, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.core.database import Base
@@ -224,3 +224,73 @@ class ChatMessage(Base):
     sender = relationship("User", foreign_keys=[sender_id])
     receiver = relationship("User", foreign_keys=[receiver_id])
 
+
+
+# --- Signup funnel & retention -------------------------------------------
+# New tables only (no changes to existing ones), so Base.metadata.create_all()
+# in main.py creates them on the next start without a migration.
+
+class SavedScheme(Base):
+    """A public scheme guide (by slug) bookmarked by a signed-in user."""
+    __tablename__ = "saved_schemes"
+    __table_args__ = (UniqueConstraint("user_id", "scheme_slug", name="uq_saved_scheme_user_slug"),)
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    scheme_slug = Column(String, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), index=True)
+
+
+class EligibilityResult(Base):
+    """A saved eligibility-checker result. Stores only the non-sensitive answers
+    needed to re-run the check (never caste/category) and the matched slugs."""
+    __tablename__ = "eligibility_results"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    answers_json = Column(Text, nullable=False)
+    scheme_slugs_json = Column(Text, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), index=True)
+
+
+class PasswordResetCode(Base):
+    """One-time password-reset code. Only a bcrypt hash of the code is stored."""
+    __tablename__ = "password_reset_codes"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    code_hash = Column(String, nullable=False)
+    expires_at = Column(DateTime(timezone=True), nullable=False)
+    attempts = Column(Integer, default=0)
+    used = Column(Boolean, default=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class EmailVerification(Base):
+    """Email ownership check for email/password accounts (one row per user).
+    Kept in its own table so the users table needs no migration. Google
+    accounts are treated as verified via Google."""
+    __tablename__ = "email_verifications"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, unique=True, index=True)
+    code_hash = Column(String, nullable=True)
+    expires_at = Column(DateTime(timezone=True), nullable=True)
+    attempts = Column(Integer, default=0)
+    sent_at = Column(DateTime(timezone=True), nullable=True)
+    verified_at = Column(DateTime(timezone=True), nullable=True)
+
+
+class Reminder(Base):
+    """A reminder the user sets for themselves (e.g. "apply before college
+    admission"). It is the user's own date, never presented as an official
+    deadline."""
+    __tablename__ = "reminders"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    scheme_slug = Column(String, nullable=True)
+    title = Column(String, nullable=False)
+    remind_on = Column(String, nullable=False)  # YYYY-MM-DD
+    done = Column(Boolean, default=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())

@@ -1,31 +1,51 @@
-// Google Analytics 4, loaded only after the visitor accepts the cookie banner.
-// Set VITE_GA_MEASUREMENT_ID (e.g. G-XXXXXXXXXX) in .env / Vercel to enable it;
-// without it every function here is a no-op.
-
-const GA_ID = import.meta.env.VITE_GA_MEASUREMENT_ID
+// Google Analytics 4 (G-E62VV5FB9M).
+//
+// The Google tag itself is in index.html, so Google's tag checker can see it.
+// Consent Mode keeps analytics cookies off ("denied") until the visitor clicks
+// Accept on the cookie banner; grantAnalyticsConsent() switches it on.
+//
+// Page views: GA4 "Enhanced measurement" (on by default) records a page_view
+// on every client-side route change, so we do NOT send page_view manually.
+// Keep "Page changes based on browser history events" enabled in
+// GA4 Admin > Data streams > Enhanced measurement.
 export const CONSENT_KEY = 'cookie-consent' // 'accepted' | 'declined'
-
-let loaded = false
 
 export const hasAnalyticsConsent = () => localStorage.getItem(CONSENT_KEY) === 'accepted'
 
-export const loadAnalytics = () => {
-    if (loaded || !GA_ID || !hasAnalyticsConsent()) return
-    loaded = true
-
-    const script = document.createElement('script')
-    script.async = true
-    script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`
-    document.head.appendChild(script)
-
-    window.dataLayer = window.dataLayer || []
-    window.gtag = function gtag() { window.dataLayer.push(arguments) }
-    window.gtag('js', new Date())
-    // Page views are sent manually from trackPageView because this is a SPA.
-    window.gtag('config', GA_ID, { send_page_view: false, anonymize_ip: true })
+export const grantAnalyticsConsent = () => {
+    window.gtag?.('consent', 'update', { analytics_storage: 'granted' })
 }
 
-export const trackPageView = (path, title) => {
-    if (!loaded || !window.gtag) return
-    window.gtag('event', 'page_view', { page_path: path, page_title: title })
+// Product events. Never pass personal data (name, phone, email, exact age,
+// income, caste, eligibility answers) in params.
+//   scheme_search                { search_term }   typed query, debounced
+//   scheme_filter_used           { filter_type, value }
+//   eligibility_check_started
+//   eligibility_check_completed  { results_count }
+//   official_link_clicked        { scheme, link_url }
+//   scheme_report_issue_clicked  { scheme }
+export const trackEvent = (name, params = {}) => {
+    window.gtag?.('event', name, params)
 }
+
+// Fire an event at most once per browser session for a given key (e.g. a
+// landing view or "signup started"), so re-renders and back-navigation don't
+// inflate counts.
+export const trackOnce = (name, key = name, params = {}) => {
+    try {
+        const storageKey = `ga-once:${name}:${key}`
+        if (sessionStorage.getItem(storageKey)) return
+        sessionStorage.setItem(storageKey, '1')
+    } catch { /* storage unavailable: send anyway */ }
+    trackEvent(name, params)
+}
+
+// Full event list (GA4 > Admin > Events). No personal data in any params.
+//   landing_page_view            once per session
+//   scheme_detail_view           { scheme }
+//   signup_prompt_viewed         { source }
+//   signup_started               { source }      once per session
+//   signup_completed             { method }
+//   login_completed              { method }
+//   scheme_saved                 { scheme, source }
+//   eligibility_result_saved     { results_count }

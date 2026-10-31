@@ -3,10 +3,11 @@ from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from typing import List, Optional
 from app.core.database import get_db
-from app.models.models import User, Query, Enrollment, Course, Resource, LearningPlatform, Feedback, ForumDiscussion, ForumReply, ForumCategory, UserActivity, ForumLike, ForumView, ForumReplyLike, ForumReplyView
+from app.models.models import User, Query, Enrollment, Course, Resource, LearningPlatform, Feedback, ForumDiscussion, ForumReply, ForumCategory, UserActivity, ForumLike, ForumView, ForumReplyLike, ForumReplyView, SavedScheme, EligibilityResult
 from app.services.market_scanner import market_scanner
 from app.api.users import get_current_user
-from datetime import timezone, timedelta
+from datetime import datetime, timezone, timedelta
+from collections import Counter
 
 # IST is UTC+5:30
 IST = timezone(timedelta(hours=5, minutes=30))
@@ -456,3 +457,105 @@ async def bulk_delete_activities(
     db.query(UserActivity).filter(UserActivity.id.in_(request.ids)).delete(synchronize_session=False)
     db.commit()
     return {"message": f"{len(request.ids)} activities deleted"}
+
+
+# --- Growth & retention (signup funnel) --------------------------------------
+# Everything here comes from this app's own database: registered ACCOUNTS and
+# what signed-in users did. Anonymous visitors, page views, searches and
+# signup conversion rates live in Google Analytics 4, not here.
+
+ACTIVE_RULE = (
+    "An account counts as active in a period if, during that period, it signed in, "
+    "asked the AI assistant, logged any tracked activity, saved a scheme or saved an "
+    "eligibility result."
+)
+RETURNING_RULE = "Signed in again at least 24 hours after registering."
+
+
+def _aware(dt):
+    if dt is None:
+        return None
+    return dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)
+
+
+@router.get("/growth")
+async def get_growth_stats(
+    days: int = 30,
+    admin: User = Depends(verify_admin),
+    db: Session = Depends(get_db),
+):
+    days = max(1, min(days, 365))
+    now = datetime.now(timezone.utc)
+    since = now - timedelta(days=days)
+
+    users = db.query(User.id, User.created_at, User.last_login).all()
+    total_accounts = len(users)
+
+    # Registrations by day (selected period) and by month (last 12 months), in IST.
+    by_day = Counter()
+    by_month = Counter()
+    year_ago = now - timedelta(days=365)
+    for _, created, _ in users:
+        created = _aware(created)
+        if not created:
+            continue
+        local = created.astimezone(IST)
+        if created >= since:
+            by_day[local.strftime("%Y-%m-%d")] += 1
+        if created >= year_ago:
+            by_month[local.strftime("%Y-%m")] += 1
+    day_series = []
+    for i in range(days - 1, -1, -1):
+        key = (now - timedelta(days=i)).astimezone(IST).strftime("%Y-%m-%d")
+        day_series.append({"date": key, "count": by_day.get(key, 0)})
+    month_series = [{"month": k, "count": by_month[k]} for k in sorted(by_month)]
+
+    # Active accounts in the period (see ACTIVE_RULE).
+    active_ids = {uid for uid, _, last in users if _aware(last) and _aware(last) >= since}
+    active_ids |= {r[0] for r in db.query(Query.user_id).filter(Query.created_at >= since).distinct() if r[0]}
+    active_ids |= {r[0] for r in db.query(UserActivity.user_id).filter(UserActivity.created_at >= since).distinct() if r[0]}
+    active_ids |= {r[0] for r in db.query(SavedScheme.user_id).filter(SavedScheme.created_at >= since).distinct()}
+    active_ids |= {r[0] for r in db.query(EligibilityResult.user_id).filter(EligibilityResult.created_at >= since).distinct()}
+
+    returning = sum(
+        1 for _, created, last in users
+        if _aware(created) and _aware(last) and _aware(last) - _aware(created) >= timedelta(hours=24)
+    )
+
+    new_in_period = [uid for uid, created, _ in users if _aware(created) and _aware(created) >= since]
+    new_ids = set(new_in_period)
+    activated = {r[0] for r in db.query(SavedScheme.user_id).filter(SavedScheme.user_id.in_(new_ids)).distinct()} if new_ids else set()
+    if new_ids:
+        activated |= {r[0] for r in db.query(EligibilityResult.user_id).filter(EligibilityResult.user_id.in_(new_ids)).distinct()}
+
+    top_saved = (
+        Counter(r[0] for r in db.query(SavedScheme.scheme_slug).all()).most_common(10)
+    )
+
+    return {
+        "periodDays": days,
+        "generatedAt": now.isoformat(),
+        "accounts": {
+            "total": total_accounts,
+            "newInPeriod": len(new_in_period),
+            "registrationsByDay": day_series,
+            "registrationsByMonth": month_series,
+        },
+        "engagement": {
+            "activeInPeriod": len(active_ids),
+            "activeRule": ACTIVE_RULE,
+            "returningAccounts": returning,
+            "returningRule": RETURNING_RULE,
+            "savedSchemesTotal": db.query(SavedScheme).count(),
+            "accountsWithSavedSchemes": db.query(SavedScheme.user_id).distinct().count(),
+            "eligibilityResultsSaved": db.query(EligibilityResult).count(),
+            "topSavedSchemes": [{"slug": slug, "count": c} for slug, c in top_saved],
+            "newAccountsActivated": len(activated),
+            "activationRule": "New accounts in the period that saved at least one scheme or eligibility result.",
+        },
+        "notInDatabase": (
+            "Anonymous visitors, page views, most-visited pages, searches, completed eligibility "
+            "checks by visitors who did not sign up, and signup conversion rate are measured in "
+            "Google Analytics 4 (property G-E62VV5FB9M), not in this database."
+        ),
+    }

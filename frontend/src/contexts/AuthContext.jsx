@@ -1,8 +1,19 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../services/api'
+import { syncPending, takePostAuthRedirect } from '../services/myData'
+import { trackEvent } from '../utils/analytics'
 
-const AuthContext = createContext(null)
+// Exported so the build-time prerenderer can render public pages as a
+// logged-out visitor (see entry-prerender.jsx).
+export const AuthContext = createContext(null)
+
+// FastAPI returns `detail` as a string, or as a list of validation errors.
+const apiError = (error, fallback) => {
+    const detail = error.response?.data?.detail
+    if (Array.isArray(detail)) return detail[0]?.msg?.replace(/^Value error, /, '') || fallback
+    return detail || error.response?.data?.message || fallback
+}
 
 export const useAuth = () => {
     const context = useContext(AuthContext)
@@ -30,6 +41,16 @@ export const AuthProvider = ({ children }) => {
         setLoading(false)
     }, [])
 
+    // After any successful sign-in: upload progress the visitor made before
+    // signing in (eligibility result, bookmarks), then record the event.
+    // Never blocks for long: the dashboard opens even if the upload fails.
+    const afterAuth = async (eventName, method) => {
+        trackEvent(eventName, { method })
+        try {
+            await Promise.race([syncPending(), new Promise((resolve) => setTimeout(resolve, 4000))])
+        } catch { /* kept on device, retried from the dashboard */ }
+    }
+
     const login = async (email, password) => {
         try {
             const response = await api.post('/auth/login', { email, password })
@@ -40,13 +61,14 @@ export const AuthProvider = ({ children }) => {
             api.defaults.headers.common['Authorization'] = `Bearer ${token}`
 
             setUser(userData)
-            navigate('/dashboard')
+            await afterAuth('login_completed', 'email')
+            navigate(takePostAuthRedirect() || '/dashboard')
 
             return { success: true }
         } catch (error) {
             return {
                 success: false,
-                error: error.response?.data?.message || 'Login failed'
+                error: apiError(error, 'Login failed')
             }
         }
     }
@@ -61,13 +83,14 @@ export const AuthProvider = ({ children }) => {
             api.defaults.headers.common['Authorization'] = `Bearer ${token}`
 
             setUser(newUser)
-            navigate('/dashboard')
+            await afterAuth('signup_completed', 'email')
+            navigate(takePostAuthRedirect() || '/dashboard')
 
             return { success: true }
         } catch (error) {
             return {
                 success: false,
-                error: error.response?.data?.detail || error.response?.data?.message || 'Registration failed'
+                error: apiError(error, 'Registration failed')
             }
         }
     }
@@ -100,7 +123,8 @@ export const AuthProvider = ({ children }) => {
             api.defaults.headers.common['Authorization'] = `Bearer ${token}`
 
             setUser(userData)
-            navigate('/dashboard')
+            await afterAuth('login_completed', 'google')
+            navigate(takePostAuthRedirect() || '/dashboard')
 
             return { success: true }
         } catch (error) {
@@ -121,7 +145,8 @@ export const AuthProvider = ({ children }) => {
             api.defaults.headers.common['Authorization'] = `Bearer ${token}`
 
             setUser(userData)
-            navigate('/dashboard')
+            await afterAuth('login_completed', 'google')
+            navigate(takePostAuthRedirect() || '/dashboard')
 
             return { success: true }
         } catch (error) {
