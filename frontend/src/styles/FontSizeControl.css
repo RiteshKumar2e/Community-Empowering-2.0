@@ -1,0 +1,61 @@
+/* ===================================
+   TEXT SIZE CONTROL (A- / A / A+)
+   Sizes are in px on purpose so the control itself does not grow or
+   shrink when the root font size changes.
+   =================================== */
+
+.font-size-control {
+  display: inline-flex;
+  flex-shrink: 0;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.font-size-btn {
+  display: grid;
+  place-items: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 6px;
+  background: none;
+  border: none;
+  border-left: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.font-size-btn:first-child {
+  border-left: none;
+}
+
+.font-size-btn-small {
+  font-size: 12px;
+}
+
+.font-size-btn-normal {
+  font-size: 14px;
+}
+
+.font-size-btn-large {
+  font-size: 16px;
+}
+
+.font-size-btn:hover {
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.font-size-btn.active {
+  background-color: var(--primary-600);
+  color: #fff;
+}
+
+.font-size-btn:focus-visible {
+  outline: 2px solid var(--primary-500);
+  outline-offset: -2px;
+}

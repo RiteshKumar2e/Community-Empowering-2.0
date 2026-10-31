@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { Menu, X, User, LogOut, Shield, ChevronDown, LayoutDashboard, FileText, MessageSquare, Star } from 'lucide-react'
 import { useState, useRef, useEffect } from 'react'
 import ThemeToggle from './ThemeToggle'
+import FontSizeControl from './FontSizeControl'
 import '../styles/Navbar.css'
 
 const Navbar = () => {
@@ -39,6 +40,7 @@ const Navbar = () => {
                         <span className="logo-text">Community AI</span>
                     </Link>
                     <div className="navbar-actions">
+                        <FontSizeControl />
                         <ThemeToggle />
                     </div>
                 </div>
@@ -102,6 +104,7 @@ const Navbar = () => {
                 </div>
 
                 <div className="navbar-actions">
+                    <FontSizeControl className="hide-mobile" />
                     <ThemeToggle />
 
                     <div className="hide-mobile user-menu-container">
@@ -187,6 +190,7 @@ const Navbar = () => {
                             <span className="logo-text">Community AI</span>
                         </Link>
                         <div className="mobile-menu-controls">
+                            <FontSizeControl />
                             <ThemeToggle />
                             <button className="mobile-menu-btn" onClick={() => setMobileMenuOpen(false)} aria-label="Close menu">
                                 <X size={24} />
