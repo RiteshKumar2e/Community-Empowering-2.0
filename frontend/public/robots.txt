@@ -1,9 +1,24 @@
+# Community AI – crawler policy
+#
+# All public pages (home, /schemes, scheme guides, /eligibility, /about,
+# policies) are open to every crawler, including search engines (Googlebot,
+# Bingbot) and AI search crawlers (e.g. OAI-SearchBot for ChatGPT Search,
+# Claude-SearchBot, PerplexityBot). Every crawler gets exactly the same HTML
+# as visitors.
+#
+# AI *training* crawlers (e.g. GPTBot, ClaudeBot, Google-Extended, CCBot) are
+# also allowed by the rule below. To opt out of training while staying in AI
+# search, add a block such as:
+#   User-agent: GPTBot
+#   Disallow: /
+# (see docs/SEO.md before changing this).
+
 User-agent: *
 Allow: /
 
 # Signed-in account areas. These pages are also served with
-# <meta name="robots" content="noindex"> and the API requires a login token;
-# this file only keeps crawlers from wasting time on them.
+# X-Robots-Tag: noindex and the API requires a login token;
+# this only keeps crawlers from wasting time on them.
 Disallow: /admin
 Disallow: /admin-login
 Disallow: /dashboard

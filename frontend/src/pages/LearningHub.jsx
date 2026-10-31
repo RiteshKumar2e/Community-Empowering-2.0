@@ -4173,7 +4173,7 @@ const LearningHub = () => {
                         </div>
                         <div className="stat-content">
                             <div className="stat-number">{platforms.length}+</div>
-                            <div className="stat-label">Active Portals</div>
+                            <div className="stat-label">Learning platforms listed</div>
                         </div>
                     </div>
                     <div className="stat-card">
@@ -4181,8 +4181,8 @@ const LearningHub = () => {
                             <Award size={24} />
                         </div>
                         <div className="stat-content">
-                            <div className="stat-number">100%</div>
-                            <div className="stat-label">Free Courses</div>
+                            <div className="stat-number">Free</div>
+                            <div className="stat-label">to start learning</div>
                         </div>
                     </div>
                     <div className="stat-card">
@@ -4190,8 +4190,8 @@ const LearningHub = () => {
                             <BookOpen size={24} />
                         </div>
                         <div className="stat-content">
-                            <div className="stat-number">1000+</div>
-                            <div className="stat-label">Certifications</div>
+                            <div className="stat-number">Certificates</div>
+                            <div className="stat-label">offered by many courses</div>
                         </div>
                     </div>
                 </div>

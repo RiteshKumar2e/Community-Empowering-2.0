@@ -34,6 +34,7 @@ const Schemes = lazy(() => import('./pages/Schemes'))
 const SchemeDetail = lazy(() => import('./pages/SchemeDetail'))
 const EligibilityChecker = lazy(() => import('./pages/EligibilityChecker'))
 const EditorialPolicy = lazy(() => import('./pages/EditorialPolicy'))
+const About = lazy(() => import('./pages/About'))
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'))
 const CookieConsent = lazy(() => import('./components/CookieConsent'))
 
@@ -72,6 +73,7 @@ function App() {
                                 <Route path="/schemes/:slug" element={<SchemeDetail />} />
                                 <Route path="/eligibility" element={<EligibilityChecker />} />
                                 <Route path="/editorial-policy" element={<EditorialPolicy />} />
+                                <Route path="/about" element={<About />} />
 
                                 {/* Protected Routes */}
                                 <Route path="/dashboard" element={

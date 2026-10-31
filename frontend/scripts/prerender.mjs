@@ -53,6 +53,8 @@ const ORGANIZATION = {
     url: `${SITE_URL}/`,
     logo: `${SITE_URL}/logo.png`,
     email: 'riteshkumar90359@gmail.com',
+    description: 'Independent platform explaining Indian government schemes, scholarships and learning resources in plain language. Not affiliated with any government.',
+    sameAs: ['https://github.com/RiteshKumar2e/Community-Empowering-2.0'],
 }
 
 const breadcrumbs = (items) => ({
@@ -90,7 +92,7 @@ const crawlNav = `<nav aria-label="Site" style="padding:12px 16px;border-bottom:
 </nav>`
 const crawlFooter = `<footer style="padding:24px 16px;border-top:1px solid #e6e8eb;font-family:Inter,system-ui,sans-serif;font-size:14px">
   <p>${publishedCategories().map((c) => `<a href="/schemes/category/${c.id}">Schemes for ${esc(c.label)}</a>`).join(' · ')}</p>
-  <p><a href="/editorial-policy">Editorial Policy</a> · <a href="/privacy">Privacy Policy</a> · <a href="/terms">Terms</a></p>
+  <p><a href="/about">About Community AI</a> · <a href="/editorial-policy">Editorial Policy</a> · <a href="/privacy">Privacy Policy</a> · <a href="/terms">Terms</a></p>
   <p>${SITE_NAME} is an independent information platform and is not affiliated with the Government of India or any state government.</p>
 </footer>`
 
@@ -147,6 +149,16 @@ const structuredDataFor = (path, meta) => {
     }
     if (path === '/schemes') return [breadcrumbs([['Home', '/'], ['Government Schemes', '/schemes']])]
     if (path === '/eligibility') return [breadcrumbs([['Home', '/'], ['Government Schemes', '/schemes'], ['Eligibility Checker', '/eligibility']])]
+    if (path === '/about') {
+        return [{
+            '@context': 'https://schema.org',
+            '@type': 'AboutPage',
+            name: meta.title,
+            url: meta.canonical,
+            inLanguage: 'en-IN',
+            about: ORGANIZATION,
+        }]
+    }
     return []
 }
 
@@ -192,8 +204,33 @@ ${paths.map((p) => {
 `
 writeFileSync(join(dist, 'sitemap.xml'), sitemap)
 
+// 4. llms.txt: a plain-text index of the public pages (https://llmstxt.org).
+// Optional and not a ranking factor; generated from the same data so it can't
+// drift out of date.
+const llms = `# ${SITE_NAME}
+
+> Independent platform that explains Indian government schemes, scholarships and learning resources in plain language, with links to the official portals. Not a government website. Scheme guides show when they were last updated and whether they have been verified against the latest official notification.
+
+## Start here
+- [Government schemes directory](${SITE_URL}/schemes): search and filter all scheme guides
+- [Eligibility checker](${SITE_URL}/eligibility): 8 questions, no sign-up, suggests schemes worth checking
+- [About](${SITE_URL}/about): who runs the site and how to contact us
+- [Editorial policy](${SITE_URL}/editorial-policy): sources, review process and corrections
+
+## Scheme guides
+${SCHEMES.map((s) => `- [${s.name}](${SITE_URL}/schemes/${s.slug}): ${s.summary}`).join('\n')}
+
+## Schemes by group
+${publishedCategories().map((c) => `- [Government schemes for ${c.label}](${SITE_URL}/schemes/category/${c.id})`).join('\n')}
+
+## Policies
+- [Privacy policy](${SITE_URL}/privacy)
+- [Terms](${SITE_URL}/terms)
+`
+writeFileSync(join(dist, 'llms.txt'), llms)
+
 // Build-only artefacts should not be deployed.
 rmSync(join(dist, '.vite'), { recursive: true, force: true })
 if (existsSync(ssrDir)) rmSync(ssrDir, { recursive: true, force: true })
 
-console.log(`prerender: ${paths.length} public pages + app.html + 404.html; sitemap.xml has ${paths.length} URLs`)
+console.log(`prerender: ${paths.length} public pages + app.html + 404.html; sitemap.xml has ${paths.length} URLs; llms.txt written`)

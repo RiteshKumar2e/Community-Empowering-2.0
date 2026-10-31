@@ -72,8 +72,35 @@ const appRewrite = new RegExp(`^${vercel.rewrites.find((r) => r.destination === 
 for (const route of APP_ONLY_ROUTES) check(appRewrite.test(route), `vercel.json: ${route} is not rewritten to /app`)
 for (const path of indexablePaths()) check(!appRewrite.test(path), `vercel.json: public page ${path} is rewritten to app.html`)
 
+// 6. Every internal link in the prerendered pages points at a page that exists
+//    (a prerendered file, an app route, or a static file in dist).
+const appRoutes = new Set(APP_ONLY_ROUTES)
+const resolves = (href) => {
+    const path = href.split('#')[0].split('?')[0].replace(/\/+$/, '') || '/'
+    if (path === '/' || appRoutes.has(path)) return true
+    return existsSync(join(dist, `${path.slice(1)}.html`)) || existsSync(join(dist, path.slice(1)))
+}
+let linksChecked = 0
+for (const path of [...indexablePaths(), '/404']) {
+    const file = path === '/404' ? join(dist, '404.html') : fileFor(path)
+    if (!existsSync(file)) continue
+    const html = readFileSync(file, 'utf8')
+    for (const [, href] of html.matchAll(/<a[^>]+href="(\/[^"]*)"/g)) {
+        linksChecked++
+        if (!resolves(href)) failures.push(`${path}: broken internal link ${href}`)
+    }
+}
+
+// 7. llms.txt exists and only lists canonical public URLs.
+const llmsFile = join(dist, 'llms.txt')
+if (!existsSync(llmsFile)) failures.push('llms.txt missing')
+else {
+    const urls = [...readFileSync(llmsFile, 'utf8').matchAll(/\]\((https:\/\/[^)]+)\)/g)].map((m) => m[1])
+    for (const u of urls) check(expectedLocs.includes(u), `llms.txt lists a non-sitemap URL: ${u}`)
+}
+
 if (failures.length) {
     console.error(`SEO checks failed (${failures.length}):\n - ${failures.join('\n - ')}`)
     process.exit(1)
 }
-console.log(`SEO checks passed: ${indexablePaths().length} indexable pages, sitemap, robots.txt, app.html, 404.html, vercel.json`)
+console.log(`SEO checks passed: ${indexablePaths().length} indexable pages, ${linksChecked} internal links, sitemap, robots.txt, llms.txt, app.html, 404.html, vercel.json`)

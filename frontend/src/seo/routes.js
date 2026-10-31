@@ -29,6 +29,13 @@ const STATIC = {
         changefreq: 'monthly',
         priority: 0.8,
     },
+    '/about': {
+        title: `About Community AI – Independent Government Scheme Information | ${SITE_NAME}`,
+        description: 'Who builds Community AI, what it offers, how scheme information is researched and corrected, and how to contact us.',
+        index: true,
+        changefreq: 'yearly',
+        priority: 0.5,
+    },
     '/editorial-policy': {
         title: `Editorial Policy & How We Verify Scheme Information | ${SITE_NAME}`,
         description: 'How Community AI researches, verifies, updates and corrects government scheme information, and how to report an error.',

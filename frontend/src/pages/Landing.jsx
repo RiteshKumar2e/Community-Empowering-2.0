@@ -1,8 +1,9 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { useLanguage } from '../contexts/LanguageContext'
-import { ArrowRight, MessageSquare, BookOpen, Search, Mic, Globe, Zap, Target, Heart, Award, CheckCircle, Star, ArrowUp, Github, Linkedin, Mail, UserPlus, SlidersHorizontal, Sparkles } from 'lucide-react'
+import { ArrowRight, MessageSquare, BookOpen, Search, Mic, Globe, Zap, Target, Heart, Award, CheckCircle, ArrowUp, Github, Linkedin, Mail, UserPlus, SlidersHorizontal, Sparkles } from 'lucide-react'
 import ExploreModal from '../components/ExploreModal'
+import { SCHEMES } from '../data/schemes'
 import LandingHero from '../components/LandingHero'
 import CountUp from '../components/CountUp'
 import { useEffect, useRef, useState } from 'react'
@@ -185,11 +186,13 @@ const Landing = () => {
         }
     ]
 
+    // Only numbers we can back up from the app's own data (no user counts:
+    // we don't publish figures we can't verify).
     const stats = [
-        { value: '10K+', label: 'Active Users' },
-        { value: '50+', label: 'Government Schemes' },
-        { value: '100+', label: 'Learning Resources' },
-        { value: '5+', label: 'Languages Supported' }
+        { value: `${SCHEMES.length}`, label: 'Detailed scheme guides' },
+        { value: '200+', label: 'Government resources listed' },
+        { value: '300+', label: 'Free learning platforms' },
+        { value: '11', label: 'Languages in AI chat' }
     ]
 
     const goals = [
@@ -216,25 +219,11 @@ const Landing = () => {
     ]
 
 
-    const testimonials = [
-        {
-            name: 'Rajesh Kumar',
-            role: 'Farmer, Punjab',
-            text: 'This platform helped me discover PM-KISAN scheme. The voice feature in Punjabi made it so easy!',
-            rating: 5
-        },
-        {
-            name: 'Priya Sharma',
-            role: 'Student, Mumbai',
-            text: 'Found amazing scholarship opportunities through this platform. The AI assistant is very helpful!',
-            rating: 5
-        },
-        {
-            name: 'Mohammed Ali',
-            role: 'Small Business Owner, Delhi',
-            text: 'Got information about MUDRA loan scheme. Started my business with government support!',
-            rating: 5
-        }
+    // Example questions (not reviews). Each links to the guide that answers it.
+    const exampleQuestions = [
+        { who: 'Farmer', text: 'How much money does PM-KISAN give, and how do I check my payment status?', to: '/schemes/pm-kisan' },
+        { who: 'Student', text: 'Is there a scholarship for SC students in Class 11 and above if family income is under ₹2.5 lakh?', to: '/schemes/post-matric-scholarship-sc-students' },
+        { who: 'Small business', text: 'How do I get a loan without collateral to start a small shop?', to: '/schemes/pm-mudra-yojana' }
     ]
 
     return (
@@ -320,18 +309,18 @@ const Landing = () => {
                         </div>
                         <div className="about-visual">
                             <div className="about-stats-card">
-                                <h3>Making Real Impact</h3>
+                                <h3>What's on Community AI</h3>
                                 <div className="impact-stat">
-                                    <div className="impact-number"><CountUp value="10,000+" /></div>
-                                    <div className="impact-label">Users Helped</div>
+                                    <div className="impact-number"><CountUp value={`${SCHEMES.length}`} /></div>
+                                    <div className="impact-label">Scheme guides with official links</div>
                                 </div>
                                 <div className="impact-stat">
-                                    <div className="impact-number"><CountUp value="50+" /></div>
-                                    <div className="impact-label">Schemes Listed</div>
+                                    <div className="impact-number"><CountUp value="200+" /></div>
+                                    <div className="impact-label">Government resources listed</div>
                                 </div>
                                 <div className="impact-stat">
-                                    <div className="impact-number"><CountUp value="5+" /></div>
-                                    <div className="impact-label">Languages</div>
+                                    <div className="impact-number"><CountUp value="11" /></div>
+                                    <div className="impact-label">Languages in AI chat</div>
                                 </div>
                             </div>
                         </div>
@@ -455,27 +444,17 @@ const Landing = () => {
             <section id="testimonials" className="testimonials-section">
                 <div className="container">
                     <div className="section-header">
-                        <h2>What Users Say</h2>
-                        <p>Real stories from real people</p>
+                        <h2>Questions people bring to Community AI</h2>
+                        <p>Examples of what you can ask, with the guide that answers each one</p>
                     </div>
 
                     <div className="testimonials-grid">
-                        {testimonials.map((testimonial, index) => (
-                            <div key={index} className="testimonial-card">
-                                <div className="testimonial-rating">
-                                    {[...Array(testimonial.rating)].map((_, i) => (
-                                        <Star key={i} size={16} fill="var(--secondary-500)" color="var(--secondary-500)" />
-                                    ))}
-                                </div>
-                                <p className="testimonial-text">"{testimonial.text}"</p>
-                                <div className="testimonial-author">
-                                    <div className="author-avatar">{testimonial.name[0]}</div>
-                                    <div>
-                                        <div className="author-name">{testimonial.name}</div>
-                                        <div className="author-role">{testimonial.role}</div>
-                                    </div>
-                                </div>
-                            </div>
+                        {exampleQuestions.map((q) => (
+                            <Link key={q.to} to={q.to} className="testimonial-card example-question">
+                                <span className="example-who">{q.who}</span>
+                                <p className="testimonial-text">“{q.text}”</p>
+                                <span className="example-link">Read the answer <ArrowRight size={14} /></span>
+                            </Link>
                         ))}
                     </div>
                 </div>
@@ -535,7 +514,7 @@ const Landing = () => {
                     <div className="final-cta-card">
                         <div>
                             <h2>Your benefits are waiting. Don't leave them unclaimed.</h2>
-                            <p>Join thousands of people who found schemes, scholarships and jobs they didn't know about. It's free.</p>
+                            <p>Check what you may qualify for in a minute, then save it to a free account. Official links for every scheme.</p>
                         </div>
                         <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
                             <Link to={isAuthenticated ? '/dashboard' : '/register'} className="btn final-cta-btn">
@@ -592,6 +571,7 @@ const Landing = () => {
                             <h5>Legal</h5>
                             <Link to="/privacy">Privacy Policy</Link>
                             <Link to="/terms">Terms &amp; Conditions</Link>
+                            <Link to="/about">About Us</Link>
                             <Link to="/editorial-policy">Editorial Policy</Link>
                             <a href="mailto:riteshkumar90359@gmail.com">riteshkumar90359@gmail.com</a>
                         </div>

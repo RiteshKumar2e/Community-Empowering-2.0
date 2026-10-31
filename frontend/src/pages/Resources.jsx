@@ -1900,7 +1900,7 @@ const Resources = () => {
                         </div>
                         <div className="stat-content">
                             <div className="stat-number">{resources.length}+</div>
-                            <div className="stat-label">Active Schemes</div>
+                            <div className="stat-label">Resources listed</div>
                         </div>
                     </div>
                     <div className="stat-card">
@@ -1917,8 +1917,8 @@ const Resources = () => {
                             <Award size={24} />
                         </div>
                         <div className="stat-content">
-                            <div className="stat-number">100%</div>
-                            <div className="stat-label">Official Sources</div>
+                            <div className="stat-number">Official</div>
+                            <div className="stat-label">Links to government portals</div>
                         </div>
                     </div>
                 </div>

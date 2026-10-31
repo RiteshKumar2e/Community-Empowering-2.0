@@ -55,11 +55,10 @@ The **Community AI Platform** is a high-performance, production-ready applicatio
 
 | Metric | Value |
 |--------|-------|
-| 🎯 Active Users | 100+ |
-| 📚 Learning Resources | 100+ |
-| 🏛️ Government Schemes | 50+ |
-| 🌐 Languages Supported | 5+ |
-| ⚡ Avg Response Time | <100ms |
+| 📖 Detailed scheme guides | 12 (public, with official links) |
+| 🏛️ Government resources listed | 200+ |
+| 📚 Free learning platforms listed | 300+ |
+| 🌐 AI chat languages | 11 |
 
 </div>
 
@@ -69,7 +68,7 @@ The **Community AI Platform** is a high-performance, production-ready applicatio
 
 ### 🤖 **AI-Powered Intelligence**
 
-- **Multi-Model AI Integration** - Groq API with 30+ fallback models for 99.9% uptime
+- **Multi-Model AI Integration** - Groq models with Google Gemini as a fallback (models configurable via `GROQ_MODELS` / `GEMINI_MODELS`)
 - **Amazon Q Business Intelligence** - Source-attributed Q&A, personalized learning paths, and automated business insights
 - **Platform-Aware Assistant** - Chatbot is fully trained on platform identity, features, and mission
 - **Multilingual NLP** - English, Hindi, Bengali, Telugu, Marathi support
@@ -1148,7 +1147,7 @@ User Query
 └─────────────────────────────────────┘
 ```
 
-**Uptime Guarantee:** 99.9%+ with multi-provider redundancy
+Using two providers means the assistant keeps working if one provider or model is unavailable. (No uptime figure is published because none has been measured.)
 
 ---
 
@@ -1428,17 +1427,7 @@ alembic upgrade head
 
 ### **Performance Metrics**
 
-<div align="center">
-
-| Metric | Value |
-|--------|-------|
-| 📊 Average Response Time | 87ms |
-| 📈 95th Percentile | 145ms |
-| 📉 99th Percentile | 312ms |
-| 🚀 Throughput | 1,200 req/s |
-| ✅ Uptime | 99.95% |
-
-</div>
+Response-time, throughput and uptime figures have not been measured on the production deployment yet, so none are published here. Measure them with Render's metrics and an external uptime monitor before adding numbers.
 
 ### **Optimization Techniques**
 

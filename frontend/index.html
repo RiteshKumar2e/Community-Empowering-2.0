@@ -79,9 +79,16 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-  <!-- Google Fonts: Inter is the only family the design system uses -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;550;600;650;700&display=swap"
-    rel="stylesheet">
+  <!-- Google Fonts: Inter is the only family the design system uses.
+       Loaded without blocking the first paint (text shows in the system font
+       and switches to Inter when it arrives), which speeds up LCP. -->
+  <link rel="preload" as="style"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400..700&display=swap">
+  <link rel="stylesheet" media="print" onload="this.media='all'"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400..700&display=swap">
+  <noscript>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400..700&display=swap">
+  </noscript>
 </head>
 
 <body class="light-theme">
