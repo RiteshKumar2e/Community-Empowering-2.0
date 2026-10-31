@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react'
+import { createContext, useContext, useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../services/api'
 import { syncPending, takePostAuthRedirect } from '../services/myData'
@@ -60,6 +60,7 @@ export const AuthProvider = ({ children }) => {
             localStorage.setItem('user', JSON.stringify(userData))
             api.defaults.headers.common['Authorization'] = `Bearer ${token}`
 
+            loggedOutRef.current = false
             setUser(userData)
             await afterAuth('login_completed', 'email')
             navigate(takePostAuthRedirect() || '/dashboard')
@@ -82,6 +83,7 @@ export const AuthProvider = ({ children }) => {
             localStorage.setItem('user', JSON.stringify(newUser))
             api.defaults.headers.common['Authorization'] = `Bearer ${token}`
 
+            loggedOutRef.current = false
             setUser(newUser)
             await afterAuth('signup_completed', 'email')
             navigate(takePostAuthRedirect() || '/dashboard')
@@ -95,12 +97,20 @@ export const AuthProvider = ({ children }) => {
         }
     }
 
+    // Set during logout so ProtectedRoute sends the user home instead of to
+    // /login while the page they were on re-renders without a user.
+    const loggedOutRef = useRef(false)
+
     const logout = () => {
+        loggedOutRef.current = true
         localStorage.removeItem('token')
         localStorage.removeItem('user')
         delete api.defaults.headers.common['Authorization']
         setUser(null)
         navigate('/')
+        // Only needed for the redirect right after logout; later visits to a
+        // protected page while signed out should go to /login as usual.
+        setTimeout(() => { loggedOutRef.current = false }, 1500)
     }
 
     const googleLogin = async (credential) => {
@@ -122,6 +132,7 @@ export const AuthProvider = ({ children }) => {
             localStorage.setItem('user', JSON.stringify(userData))
             api.defaults.headers.common['Authorization'] = `Bearer ${token}`
 
+            loggedOutRef.current = false
             setUser(userData)
             await afterAuth('login_completed', 'google')
             navigate(takePostAuthRedirect() || '/dashboard')
@@ -165,7 +176,8 @@ export const AuthProvider = ({ children }) => {
         googleLogin,
         verifyGoogleOtp,
         updateUser,
-        isAuthenticated: !!user
+        isAuthenticated: !!user,
+        justLoggedOut: loggedOutRef.current
     }
 
     return (

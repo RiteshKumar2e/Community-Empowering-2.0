@@ -5,10 +5,11 @@ import { useAuth } from '../contexts/AuthContext'
 // Public scheme information (/schemes, /eligibility) must never be wrapped in
 // this. Hiding a page here is a UX choice; the API enforces access separately.
 const ProtectedRoute = ({ children }) => {
-    const { isAuthenticated } = useAuth()
+    const { isAuthenticated, justLoggedOut } = useAuth()
 
     if (!isAuthenticated) {
-        return <Navigate to="/login" replace />
+        // After a deliberate logout go to the homepage; otherwise ask to sign in.
+        return <Navigate to={justLoggedOut ? '/' : '/login'} replace />
     }
 
     return children
