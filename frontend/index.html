@@ -67,7 +67,12 @@
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
 
-    gtag('config', 'G-E62VV5FB9M');
+    // Only the live site reports to GA4. Localhost, Vercel previews and other
+    // hosts load the tag but send nothing, so test traffic doesn't pollute
+    // the real numbers. See docs/ANALYTICS.md.
+    if (location.hostname === 'communityai.co.in' || location.hostname === 'www.communityai.co.in') {
+      gtag('config', 'G-E62VV5FB9M');
+    }
   </script>
 
   <!-- Preconnect to improve performance -->
