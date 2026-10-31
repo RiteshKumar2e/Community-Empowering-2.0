@@ -78,8 +78,9 @@ export default function OTPModal({ isOpen, onClose, email, onVerify, loading }) 
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.2 }}
-                    onClick={onClose}
                 >
+                    {/* No close on outside click: a stray tap would throw away
+                        the OTP the user is typing. Only "Cancel" closes it. */}
                     <motion.div
                         className="otp-modal-content"
                         initial={{ scale: 0.95, opacity: 0, y: 10 }}
@@ -92,7 +93,6 @@ export default function OTPModal({ isOpen, onClose, email, onVerify, loading }) 
                             mass: 0.5
                         }}
                         style={{ transitionDuration: '100ms' }}
-                        onClick={(e) => e.stopPropagation()}
                     >
                         <div className="otp-modal-header">
                             <div className="otp-icon">
