@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
-import { GoogleLogin } from '@react-oauth/google'
+import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google'
 import { useAuth } from '../contexts/AuthContext'
 import { useLanguage } from '../contexts/LanguageContext'
 import { Mail, Lock, AlertCircle, Loader, ArrowLeft, Eye, EyeOff } from 'lucide-react'
@@ -8,6 +8,10 @@ import OTPModal from '../components/OTPModal'
 import { getPendingResult } from '../services/myData'
 
 import '../styles/Auth.css'
+
+// Google OAuth Client ID. This is a public identifier (it ships in every
+// sign-in request), not a secret, so a fallback here is safe.
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "951248037202-s3mqg1q79rgodj93skft5r253rd3mkfd.apps.googleusercontent.com"
 
 const Login = () => {
     const { login, googleLogin, verifyGoogleOtp } = useAuth()
@@ -233,4 +237,14 @@ const Login = () => {
     )
 }
 
-export default Login
+// Google's sign-in script loads only here, on the page with the Google button.
+// Loaded app-wide it ran on every page and, for visitors signed in to Google,
+// logged "Cross-Origin-Opener-Policy policy would block the window.postMessage
+// call" in the console.
+const LoginPage = () => (
+    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+        <Login />
+    </GoogleOAuthProvider>
+)
+
+export default LoginPage

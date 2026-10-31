@@ -1,6 +1,5 @@
 import { lazy, Suspense } from 'react'
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
-import { GoogleOAuthProvider } from '@react-oauth/google'
 import { AuthProvider } from './contexts/AuthContext'
 import { LanguageProvider } from './contexts/LanguageContext'
 import Navbar from './components/Navbar'
@@ -9,10 +8,6 @@ import ProtectedRoute from './components/ProtectedRoute'
 import SideChatBot from './components/SideChatBot'
 import PageMeta from './components/PageMeta'
 import './styles/AppPages.css'
-
-// Google OAuth Client ID. This is a public identifier (it ships in every
-// sign-in request), not a secret, so a fallback here is safe.
-const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "951248037202-s3mqg1q79rgodj93skft5r253rd3mkfd.apps.googleusercontent.com"
 
 // Every page except the landing page is loaded on demand, so first-time
 // visitors only download the code for the page they open.
@@ -50,84 +45,82 @@ const ChatBotCondition = () => {
 
 function App() {
     return (
-        <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-            <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-                <AuthProvider>
-                    <LanguageProvider>
-                        <div className="app">
-                            <PageMeta />
-                            <Navbar />
-                            <Suspense fallback={<div className="page-loading" aria-busy="true" />}>
-                            <Routes>
-                                <Route path="/" element={<Landing />} />
-                                <Route path="/login" element={<Login />} />
-                                <Route path="/register" element={<Register />} />
-                                <Route path="/forgot-password" element={<ForgotPassword />} />
-                                <Route path="/admin-login" element={<AdminLogin />} />
-                                <Route path="/privacy" element={<PrivacyPolicy />} />
-                                <Route path="/terms" element={<Terms />} />
+        <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+            <AuthProvider>
+                <LanguageProvider>
+                    <div className="app">
+                        <PageMeta />
+                        <Navbar />
+                        <Suspense fallback={<div className="page-loading" aria-busy="true" />}>
+                        <Routes>
+                            <Route path="/" element={<Landing />} />
+                            <Route path="/login" element={<Login />} />
+                            <Route path="/register" element={<Register />} />
+                            <Route path="/forgot-password" element={<ForgotPassword />} />
+                            <Route path="/admin-login" element={<AdminLogin />} />
+                            <Route path="/privacy" element={<PrivacyPolicy />} />
+                            <Route path="/terms" element={<Terms />} />
 
-                                {/* Public scheme information: no login required, indexable */}
-                                <Route path="/schemes" element={<Schemes />} />
-                                <Route path="/schemes/category/:category" element={<Schemes />} />
-                                <Route path="/schemes/:slug" element={<SchemeDetail />} />
-                                <Route path="/eligibility" element={<EligibilityChecker />} />
-                                <Route path="/editorial-policy" element={<EditorialPolicy />} />
-                                <Route path="/about" element={<About />} />
+                            {/* Public scheme information: no login required, indexable */}
+                            <Route path="/schemes" element={<Schemes />} />
+                            <Route path="/schemes/category/:category" element={<Schemes />} />
+                            <Route path="/schemes/:slug" element={<SchemeDetail />} />
+                            <Route path="/eligibility" element={<EligibilityChecker />} />
+                            <Route path="/editorial-policy" element={<EditorialPolicy />} />
+                            <Route path="/about" element={<About />} />
 
-                                {/* Protected Routes */}
-                                <Route path="/dashboard" element={
-                                    <ProtectedRoute>
-                                        <Dashboard />
-                                    </ProtectedRoute>
-                                } />
-                                <Route path="/assistant" element={
-                                    <ProtectedRoute>
-                                        <AIAssistant />
-                                    </ProtectedRoute>
-                                } />
-                                <Route path="/resources" element={
-                                    <ProtectedRoute>
-                                        <Resources />
-                                    </ProtectedRoute>
-                                } />
-                                <Route path="/learning" element={
-                                    <ProtectedRoute>
-                                        <LearningHub />
-                                    </ProtectedRoute>
-                                } />
-                                <Route path="/profile" element={
-                                    <ProtectedRoute>
-                                        <Profile />
-                                    </ProtectedRoute>
-                                } />
-                                <Route path="/feedback" element={
-                                    <ProtectedRoute>
-                                        <Feedback />
-                                    </ProtectedRoute>
-                                } />
-                                <Route path="/forum" element={
-                                    <ProtectedRoute>
-                                        <Forum />
-                                    </ProtectedRoute>
-                                } />
-                                <Route path="/admin" element={
-                                    <ProtectedRoute>
-                                        <AdminDashboard />
-                                    </ProtectedRoute>
-                                } />
-                                <Route path="*" element={<NotFound />} />
-                            </Routes>
-                            </Suspense>
-                            <ChatBotCondition />
-                            <Suspense fallback={null}>
-                                <CookieConsent />
-                            </Suspense>
-                        </div>
-                    </LanguageProvider>
-                </AuthProvider>
-            </Router>
-        </GoogleOAuthProvider>
+                            {/* Protected Routes */}
+                            <Route path="/dashboard" element={
+                                <ProtectedRoute>
+                                    <Dashboard />
+                                </ProtectedRoute>
+                            } />
+                            <Route path="/assistant" element={
+                                <ProtectedRoute>
+                                    <AIAssistant />
+                                </ProtectedRoute>
+                            } />
+                            <Route path="/resources" element={
+                                <ProtectedRoute>
+                                    <Resources />
+                                </ProtectedRoute>
+                            } />
+                            <Route path="/learning" element={
+                                <ProtectedRoute>
+                                    <LearningHub />
+                                </ProtectedRoute>
+                            } />
+                            <Route path="/profile" element={
+                                <ProtectedRoute>
+                                    <Profile />
+                                </ProtectedRoute>
+                            } />
+                            <Route path="/feedback" element={
+                                <ProtectedRoute>
+                                    <Feedback />
+                                </ProtectedRoute>
+                            } />
+                            <Route path="/forum" element={
+                                <ProtectedRoute>
+                                    <Forum />
+                                </ProtectedRoute>
+                            } />
+                            <Route path="/admin" element={
+                                <ProtectedRoute>
+                                    <AdminDashboard />
+                                </ProtectedRoute>
+                            } />
+                            <Route path="*" element={<NotFound />} />
+                        </Routes>
+                        </Suspense>
+                        <ChatBotCondition />
+                        <Suspense fallback={null}>
+                            <CookieConsent />
+                        </Suspense>
+                    </div>
+                </LanguageProvider>
+            </AuthProvider>
+        </Router>
     )
 }
 
