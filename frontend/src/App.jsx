@@ -7,6 +7,7 @@ import Landing from './pages/Landing'
 import ProtectedRoute from './components/ProtectedRoute'
 import SideChatBot from './components/SideChatBot'
 import PageMeta from './components/PageMeta'
+import UserLanguageSync from './components/UserLanguageSync'
 import './styles/AppPages.css'
 
 // Every page except the landing page is loaded on demand, so first-time
@@ -50,6 +51,7 @@ function App() {
                 <LanguageProvider>
                     <div className="app">
                         <PageMeta />
+                        <UserLanguageSync />
                         <Navbar />
                         <Suspense fallback={<div className="page-loading" aria-busy="true" />}>
                         <Routes>
