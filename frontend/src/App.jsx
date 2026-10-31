@@ -11,7 +11,7 @@ import PageMeta from './components/PageMeta'
 
 // Google OAuth Client ID. This is a public identifier (it ships in every
 // sign-in request), not a secret, so a fallback here is safe.
-const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "951248037202-st6tgbo07tjljditc95n7kuvgqr7a7mg.apps.googleusercontent.com"
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "951248037202-s3mqg1q79rgodj93skft5r253rd3mkfd.apps.googleusercontent.com"
 
 // Every page except the landing page is loaded on demand, so first-time
 // visitors only download the code for the page they open.

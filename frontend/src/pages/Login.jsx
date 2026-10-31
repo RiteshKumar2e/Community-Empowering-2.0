@@ -185,6 +185,10 @@ const Login = () => {
                                 logo_alignment="center"
                                 useOneTap={false}
                                 auto_select={false}
+                                // FedCM shows Google's account chooser as browser UI instead of a
+                                // popup window, which avoids the popup's Cross-Origin-Opener-Policy
+                                // postMessage errors. Browsers without FedCM fall back to the popup.
+                                use_fedcm_for_button={true}
                             />
                         </div>
                     </form>

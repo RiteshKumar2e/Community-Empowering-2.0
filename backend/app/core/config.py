@@ -43,7 +43,7 @@ class Settings(BaseSettings):
     NEWS_API_KEY: str = os.getenv("NEWS_API_KEY", "")
     YOUTUBE_API_KEY: str = os.getenv("YOUTUBE_API_KEY", "")
     PIB_RSS_URL: str = "https://pib.gov.in/RssMain.aspx?ModId=6"
-    GOOGLE_CLIENT_ID: str = "951248037202-st6tgbo07tjljditc95n7kuvgqr7a7mg.apps.googleusercontent.com"
+    GOOGLE_CLIENT_ID: str = "951248037202-s3mqg1q79rgodj93skft5r253rd3mkfd.apps.googleusercontent.com"
 
     def check_keys(self):
         """Check for essential API keys and print warnings"""
