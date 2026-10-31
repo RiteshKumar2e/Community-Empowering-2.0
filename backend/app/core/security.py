@@ -6,7 +6,10 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 from app.core.config import settings
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# Cost 10 (OWASP's minimum for bcrypt) instead of passlib's default 12: about
+# 4x faster signups on a small server. Existing cost-12 hashes still verify
+# because the cost is stored inside each hash.
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto", bcrypt__rounds=10)
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Verify a password against a hash. Returns False (never raises) for
