@@ -58,3 +58,6 @@ coverage/
 *.pem
 *.key
 *.crt
+
+# User-uploaded files (profile photos) - never commit
+backend/uploads/
