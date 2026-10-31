@@ -1,3 +1,5 @@
+import hashlib
+import hmac
 from datetime import datetime, timedelta
 from typing import Optional
 from jose import JWTError, jwt
@@ -18,6 +20,23 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 def get_password_hash(password: str) -> str:
     """Hash a password"""
     return pwd_context.hash(password)
+
+# One-time codes (email verification, password reset) are short-lived and
+# attempt-limited, so they don't need bcrypt's deliberate slowness: an HMAC
+# keyed with SECRET_KEY is just as unreadable from a leaked database and takes
+# microseconds instead of ~0.5-2 s per hash on a small server.
+_CODE_PREFIX = "hmac$"
+
+def hash_code(code: str) -> str:
+    digest = hmac.new(settings.SECRET_KEY.encode(), code.encode(), hashlib.sha256).hexdigest()
+    return _CODE_PREFIX + digest
+
+def verify_code(code: str, stored: Optional[str]) -> bool:
+    if not stored:
+        return False
+    if stored.startswith(_CODE_PREFIX):
+        return hmac.compare_digest(hash_code(code), stored)
+    return verify_password(code, stored)  # codes issued before this change (bcrypt)
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
     """Create a JWT access token"""

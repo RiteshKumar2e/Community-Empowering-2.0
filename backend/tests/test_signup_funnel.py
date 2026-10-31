@@ -180,6 +180,36 @@ def test_email_verification_flow():
     assert client.post("/api/auth/email/verify", json={"code": code}).status_code == 401
 
 
+def test_one_time_codes_are_fast_keyed_hashes_and_old_bcrypt_codes_still_work():
+    from app.core.security import get_password_hash, hash_code, verify_code
+    from app.models.models import EmailVerification, User
+
+    reg = register("olga@example.com").json()
+    db = database.SessionLocal()
+    try:
+        row = db.query(EmailVerification).filter(EmailVerification.user_id == reg["user"]["id"]).one()
+        assert row.code_hash.startswith("hmac$") and SENT_CODES["olga@example.com"] not in row.code_hash
+        assert db.query(User).filter(User.email == "olga@example.com").one().password_hash.startswith("$2")
+        # A code that was emailed (and bcrypt-hashed) before this change.
+        row.code_hash = get_password_hash("424242")
+        db.commit()
+    finally:
+        db.close()
+    assert verify_code("424242", hash_code("424242")) and not verify_code("424243", hash_code("424242"))
+    assert not verify_code("424242", None)
+    ok = client.post("/api/auth/email/verify", json={"code": "424242"}, headers=auth(reg["token"]))
+    assert ok.json()["emailVerified"] is True
+
+
+def test_register_uses_a_single_commit(monkeypatch):
+    from sqlalchemy.orm import Session
+    commits = []
+    original = Session.commit
+    monkeypatch.setattr(Session, "commit", lambda self: commits.append(1) or original(self))
+    assert register("pete@example.com").status_code == 200
+    assert len(commits) == 1
+
+
 def test_verification_resend_has_cooldown():
     token = register("ivy@example.com").json()["token"]
     assert client.post("/api/auth/email/send-verification", headers=auth(token)).status_code == 429

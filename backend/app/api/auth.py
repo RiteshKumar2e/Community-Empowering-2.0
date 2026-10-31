@@ -8,7 +8,8 @@ from google.oauth2 import id_token
 from google.auth.transport import requests
 from app.core.config import settings
 from app.core.database import get_db
-from app.core.security import verify_password, get_password_hash, create_access_token
+from fastapi.concurrency import run_in_threadpool
+from app.core.security import verify_password, get_password_hash, create_access_token, hash_code, verify_code
 from app.models.models import User, PasswordResetCode, EmailVerification
 from app.core.rate_limit import (
     login_limiter, register_limiter, password_reset_limiter, verification_limiter,
@@ -95,8 +96,12 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
     return user
 
 
+def _verified_without_query(user: User) -> bool:
+    return bool(user.google_email_verified or user.password_hash == "google_authenticated_user")
+
+
 def is_email_verified(user: User, db: Session) -> bool:
-    if user.google_email_verified or user.password_hash == "google_authenticated_user":
+    if _verified_without_query(user):
         return True
     row = db.query(EmailVerification).filter(EmailVerification.user_id == user.id).first()
     return bool(row and row.verified_at)
@@ -106,18 +111,23 @@ def _aware(dt):
     return dt if dt is None or dt.tzinfo else dt.replace(tzinfo=timezone.utc)
 
 
-def _issue_verification_code(user: User, db: Session, background_tasks: BackgroundTasks) -> None:
-    row = db.query(EmailVerification).filter(EmailVerification.user_id == user.id).first()
+def _issue_verification_code(user: User, db: Session, background_tasks: BackgroundTasks,
+                             row: Optional[EmailVerification] = None, commit: bool = True) -> None:
+    """Create or refresh the user's code. Pass the already-loaded row (or a new
+    user's empty one) to save a database round trip."""
+    if row is None:
+        row = db.query(EmailVerification).filter(EmailVerification.user_id == user.id).first()
     if row is None:
         row = EmailVerification(user_id=user.id)
         db.add(row)
     code = email_service.generate_otp()
     now = datetime.now(timezone.utc)
-    row.code_hash = get_password_hash(code)
+    row.code_hash = hash_code(code)
     row.expires_at = now + VERIFY_CODE_TTL
     row.sent_at = now
     row.attempts = 0
-    db.commit()
+    if commit:
+        db.commit()
     background_tasks.add_task(email_service.send_otp, user.email, code, "email_verification")
 
 
@@ -127,26 +137,26 @@ class VerifyEmailIn(BaseModel):
 
 @router.post("/email/send-verification", dependencies=[Depends(verification_limiter)])
 async def send_verification(background_tasks: BackgroundTasks, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    if is_email_verified(current_user, db):
-        return {"success": True, "alreadyVerified": True}
     row = db.query(EmailVerification).filter(EmailVerification.user_id == current_user.id).first()
+    if _verified_without_query(current_user) or (row and row.verified_at):
+        return {"success": True, "alreadyVerified": True}
     if row and row.sent_at and datetime.now(timezone.utc) - _aware(row.sent_at) < VERIFY_RESEND_COOLDOWN:
         raise HTTPException(status_code=429, detail="Please wait a minute before requesting another code.")
-    _issue_verification_code(current_user, db, background_tasks)
+    _issue_verification_code(current_user, db, background_tasks, row=row)
     return {"success": True, "message": "We've emailed you a 6-digit code. It expires in 30 minutes."}
 
 
 @router.post("/email/verify", dependencies=[Depends(verification_limiter)])
 async def verify_email(body: VerifyEmailIn, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    if is_email_verified(current_user, db):
+    row = db.query(EmailVerification).filter(EmailVerification.user_id == current_user.id).first()
+    if _verified_without_query(current_user) or (row and row.verified_at):
         return {"success": True, "emailVerified": True}
     invalid = HTTPException(status_code=400, detail="That code is invalid or has expired. Request a new one.")
-    row = db.query(EmailVerification).filter(EmailVerification.user_id == current_user.id).first()
     if not row or not row.code_hash or not row.expires_at:
         raise invalid
     if _aware(row.expires_at) < datetime.now(timezone.utc) or (row.attempts or 0) >= VERIFY_MAX_ATTEMPTS:
         raise invalid
-    if not verify_password(body.code, row.code_hash):
+    if not verify_code(body.code, row.code_hash):
         row.attempts = (row.attempts or 0) + 1
         db.commit()
         raise invalid
@@ -166,46 +176,49 @@ async def register(user_data: UserRegister, background_tasks: BackgroundTasks, d
             detail="Email already registered"
         )
 
-    # Create new user
+    # bcrypt is deliberately slow (~0.5-2 s); run it in a worker thread so it
+    # doesn't stall every other request on the server meanwhile.
+    password_hash = await run_in_threadpool(get_password_hash, user_data.password)
     new_user = User(
         name=user_data.name,
         email=user_data.email,
         phone=user_data.phone,
-        password_hash=get_password_hash(user_data.password),
+        password_hash=password_hash,
         location=user_data.location,
         language=user_data.language,
         community_type=user_data.communityType
     )
 
+    # User and verification code are saved in one transaction (each round
+    # trip to the remote database costs time).
     db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-    _issue_verification_code(new_user, db, background_tasks)
-
-    # Create access token
-    access_token = create_access_token(data={"sub": new_user.email})
-
-    return {
-        "token": access_token,
-        "user": {
-            "id": new_user.id,
-            "name": new_user.name,
-            "email": new_user.email,
-            "phone": new_user.phone,
-            "location": new_user.location,
-            "language": new_user.language,
-            "communityType": new_user.community_type,
-            "profileImage": new_user.profile_image,
-            "emailVerified": is_email_verified(new_user, db)
-        }
+    db.flush()  # assigns new_user.id
+    verification = EmailVerification(user_id=new_user.id)
+    db.add(verification)
+    _issue_verification_code(new_user, db, background_tasks, row=verification, commit=False)
+    # Read the response fields before commit: afterwards SQLAlchemy would
+    # reload the object from the database just to read them back.
+    user_out = {
+        "id": new_user.id,
+        "name": new_user.name,
+        "email": new_user.email,
+        "phone": new_user.phone,
+        "location": new_user.location,
+        "language": new_user.language,
+        "communityType": new_user.community_type,
+        "profileImage": new_user.profile_image,
+        "emailVerified": False,
     }
+    db.commit()
+
+    return {"token": create_access_token(data={"sub": user_out["email"]}), "user": user_out}
 
 @router.post("/login", response_model=dict, dependencies=[Depends(login_limiter)])
 async def login(user_data: UserLogin, db: Session = Depends(get_db)):
     """Login user"""
     user = db.query(User).filter(User.email == user_data.email).first()
 
-    if not user or not verify_password(user_data.password, user.password_hash):
+    if not user or not await run_in_threadpool(verify_password, user_data.password, user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password"
@@ -217,26 +230,22 @@ async def login(user_data: UserLogin, db: Session = Depends(get_db)):
             detail="Inactive user"
         )
 
-    # Update last login
+    # Build the response before commit (afterwards SQLAlchemy reloads the row).
+    user_out = {
+        "id": user.id,
+        "name": user.name,
+        "email": user.email,
+        "phone": user.phone,
+        "location": user.location,
+        "language": user.language,
+        "communityType": user.community_type,
+        "profileImage": user.profile_image,
+        "emailVerified": is_email_verified(user, db)
+    }
     user.last_login = datetime.now(timezone.utc)
     db.commit()
 
-    access_token = create_access_token(data={"sub": user.email})
-
-    return {
-        "token": access_token,
-        "user": {
-            "id": user.id,
-            "name": user.name,
-            "email": user.email,
-            "phone": user.phone,
-            "location": user.location,
-            "language": user.language,
-            "communityType": user.community_type,
-            "profileImage": user.profile_image,
-            "emailVerified": is_email_verified(user, db)
-        }
-    }
+    return {"token": create_access_token(data={"sub": user_out["email"]}), "user": user_out}
 
 @router.post("/google-login", response_model=dict)
 async def google_login(google_data: GoogleLogin, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
@@ -488,7 +497,7 @@ async def resend_google_otp(email_data: ResendOtpIn, background_tasks: Backgroun
 
 
 # --- Password reset ----------------------------------------------------------
-# A 6-digit code is emailed; only its bcrypt hash is stored. Codes expire after
+# A 6-digit code is emailed; only its keyed hash (security.hash_code) is stored. Codes expire after
 # 15 minutes, allow 5 attempts, and are single-use. The request endpoint always
 # returns the same message so it can't be used to find out who has an account.
 
@@ -509,7 +518,7 @@ async def forgot_password(body: ForgotPasswordIn, background_tasks: BackgroundTa
         code = email_service.generate_otp()
         db.add(PasswordResetCode(
             user_id=user.id,
-            code_hash=get_password_hash(code),
+            code_hash=hash_code(code),
             expires_at=datetime.now(timezone.utc) + RESET_CODE_TTL,
         ))
         db.commit()
@@ -541,12 +550,12 @@ async def reset_password(body: ResetPasswordIn, db: Session = Depends(get_db)):
         db.commit()
         raise invalid
 
-    if not verify_password(body.code, record.code_hash):
+    if not verify_code(body.code, record.code_hash):
         record.attempts = (record.attempts or 0) + 1
         db.commit()
         raise invalid
 
     record.used = True
-    user.password_hash = get_password_hash(body.new_password)
+    user.password_hash = await run_in_threadpool(get_password_hash, body.new_password)
     db.commit()
     return {"success": True, "message": "Your password has been changed. You can now sign in."}
