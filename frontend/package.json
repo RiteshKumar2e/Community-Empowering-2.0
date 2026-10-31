@@ -13,7 +13,7 @@
     "test:security": "node scripts/check-redirects.mjs"
   },
   "dependencies": {
-    "@react-oauth/google": "^0.13.4",
+    "@react-oauth/google": "^0.13.5",
     "axios": "^1.6.2",
     "framer-motion": "^10.16.16",
     "lucide-react": "^0.294.0",
