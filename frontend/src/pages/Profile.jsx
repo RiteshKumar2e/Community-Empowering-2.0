@@ -1,11 +1,49 @@
 import { useState, useRef } from 'react'
 import { useAuth } from '../contexts/AuthContext'
-import { User, Mail, Phone, MapPin, Globe, Edit2, Save, Camera, LogOut, Shield, Bell } from 'lucide-react'
+import { User, Mail, Phone, MapPin, Globe, Edit2, Save, Camera, LogOut, Shield, Download, Trash2, AlertTriangle } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { exportMyData, deleteMyAccount } from '../services/myData'
 import api from '../services/api'
 import '../styles/Profile.css'
 
 const Profile = () => {
     const { user, logout, updateUser } = useAuth()
+    const [confirmDelete, setConfirmDelete] = useState(false)
+    const [deleteText, setDeleteText] = useState('')
+    const [dataMsg, setDataMsg] = useState('')
+    const [dataBusy, setDataBusy] = useState(false)
+
+    const downloadData = async () => {
+        setDataMsg('')
+        setDataBusy(true)
+        try {
+            const data = await exportMyData()
+            const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }))
+            const a = Object.assign(document.createElement('a'), { href: url, download: 'community-ai-my-data.json' })
+            a.click()
+            URL.revokeObjectURL(url)
+        } catch {
+            setDataMsg('Could not download your data right now. Please try again.')
+        } finally {
+            setDataBusy(false)
+        }
+    }
+
+    const removeAccount = async () => {
+        setDataMsg('')
+        setDataBusy(true)
+        try {
+            await deleteMyAccount()
+            localStorage.removeItem('pending-eligibility-result')
+            localStorage.removeItem('pending-saved-schemes')
+            localStorage.removeItem('recently-viewed-schemes')
+            logout()
+        } catch (err) {
+            const detail = err.response?.data?.detail
+            setDataMsg(typeof detail === 'string' ? detail : 'Could not delete your account right now. Please try again.')
+            setDataBusy(false)
+        }
+    }
     const [isEditing, setIsEditing] = useState(false)
     const [loading, setLoading] = useState(false)
     const fileInputRef = useRef(null)
@@ -270,18 +308,43 @@ const Profile = () => {
                     <div className="account-actions">
                         <h2>Account Settings</h2>
                         <div className="actions-grid">
-                            <button className="action-btn">
+                            <Link to="/privacy" className="action-btn">
                                 <Shield size={18} />
-                                Privacy & Security
-                            </button>
-                            <button className="action-btn">
-                                <Bell size={18} />
-                                Notifications
+                                Privacy Policy
+                            </Link>
+                            <button className="action-btn" onClick={downloadData} disabled={dataBusy}>
+                                <Download size={18} />
+                                Download my data
                             </button>
                             <button className="action-btn danger" onClick={logout}>
                                 <LogOut size={18} />
                                 Logout
                             </button>
+                        </div>
+
+                        <div className="danger-zone">
+                            <h3><AlertTriangle size={18} /> Delete account</h3>
+                            <p>
+                                Permanently deletes your account, saved schemes, eligibility results, reminders, AI
+                                questions, feedback, forum posts and chat messages. This can’t be undone.
+                            </p>
+                            {!confirmDelete ? (
+                                <button className="action-btn danger" onClick={() => setConfirmDelete(true)}>
+                                    <Trash2 size={18} /> Delete my account
+                                </button>
+                            ) : (
+                                <div className="danger-confirm">
+                                    <label htmlFor="delete-confirm">Type <strong>DELETE</strong> to confirm</label>
+                                    <input id="delete-confirm" value={deleteText} onChange={(e) => setDeleteText(e.target.value)} autoComplete="off" />
+                                    <div className="danger-actions">
+                                        <button className="action-btn" onClick={() => { setConfirmDelete(false); setDeleteText('') }}>Cancel</button>
+                                        <button className="action-btn danger solid" onClick={removeAccount} disabled={deleteText !== 'DELETE' || dataBusy}>
+                                            <Trash2 size={18} /> {dataBusy ? 'Deleting…' : 'Permanently delete'}
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                            {dataMsg && <p className="danger-msg" role="alert">{dataMsg}</p>}
                         </div>
                     </div>
                 </div>

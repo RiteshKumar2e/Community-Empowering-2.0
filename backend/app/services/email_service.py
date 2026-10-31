@@ -62,6 +62,8 @@ class EmailService:
         try:
             if purpose == "password_reset":
                 subject = f"🔐 {otp} is your {self.company_name} password reset code"
+            elif purpose == "email_verification":
+                subject = f"✉️ {otp} is your {self.company_name} email verification code"
             else:
                 subject = f"🔐 {otp} is your {self.company_name} Verification Code"
             html_body = self._generate_otp_html(otp, purpose)
@@ -164,7 +166,10 @@ class EmailService:
     # ------------------------------------------------------------------
     
     def _generate_otp_html(self, otp: str, purpose: str = "google_login") -> str:
-        if purpose == "password_reset":
+        if purpose == "email_verification":
+            heading = "Confirm Your Email"
+            intro = "Thanks for creating your account! Enter this code on Community AI to confirm your email address. This code will expire in <strong>30 minutes</strong>."
+        elif purpose == "password_reset":
             heading = "Reset Your Password"
             intro = "We received a request to reset your password. Use the code below to choose a new one. This code will expire in <strong>15 minutes</strong>. If you didn't ask for this, you can ignore this email."
         else:

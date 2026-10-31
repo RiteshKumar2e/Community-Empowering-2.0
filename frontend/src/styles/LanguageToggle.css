@@ -1,0 +1,35 @@
+/* EN / हिं switch (px sizes so it doesn't grow with A+). */
+.lang-toggle {
+  display: inline-flex;
+  flex-shrink: 0;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.lang-toggle button {
+  min-width: 34px;
+  height: 32px;
+  padding: 0 8px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.lang-toggle button + button {
+  border-left: 1px solid var(--border-color);
+}
+
+.lang-toggle button:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.lang-toggle button.active {
+  color: #fff;
+  background: var(--primary-600);
+}

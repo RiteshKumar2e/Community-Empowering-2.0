@@ -163,3 +163,60 @@ def test_chat_websocket_rejects_impersonation():
     with pytest.raises(WebSocketDisconnect):
         with client.websocket_connect(f"/ws/chat/{a['user']['id']}") as ws:
             ws.receive_text()
+
+
+def test_email_verification_flow():
+    reg = register("henry@example.com").json()
+    assert reg["user"]["emailVerified"] is False
+    token = reg["token"]
+    code = SENT_CODES["henry@example.com"]  # sent automatically on signup
+    assert client.post("/api/auth/email/verify", json={"code": "12345"}, headers=auth(token)).status_code == 422
+    wrong = "000000" if code != "000000" else "111111"
+    assert client.post("/api/auth/email/verify", json={"code": wrong}, headers=auth(token)).status_code == 400
+    assert client.post("/api/auth/email/verify", json={"code": code}, headers=auth(token)).json()["emailVerified"] is True
+    login = client.post("/api/auth/login", json={"email": "henry@example.com", "password": "secret123"}).json()
+    assert login["user"]["emailVerified"] is True
+    assert client.post("/api/auth/email/verify", json={"code": code}).status_code == 401
+
+
+def test_verification_resend_has_cooldown():
+    token = register("ivy@example.com").json()["token"]
+    assert client.post("/api/auth/email/send-verification", headers=auth(token)).status_code == 429
+
+
+def test_reminders_are_private_and_validated():
+    a = register("jack@example.com").json()["token"]
+    b = register("kate@example.com").json()["token"]
+    assert client.post("/api/me/reminders", json={"title": "Old", "remindOn": "2020-01-01"}, headers=auth(a)).status_code == 422
+    r = client.post("/api/me/reminders", json={"title": "Apply for PM-KISAN", "remindOn": "2099-06-01", "schemeSlug": "pm-kisan"}, headers=auth(a))
+    assert r.status_code == 201
+    rid = r.json()["id"]
+    assert client.get("/api/me/reminders", headers=auth(b)).json() == []
+    assert client.patch(f"/api/me/reminders/{rid}", headers=auth(b)).status_code == 404
+    assert client.delete(f"/api/me/reminders/{rid}", headers=auth(b)).json()["removed"] is False
+    assert client.patch(f"/api/me/reminders/{rid}", headers=auth(a)).json()["done"] is True
+
+
+def test_export_and_delete_account():
+    token = register("leo@example.com").json()["token"]
+    client.post("/api/me/saved-schemes", json={"slug": "pm-kisan"}, headers=auth(token))
+    client.post("/api/me/reminders", json={"title": "Renew", "remindOn": "2099-01-01"}, headers=auth(token))
+    data = client.get("/api/me/export", headers=auth(token)).json()
+    assert data["profile"]["email"] == "leo@example.com"
+    assert data["savedSchemes"][0]["slug"] == "pm-kisan" and len(data["reminders"]) == 1
+
+    assert client.request("DELETE", "/api/me/account", json={"confirm": "yes"}, headers=auth(token)).status_code == 422
+    assert client.request("DELETE", "/api/me/account", json={"confirm": "DELETE"}, headers=auth(token)).status_code == 200
+    assert client.post("/api/auth/login", json={"email": "leo@example.com", "password": "secret123"}).status_code == 401
+    from app.models.models import SavedScheme, Reminder
+    db = database.SessionLocal()
+    assert db.query(SavedScheme).count() == db.query(SavedScheme).filter(SavedScheme.scheme_slug != "__none__").count()
+    assert all(r.title != "Renew" for r in db.query(Reminder).all())
+    db.close()
+
+
+def test_logs_mask_emails(capsys):
+    register("maskme@example.com")
+    client.post("/api/auth/forgot-password", json={"email": "maskme@example.com"})
+    from app.core.privacy import mask_email
+    assert mask_email("maskme@example.com") == "ma***@example.com"

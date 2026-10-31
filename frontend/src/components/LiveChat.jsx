@@ -132,8 +132,11 @@ const LiveChat = () => {
         scrollToBottom();
     }, [messages]);
 
+    // Scroll only the chat's own message list. scrollIntoView() also scrolled
+    // the whole Forum page down to the chat box every time it loaded.
     const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        const list = messagesEndRef.current?.parentElement;
+        if (list) list.scrollTo({ top: list.scrollHeight, behavior: 'smooth' });
     };
 
     const handleSendMessage = (e) => {

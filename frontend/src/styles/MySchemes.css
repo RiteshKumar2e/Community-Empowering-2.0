@@ -147,3 +147,177 @@
     padding: var(--space-5) var(--space-4);
   }
 }
+
+.my-error {
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--secondary-800);
+  background-color: color-mix(in srgb, var(--secondary-400) 16%, transparent);
+  border-radius: var(--radius-lg);
+}
+
+body:not(.light-theme) .my-error {
+  color: var(--secondary-300);
+}
+
+/* --- Reminders --- */
+
+.my-block-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.my-block-head h3 {
+  margin: 0;
+}
+
+.my-add-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  font-family: inherit;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--primary-600);
+  background: color-mix(in srgb, var(--primary-500) 10%, transparent);
+  border: none;
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+}
+
+.reminder-form {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1.2fr) auto;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.reminder-form input,
+.reminder-form select {
+  height: 42px;
+  min-width: 0;
+  padding: 0 var(--space-3);
+  font-family: inherit;
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  background: var(--bg-input);
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-lg);
+}
+
+.reminder-form input:focus,
+.reminder-form select:focus {
+  outline: none;
+  border-color: var(--primary-500);
+}
+
+.reminder-form .btn {
+  height: 42px;
+}
+
+.reminder-form .field-error {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--error-600);
+}
+
+.reminder-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-3);
+  padding: 0;
+  list-style: none;
+}
+
+.reminder-list li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border-color);
+  border-left: 4px solid var(--primary-500);
+  border-radius: var(--radius-lg);
+}
+
+.reminder-list li.soon {
+  border-left-color: var(--secondary-500);
+}
+
+.reminder-list li.done {
+  border-left-color: var(--success-500);
+  opacity: 0.7;
+}
+
+.reminder-list li.done .reminder-title {
+  text-decoration: line-through;
+}
+
+.reminder-check {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  color: #fff;
+  background: none;
+  border: 2px solid var(--border-strong);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.reminder-check:hover {
+  border-color: var(--success-500);
+}
+
+.reminder-check.checked {
+  background: var(--success-600);
+  border-color: var(--success-600);
+}
+
+.reminder-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.reminder-title {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.reminder-del {
+  display: grid;
+  place-items: center;
+  padding: 6px;
+  color: var(--text-tertiary);
+  background: none;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.reminder-del:hover {
+  color: var(--error-600);
+  background: var(--bg-hover);
+}
+
+.reminder-done summary {
+  margin-bottom: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--text-tertiary);
+  cursor: pointer;
+}
+
+@media (max-width: 640px) {
+  .reminder-form {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

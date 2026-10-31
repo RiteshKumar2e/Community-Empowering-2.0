@@ -9,8 +9,8 @@ from google.auth.transport import requests
 from app.core.config import settings
 from app.core.database import get_db
 from app.core.security import verify_password, get_password_hash, create_access_token
-from app.models.models import User, PasswordResetCode
-from app.core.rate_limit import login_limiter, register_limiter, password_reset_limiter
+from app.models.models import User, PasswordResetCode, EmailVerification
+from app.core.rate_limit import login_limiter, register_limiter, password_reset_limiter, verification_limiter
 from app.services.email_service import email_service
 import os
 from app.core.privacy import mask_email
@@ -70,8 +70,89 @@ class GoogleOTPVerify(BaseModel):
     otp: str
 
 
+
+# --- Email verification ------------------------------------------------------
+# Soft verification: accounts work immediately; the dashboard asks the user to
+# confirm their email with a 6-digit code. Google accounts are verified by Google.
+
+VERIFY_CODE_TTL = timedelta(minutes=30)
+VERIFY_RESEND_COOLDOWN = timedelta(seconds=60)
+VERIFY_MAX_ATTEMPTS = 5
+
+
+async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)) -> User:
+    """Same check as app.api.users.get_current_user (users.py imports from this
+    module, so importing it here would be circular)."""
+    from app.core.security import decode_access_token
+    payload = decode_access_token(token)
+    user = db.query(User).filter(User.email == payload.get("sub")).first() if payload else None
+    if not user:
+        raise HTTPException(status_code=401, detail="Invalid authentication credentials")
+    return user
+
+
+def is_email_verified(user: User, db: Session) -> bool:
+    if user.google_email_verified or user.password_hash == "google_authenticated_user":
+        return True
+    row = db.query(EmailVerification).filter(EmailVerification.user_id == user.id).first()
+    return bool(row and row.verified_at)
+
+
+def _aware(dt):
+    return dt if dt is None or dt.tzinfo else dt.replace(tzinfo=timezone.utc)
+
+
+def _issue_verification_code(user: User, db: Session, background_tasks: BackgroundTasks) -> None:
+    row = db.query(EmailVerification).filter(EmailVerification.user_id == user.id).first()
+    if row is None:
+        row = EmailVerification(user_id=user.id)
+        db.add(row)
+    code = email_service.generate_otp()
+    now = datetime.now(timezone.utc)
+    row.code_hash = get_password_hash(code)
+    row.expires_at = now + VERIFY_CODE_TTL
+    row.sent_at = now
+    row.attempts = 0
+    db.commit()
+    background_tasks.add_task(email_service.send_otp, user.email, code, "email_verification")
+
+
+class VerifyEmailIn(BaseModel):
+    code: str = Field(..., pattern=r"^\d{6}$")
+
+
+@router.post("/email/send-verification", dependencies=[Depends(verification_limiter)])
+async def send_verification(background_tasks: BackgroundTasks, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if is_email_verified(current_user, db):
+        return {"success": True, "alreadyVerified": True}
+    row = db.query(EmailVerification).filter(EmailVerification.user_id == current_user.id).first()
+    if row and row.sent_at and datetime.now(timezone.utc) - _aware(row.sent_at) < VERIFY_RESEND_COOLDOWN:
+        raise HTTPException(status_code=429, detail="Please wait a minute before requesting another code.")
+    _issue_verification_code(current_user, db, background_tasks)
+    return {"success": True, "message": "We've emailed you a 6-digit code. It expires in 30 minutes."}
+
+
+@router.post("/email/verify", dependencies=[Depends(verification_limiter)])
+async def verify_email(body: VerifyEmailIn, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if is_email_verified(current_user, db):
+        return {"success": True, "emailVerified": True}
+    invalid = HTTPException(status_code=400, detail="That code is invalid or has expired. Request a new one.")
+    row = db.query(EmailVerification).filter(EmailVerification.user_id == current_user.id).first()
+    if not row or not row.code_hash or not row.expires_at:
+        raise invalid
+    if _aware(row.expires_at) < datetime.now(timezone.utc) or (row.attempts or 0) >= VERIFY_MAX_ATTEMPTS:
+        raise invalid
+    if not verify_password(body.code, row.code_hash):
+        row.attempts = (row.attempts or 0) + 1
+        db.commit()
+        raise invalid
+    row.verified_at = datetime.now(timezone.utc)
+    row.code_hash = None
+    db.commit()
+    return {"success": True, "emailVerified": True}
+
 @router.post("/register", response_model=dict, dependencies=[Depends(register_limiter)])
-async def register(user_data: UserRegister, db: Session = Depends(get_db)):
+async def register(user_data: UserRegister, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     """Register a new user"""
     # Check if user exists
     existing_user = db.query(User).filter(User.email == user_data.email).first()
@@ -95,6 +176,7 @@ async def register(user_data: UserRegister, db: Session = Depends(get_db)):
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
+    _issue_verification_code(new_user, db, background_tasks)
     
     # Create access token
     access_token = create_access_token(data={"sub": new_user.email})
@@ -109,7 +191,8 @@ async def register(user_data: UserRegister, db: Session = Depends(get_db)):
             "location": new_user.location,
             "language": new_user.language,
             "communityType": new_user.community_type,
-            "profileImage": new_user.profile_image
+            "profileImage": new_user.profile_image,
+            "emailVerified": is_email_verified(new_user, db)
         }
     }
 
@@ -146,7 +229,8 @@ async def login(user_data: UserLogin, db: Session = Depends(get_db)):
             "location": user.location,
             "language": user.language,
             "communityType": user.community_type,
-            "profileImage": user.profile_image
+            "profileImage": user.profile_image,
+            "emailVerified": is_email_verified(user, db)
         }
     }
 
@@ -316,7 +400,8 @@ async def verify_google_otp(otp_data: GoogleOTPVerify, db: Session = Depends(get
             "location": user.location or "",
             "language": user.language or "en",
             "communityType": user.community_type or "general",
-            "profileImage": user.profile_image
+            "profileImage": user.profile_image,
+            "emailVerified": is_email_verified(user, db)
         }
         
         return {

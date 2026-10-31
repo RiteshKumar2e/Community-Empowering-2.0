@@ -4,6 +4,7 @@ import { Menu, X, User, LogOut, Shield, ChevronDown, LayoutDashboard, FileText, 
 import { useState, useRef, useEffect } from 'react'
 import ThemeToggle from './ThemeToggle'
 import FontSizeControl from './FontSizeControl'
+import LanguageToggle from './LanguageToggle'
 import '../styles/Navbar.css'
 
 const Navbar = () => {
@@ -40,6 +41,7 @@ const Navbar = () => {
                         <span className="logo-text">Community AI</span>
                     </Link>
                     <div className="navbar-actions">
+                        <LanguageToggle />
                         <FontSizeControl />
                         <ThemeToggle />
                     </div>
@@ -104,6 +106,7 @@ const Navbar = () => {
                 </div>
 
                 <div className="navbar-actions">
+                    <LanguageToggle className="hide-mobile" />
                     <FontSizeControl className="hide-mobile" />
                     <ThemeToggle />
 
@@ -190,6 +193,7 @@ const Navbar = () => {
                             <span className="logo-text">Community AI</span>
                         </Link>
                         <div className="mobile-menu-controls">
+                            <LanguageToggle />
                             <FontSizeControl />
                             <ThemeToggle />
                             <button className="mobile-menu-btn" onClick={() => setMobileMenuOpen(false)} aria-label="Close menu">

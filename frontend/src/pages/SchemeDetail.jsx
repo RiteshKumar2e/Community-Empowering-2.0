@@ -4,6 +4,7 @@ import { ExternalLink, CheckCircle2, XCircle, FileText, ListOrdered, CalendarDay
 import { getScheme, getCategory, relatedSchemes } from '../data/schemes'
 import { SchemeCard, Disclaimer, ReviewStatus, Breadcrumbs } from '../components/SchemeBits'
 import { trackEvent } from '../utils/analytics'
+import { useText } from '../i18n/appText'
 import { useAuth } from '../contexts/AuthContext'
 import { fetchSavedSchemes, saveScheme, unsaveScheme, stashPendingSave, rememberViewed, setPostAuthRedirect } from '../services/myData'
 import NotFound from './NotFound'
@@ -20,6 +21,7 @@ const Section = ({ id, icon, title, children }) => (
 
 // Public, no login needed: every scheme detail is readable by anyone.
 const SchemeDetail = () => {
+    const t = useText()
     const { slug } = useParams()
     const scheme = getScheme(slug)
     const navigate = useNavigate()
@@ -62,7 +64,7 @@ const SchemeDetail = () => {
                 trackEvent('scheme_saved', { scheme: scheme.slug, source: 'scheme_page' })
             }
         } catch {
-            setSaveError('Could not update your saved schemes. Please try again.')
+            setSaveError(t('save_error'))
         } finally {
             setSaveBusy(false)
         }
@@ -87,60 +89,60 @@ const SchemeDetail = () => {
         <main className="schemes-page scheme-detail">
             <div className="container narrow">
                 <Breadcrumbs items={[
-                    { label: 'Home', to: '/' },
-                    { label: 'Government Schemes', to: '/schemes' },
+                    { label: t('home'), to: '/' },
+                    { label: t('gov_schemes'), to: '/schemes' },
                     { label: primaryCategory.label, to: `/schemes/category/${primaryCategory.id}` },
                     { label: scheme.shortName },
                 ]} />
 
                 <header className="scheme-hero">
                     <div className="scheme-card-top">
-                        <span className={`level-tag ${scheme.level}`}>{scheme.level === 'state' ? `${scheme.state} Government` : 'Central Government'}</span>
+                        <span className={`level-tag ${scheme.level}`}>{scheme.level === 'state' ? t('state_gov', { state: scheme.state }) : t('central_gov')}</span>
                     </div>
                     <h1>{scheme.name}</h1>
                     <p className="scheme-summary">{scheme.summary}</p>
-                    <p className="scheme-authority">Run by: {scheme.authority}</p>
+                    <p className="scheme-authority">{t('run_by', { who: scheme.authority })}</p>
                     <ReviewStatus review={scheme.review} />
 
                     <div className="scheme-hero-actions">
                         {isAuthenticated ? (
                             scheme.officialLinks.slice(0, 1).map((l) => (
                                 <a key={l.url} href={l.url} target="_blank" rel="noopener noreferrer" className="btn btn-primary" onClick={() => officialClick(l.url)}>
-                                    Apply on the official portal <ExternalLink size={16} />
+                                    {t('apply_official')} <ExternalLink size={16} />
                                 </a>
                             ))
                         ) : (
                             <button type="button" className="btn btn-primary" onClick={signUpToApply}>
-                                <Lock size={16} /> Sign up free to apply
+                                <Lock size={16} /> {t('signup_to_apply')}
                             </button>
                         )}
                         <button type="button" className="btn btn-secondary-outline" onClick={toggleSave} disabled={saveBusy} aria-pressed={saved}>
                             {saved ? <BookmarkCheck size={16} /> : <Bookmark size={16} />}
-                            {saved ? 'Saved to your dashboard' : isAuthenticated ? 'Save this scheme' : 'Save this scheme (free account)'}
+                            {saved ? t('saved_dashboard') : isAuthenticated ? t('save_scheme') : t('save_scheme_free')}
                         </button>
                         <Link to="/eligibility" className="btn btn-secondary-outline">
-                            <ListChecks size={16} /> Check what else you may be eligible for
+                            <ListChecks size={16} /> {t('check_more')}
                         </Link>
                     </div>
                     {saveError && <p className="field-error" role="alert">{saveError}</p>}
                 </header>
 
                 <nav className="scheme-toc" aria-label="On this page">
-                    <a href="#who">Who can apply</a>
-                    <a href="#benefits">Benefits</a>
-                    <a href="#documents">Documents</a>
-                    <a href="#apply">How to apply</a>
-                    <a href="#sources">Official links</a>
+                    <a href="#who">{t('toc_who')}</a>
+                    <a href="#benefits">{t('toc_benefits')}</a>
+                    <a href="#documents">{t('toc_documents')}</a>
+                    <a href="#apply">{t('toc_apply')}</a>
+                    <a href="#sources">{t('toc_links')}</a>
                 </nav>
 
-                <Section id="who" icon={<CheckCircle2 size={20} />} title="Who can apply">
+                <Section id="who" icon={<CheckCircle2 size={20} />} title={t('who_can_apply')}>
                     <p>{scheme.whoFor}</p>
                     <ul className="check-list">
                         {scheme.eligibility.map((e) => <li key={e}>{e}</li>)}
                     </ul>
                     {scheme.exclusions.length > 0 && (
                         <>
-                            <h3><XCircle size={18} /> Who is not eligible</h3>
+                            <h3><XCircle size={18} /> {t('not_eligible')}</h3>
                             <ul className="cross-list">
                                 {scheme.exclusions.map((e) => <li key={e}>{e}</li>)}
                             </ul>
@@ -148,29 +150,29 @@ const SchemeDetail = () => {
                     )}
                 </Section>
 
-                <Section id="benefits" icon={<span aria-hidden="true">₹</span>} title="Benefits">
+                <Section id="benefits" icon={<span aria-hidden="true">₹</span>} title={t('benefits')}>
                     <ul>
                         {scheme.benefits.map((b) => <li key={b}>{b}</li>)}
                     </ul>
                 </Section>
 
-                <Section id="documents" icon={<FileText size={20} />} title="Documents you will need">
+                <Section id="documents" icon={<FileText size={20} />} title={t('documents')}>
                     <ul className="doc-list">
                         {scheme.documents.map((d) => <li key={d}>{d}</li>)}
                     </ul>
-                    <p className="muted">The exact list can vary by state and office. Carry originals and photocopies.</p>
+                    <p className="muted">{t('documents_note')}</p>
                 </Section>
 
-                <Section id="apply" icon={<ListOrdered size={20} />} title="How to apply">
+                <Section id="apply" icon={<ListOrdered size={20} />} title={t('how_to_apply')}>
                     <ol className="steps-list">
                         {scheme.howToApply.map((s) => <li key={s}>{s}</li>)}
                     </ol>
-                    <p className="deadline"><CalendarDays size={16} /> <span><strong>When to apply:</strong> {scheme.deadlines}</span></p>
+                    <p className="deadline"><CalendarDays size={16} /> <span><strong>{t('when_to_apply')}</strong> {scheme.deadlines}</span></p>
                     {scheme.helpline && <p className="deadline"><Phone size={16} /> <span>{scheme.helpline}</span></p>}
                 </Section>
 
                 {scheme.mistakes.length > 0 && (
-                    <Section id="mistakes" icon={<AlertTriangle size={20} />} title="Common mistakes to avoid">
+                    <Section id="mistakes" icon={<AlertTriangle size={20} />} title={t('mistakes')}>
                         <ul>
                             {scheme.mistakes.map((m) => <li key={m}>{m}</li>)}
                         </ul>
@@ -178,7 +180,7 @@ const SchemeDetail = () => {
                 )}
 
                 {scheme.faqs.length > 0 && (
-                    <Section id="faq" icon={<span aria-hidden="true">?</span>} title="Frequently asked questions">
+                    <Section id="faq" icon={<span aria-hidden="true">?</span>} title={t('faq')}>
                         {scheme.faqs.map((f) => (
                             <details key={f.q} className="faq">
                                 <summary>{f.q}</summary>
@@ -188,7 +190,7 @@ const SchemeDetail = () => {
                     </Section>
                 )}
 
-                <Section id="sources" icon={<ExternalLink size={20} />} title="Official links and sources">
+                <Section id="sources" icon={<ExternalLink size={20} />} title={t('official_links')}>
                     <ul className="source-list">
                         {scheme.officialLinks.map((l) => (
                             <li key={l.url}>
@@ -205,17 +207,15 @@ const SchemeDetail = () => {
                     </ul>
                     {!isAuthenticated && (
                         <p className="apply-gate-note">
-                            <Lock size={14} /> <button type="button" onClick={signUpToApply}>Create a free account</button> to open
-                            the official application portal from here. Your account also lets you save schemes and results.
+                            <Lock size={14} /> <button type="button" onClick={signUpToApply}>{t('gate_note_btn')}</button> {t('gate_note_rest')}
                         </p>
                     )}
                     <p className="muted">
-                        This page is a plain-language summary written by Community AI. The official guidelines on the
-                        portals above are the final word. Read how we research and update pages in our{' '}
-                        <Link to="/editorial-policy">editorial policy</Link>.
+                        {t('summary_note')}{' '}
+                        <Link to="/editorial-policy">{t('editorial_policy')}</Link>.
                     </p>
                     <a className="report-link" href={reportHref} onClick={() => trackEvent('scheme_report_issue_clicked', { scheme: scheme.slug })}>
-                        <Flag size={16} /> Report outdated or incorrect information
+                        <Flag size={16} /> {t('report')}
                     </a>
                 </Section>
 
@@ -223,7 +223,7 @@ const SchemeDetail = () => {
 
                 {related.length > 0 && (
                     <section className="related" aria-labelledby="related-heading">
-                        <h2 id="related-heading">Related schemes</h2>
+                        <h2 id="related-heading">{t('related')}</h2>
                         <div className="scheme-grid">
                             {related.map((s) => <SchemeCard key={s.slug} scheme={s} />)}
                         </div>

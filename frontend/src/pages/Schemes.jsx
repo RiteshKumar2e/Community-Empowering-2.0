@@ -4,6 +4,7 @@ import { Search, ListChecks, X } from 'lucide-react'
 import { SCHEMES, CATEGORIES, getCategory, publishedCategories } from '../data/schemes'
 import { SchemeCard, Disclaimer, Breadcrumbs } from '../components/SchemeBits'
 import { trackEvent } from '../utils/analytics'
+import { useText } from '../i18n/appText'
 import NotFound from './NotFound'
 import '../styles/Schemes.css'
 
@@ -11,6 +12,7 @@ import '../styles/Schemes.css'
 // /schemes                    all schemes, with search and filters
 // /schemes/category/:category a category hub (filter preset + intro)
 const Schemes = () => {
+    const t = useText()
     const { category: categoryParam } = useParams()
     const hub = categoryParam ? getCategory(categoryParam) : null
     const [query, setQuery] = useState('')
@@ -51,21 +53,21 @@ const Schemes = () => {
         <main className="schemes-page">
             <div className="container">
                 <Breadcrumbs items={[
-                    { label: 'Home', to: '/' },
-                    { label: 'Government Schemes', to: '/schemes' },
+                    { label: t('home'), to: '/' },
+                    { label: t('gov_schemes'), to: '/schemes' },
                     ...(hub ? [{ label: hub.label }] : []),
                 ]} />
 
                 <header className="schemes-header">
-                    <h1>{hub ? `Government Schemes for ${hub.label}` : 'Government Schemes in India'}</h1>
+                    <h1>{hub ? t('schemes_for', { label: hub.label }) : t('schemes_title')}</h1>
                     <p className="schemes-lead">
                         {hub
                             ? hub.intro
-                            : 'Plain-language guides to central and Jharkhand government schemes: who can apply, what you get, which documents you need and where to apply officially.'}
+                            : t('schemes_lead')}
                     </p>
                     <Link to="/eligibility" className="btn btn-primary eligibility-cta">
                         <ListChecks size={18} />
-                        Not sure where to start? Check your eligibility
+                        {t('not_sure_cta')}
                     </Link>
                 </header>
 
@@ -76,11 +78,11 @@ const Schemes = () => {
                             type="search"
                             value={query}
                             onChange={(e) => onSearch(e.target.value)}
-                            placeholder="Search schemes, e.g. pension, scholarship, loan"
-                            aria-label="Search schemes"
+                            placeholder={t('search_placeholder')}
+                            aria-label={t('search_label')}
                         />
                         {query && (
-                            <button type="button" onClick={() => setQuery('')} aria-label="Clear search">
+                            <button type="button" onClick={() => setQuery('')} aria-label={t('clear_search')}>
                                 <X size={16} />
                             </button>
                         )}
@@ -94,7 +96,7 @@ const Schemes = () => {
                                 onClick={() => onFilter('category', 'all', setCategory)}
                                 aria-pressed={category === 'all'}
                             >
-                                All
+                                {t('all')}
                             </button>
                             {CATEGORIES.map((c) => (
                                 <button
@@ -111,7 +113,7 @@ const Schemes = () => {
                     )}
 
                     <div className="filter-row" role="group" aria-label="Filter by government">
-                        {[['all', 'Central & State'], ['central', 'Central Government'], ['state', 'Jharkhand Government']].map(([value, label]) => (
+                        {[['all', t('central_state')], ['central', t('central_gov')], ['state', t('jharkhand_gov')]].map(([value, label]) => (
                             <button
                                 key={value}
                                 type="button"
@@ -126,7 +128,7 @@ const Schemes = () => {
                 </section>
 
                 <p className="results-count" aria-live="polite">
-                    {results.length} {results.length === 1 ? 'scheme' : 'schemes'} found
+                    {t(results.length === 1 ? 'found_one' : 'found_many', { n: results.length })}
                 </p>
 
                 {results.length > 0 ? (
@@ -135,22 +137,22 @@ const Schemes = () => {
                     </div>
                 ) : (
                     <div className="schemes-empty">
-                        <p>No schemes match your search yet.</p>
+                        <p>{t('no_match')}</p>
                         <button type="button" className="btn btn-primary" onClick={() => { setQuery(''); setCategory(categoryParam || 'all'); setLevel('all') }}>
-                            Clear filters
+                            {t('clear_filters')}
                         </button>
                         <p className="schemes-empty-hint">
-                            You can also search every government scheme on the official <a href="https://www.myscheme.gov.in/" target="_blank" rel="noopener noreferrer">myScheme portal</a>.
+                            {t('myscheme_hint')} <a href="https://www.myscheme.gov.in/" target="_blank" rel="noopener noreferrer">{t('myscheme_portal')}</a>.
                         </p>
                     </div>
                 )}
 
                 <section className="hub-links" aria-labelledby="browse-by">
-                    <h2 id="browse-by">{hub ? 'Schemes for other groups' : 'Browse schemes by who they help'}</h2>
+                    <h2 id="browse-by">{hub ? t('other_groups') : t('browse_by')}</h2>
                     <ul>
                         {publishedCategories().filter((c) => c.id !== hub?.id).map((c) => (
                             <li key={c.id}>
-                                <Link to={`/schemes/category/${c.id}`}>{c.emoji} Schemes for {c.label}</Link>
+                                <Link to={`/schemes/category/${c.id}`}>{c.emoji} {t('schemes_for_short', { label: c.label })}</Link>
                             </li>
                         ))}
                     </ul>

@@ -1,6 +1,6 @@
 import { createContext, useContext, useState } from 'react'
 
-const LanguageContext = createContext()
+export const LanguageContext = createContext()
 
 export const useLanguage = () => {
     const context = useContext(LanguageContext)
@@ -119,11 +119,12 @@ const translations = {
 }
 
 export const LanguageProvider = ({ children }) => {
-    const [language, setLanguage] = useState(localStorage.getItem('language') || 'en')
+    const [language, setLanguage] = useState(() => (typeof window !== 'undefined' && localStorage.getItem('language')) || 'en')
 
     const changeLanguage = (lang) => {
         setLanguage(lang)
         localStorage.setItem('language', lang)
+        document.documentElement.lang = lang === 'hi' ? 'hi-IN' : 'en-IN'
     }
 
     const t = (key) => {

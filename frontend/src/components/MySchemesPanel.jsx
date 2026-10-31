@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Bookmark, ListChecks, History, Sparkles, ExternalLink, Trash2, Info } from 'lucide-react'
+import { Bookmark, ListChecks, History, Sparkles, ExternalLink, Trash2 } from 'lucide-react'
 import { SCHEMES, getScheme, relatedSchemes } from '../data/schemes'
 import { SchemeCard, formatDate } from './SchemeBits'
+import RemindersBlock from './RemindersBlock'
+import { useText } from '../i18n/appText'
 import { trackEvent } from '../utils/analytics'
 import {
     syncPending, takeSyncNotice, fetchSavedSchemes, fetchEligibilityResults, unsaveScheme, getRecentlyViewed,
@@ -17,7 +19,8 @@ const COMMUNITY_TO_CATEGORY = {
 // Personal "My schemes" area on the dashboard. Everything here comes from the
 // signed-in user's own records (/api/me/*), except "recently viewed", which is
 // kept on this device only.
-const MySchemesPanel = ({ communityType }) => {
+const MySchemesPanel = ({ communityType, onLoaded }) => {
+    const t = useText()
     const [saved, setSaved] = useState([])
     const [results, setResults] = useState([])
     const [status, setStatus] = useState('loading') // loading | ready | error
@@ -25,16 +28,19 @@ const MySchemesPanel = ({ communityType }) => {
     const recent = getRecentlyViewed().map(getScheme).filter(Boolean)
 
     const load = async () => {
-        const [s, r] = await Promise.all([fetchSavedSchemes(), fetchEligibilityResults()])
+        // Render's free tier can take ~30s to wake up; don't spin forever.
+        const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 25000))
+        const [s, r] = await Promise.race([Promise.all([fetchSavedSchemes(), fetchEligibilityResults()]), timeout])
         setSaved(s)
         setResults(r)
+        onLoaded?.(s.length, r.length)
     }
 
     useEffect(() => {
         let alive = true
         ;(async () => {
             // Retry anything kept on the device from before signing in.
-            await syncPending()
+            await Promise.race([syncPending(), new Promise((resolve) => setTimeout(resolve, 8000))])
             const synced = takeSyncNotice()
             if (alive && synced) {
                 setNotice(synced.result
@@ -79,12 +85,16 @@ const MySchemesPanel = ({ communityType }) => {
     return (
         <section className="my-schemes" aria-labelledby="my-schemes-title">
             <div className="my-schemes-head">
-                <h2 id="my-schemes-title">My schemes</h2>
-                <Link to="/eligibility" className="btn btn-primary"><ListChecks size={16} /> New eligibility check</Link>
+                <h2 id="my-schemes-title">{t('my_schemes')}</h2>
+                <Link to="/eligibility" className="btn btn-primary"><ListChecks size={16} /> {t('new_check')}</Link>
             </div>
 
             {notice && <p className="my-notice" role="status">✓ {notice}</p>}
-            {status === 'error' && <p className="field-error" role="alert">We couldn’t load your saved schemes. Please refresh the page.</p>}
+            {status === 'error' && (
+                <p className="my-error" role="alert">
+                    Your saved schemes couldn’t be loaded right now. Everything else on this page still works. Try again in a minute.
+                </p>
+            )}
 
             <div className="my-block">
                 <h3><Bookmark size={18} /> Saved schemes</h3>
@@ -154,10 +164,7 @@ const MySchemesPanel = ({ communityType }) => {
                 </div>
             )}
 
-            <p className="my-limit muted">
-                <Info size={14} /> Deadline reminders aren’t available yet: we only show application dates once they are
-                verified on the official portal, and most schemes here are open all year. Always check the portal for dates.
-            </p>
+            <RemindersBlock savedSlugs={savedSchemes.map((s) => s.slug)} />
         </section>
     )
 }

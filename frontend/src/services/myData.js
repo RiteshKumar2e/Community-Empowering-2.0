@@ -104,3 +104,18 @@ export const takePostAuthRedirect = () => {
         return path && path.startsWith('/') && !path.startsWith('//') ? path : null
     } catch { return null }
 }
+
+// Reminders: dates the user sets for themselves.
+export const fetchReminders = () => api.get('/me/reminders').then((r) => r.data)
+export const createReminder = (title, remindOn, schemeSlug) =>
+    api.post('/me/reminders', { title, remindOn, schemeSlug: schemeSlug || null }).then((r) => r.data)
+export const toggleReminder = (id) => api.patch(`/me/reminders/${id}`).then((r) => r.data)
+export const deleteReminder = (id) => api.delete(`/me/reminders/${id}`).then((r) => r.data)
+
+// Email verification
+export const sendVerificationCode = () => api.post('/auth/email/send-verification').then((r) => r.data)
+export const verifyEmailCode = (code) => api.post('/auth/email/verify', { code }).then((r) => r.data)
+
+// Account data
+export const exportMyData = () => api.get('/me/export').then((r) => r.data)
+export const deleteMyAccount = () => api.delete('/me/account', { data: { confirm: 'DELETE' } }).then((r) => r.data)

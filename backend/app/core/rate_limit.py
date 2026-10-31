@@ -44,3 +44,4 @@ class RateLimiter:
 login_limiter = RateLimiter(max_calls=10, period_seconds=60, scope="login")
 register_limiter = RateLimiter(max_calls=5, period_seconds=600, scope="register")
 password_reset_limiter = RateLimiter(max_calls=5, period_seconds=900, scope="password-reset")
+verification_limiter = RateLimiter(max_calls=10, period_seconds=900, scope="email-verification")

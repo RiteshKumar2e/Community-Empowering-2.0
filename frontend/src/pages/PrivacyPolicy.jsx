@@ -27,6 +27,8 @@ const PrivacyPolicy = () => {
                     <li><strong>Google sign-in:</strong> if you sign in with Google, we receive your name, email address and profile picture from Google.</li>
                     <li><strong>Content you create:</strong> questions you ask the AI assistant, forum posts and replies, and feedback you submit.</li>
                     <li><strong>Usage information:</strong> login times and the pages and features you use, so we can show your activity and improve the service.</li>
+                    <li><strong>Saved items (only if you have an account and choose to save them):</strong> schemes you bookmark, eligibility-check results and reminders you create. For eligibility results we store your age, gender, occupation, state, income band, tax-payer status and whether you have a daughter under 10. We never store your social category (caste).</li>
+                    <li><strong>Eligibility checker without an account:</strong> your answers stay in your browser on your device and are not sent to us unless you create an account and save them.</li>
                 </ul>
 
                 <h2>How we use it</h2>
@@ -60,16 +62,18 @@ const PrivacyPolicy = () => {
 
                 <h2>How long we keep data</h2>
                 <p>
-                    We keep your account information while your account is active. OTPs expire
-                    after 10 minutes. You can ask us to delete your account and the data linked to
-                    it at any time.
+                    We keep your account information while your account is active. We keep your 10
+                    most recent saved eligibility results. Login, password-reset and email-confirmation
+                    codes expire within 30 minutes and are stored only in a scrambled (hashed) form.
+                    When you delete your account, your data is removed from our database.
                 </p>
 
                 <h2>Your rights</h2>
                 <p>
-                    You can ask to see, correct or delete your personal information, or withdraw
-                    your consent, by emailing us. You can update most account details yourself on
-                    your <Link to="/profile">profile page</Link>.
+                    On your <Link to="/profile">profile page</Link> you can edit your details,
+                    <strong> download a copy of your data</strong> (as a JSON file) and
+                    <strong> permanently delete your account</strong> and everything linked to it. You can
+                    also email us to ask for any of this, or to withdraw your consent.
                 </p>
 
                 <h2>Security</h2>

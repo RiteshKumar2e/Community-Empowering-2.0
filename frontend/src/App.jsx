@@ -8,6 +8,7 @@ import Landing from './pages/Landing'
 import ProtectedRoute from './components/ProtectedRoute'
 import SideChatBot from './components/SideChatBot'
 import PageMeta from './components/PageMeta'
+import './styles/AppPages.css'
 
 // Google OAuth Client ID. This is a public identifier (it ships in every
 // sign-in request), not a secret, so a fallback here is safe.

@@ -135,23 +135,20 @@ export const AuthProvider = ({ children }) => {
         }
     }
 
+    // Errors are not caught here: OTPModal shows the server's message.
     const verifyGoogleOtp = async (email, otp) => {
-        try {
-            const response = await api.post('/auth/verify-google-otp', { email, otp })
-            const { token, user: userData } = response.data
+        const response = await api.post('/auth/verify-google-otp', { email, otp })
+        const { token, user: userData } = response.data
 
-            localStorage.setItem('token', token)
-            localStorage.setItem('user', JSON.stringify(userData))
-            api.defaults.headers.common['Authorization'] = `Bearer ${token}`
+        localStorage.setItem('token', token)
+        localStorage.setItem('user', JSON.stringify(userData))
+        api.defaults.headers.common['Authorization'] = `Bearer ${token}`
 
-            setUser(userData)
-            await afterAuth('login_completed', 'google')
-            navigate(takePostAuthRedirect() || '/dashboard')
+        setUser(userData)
+        await afterAuth('login_completed', 'google')
+        navigate(takePostAuthRedirect() || '/dashboard')
 
-            return { success: true }
-        } catch (error) {
-            throw error; // Let the component handle the error
-        }
+        return { success: true }
     }
 
     const updateUser = (userData) => {
