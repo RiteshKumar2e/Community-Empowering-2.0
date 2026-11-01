@@ -1,7 +1,9 @@
 import os
 from urllib.parse import parse_qs
 
-from sqlalchemy import create_engine, text
+import time
+
+from sqlalchemy import create_engine, event, exc, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
@@ -157,6 +159,41 @@ else:
 # ENGINE
 # =========================================================================
 
+# Turso closes an idle HTTP stream after a few seconds. Reusing the same
+# connection after that fails with
+#   Hrana: api error: status=404 ... "stream not found"
+# (this broke Google sign-in and other requests once the server stayed awake
+# between visits). The guard below replaces a connection that sat idle, and
+# marks "stream not found" errors as disconnects so the pool drops the dead
+# connection instead of reusing it.
+TURSO_MAX_IDLE_SECONDS = 5
+_STALE_MARKERS = ("stream not found", "stream expired", "hrana")
+
+
+def is_stale_stream_error(error) -> bool:
+    message = str(error).lower()
+    return any(marker in message for marker in _STALE_MARKERS)
+
+
+def install_stale_connection_guard(target_engine, max_idle_seconds: float = TURSO_MAX_IDLE_SECONDS):
+    @event.listens_for(target_engine, "checkin")
+    def _remember_last_use(dbapi_connection, connection_record):
+        connection_record.info["last_used"] = time.monotonic()
+
+    @event.listens_for(target_engine, "checkout")
+    def _replace_if_idle(dbapi_connection, connection_record, connection_proxy):
+        last_used = connection_record.info.get("last_used")
+        if last_used is not None and time.monotonic() - last_used > max_idle_seconds:
+            connection_record.info.pop("last_used", None)
+            # The pool closes this connection and opens a fresh one.
+            raise exc.DisconnectionError("idle Turso stream; reconnecting")
+
+    @event.listens_for(target_engine, "handle_error")
+    def _stale_stream_is_disconnect(context):
+        if is_stale_stream_error(context.original_exception):
+            context.is_disconnect = True
+
+
 def _build_engine():
     url = DATABASE_URL
     token = DATABASE_TOKEN
@@ -184,11 +221,13 @@ def _build_engine():
         else:
             print(f"[DB] WARNING: Initializing Turso connection to {host} WITHOUT auth_token")
 
-        return create_engine(
+        turso_engine = create_engine(
             sqlalchemy_url,
             connect_args=connect_args,
             poolclass=StaticPool,
         )
+        install_stale_connection_guard(turso_engine)
+        return turso_engine
 
     if url.startswith("sqlite:///"):
         return create_engine(

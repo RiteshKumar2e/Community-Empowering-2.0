@@ -253,14 +253,23 @@ async def google_login(google_data: GoogleLogin, background_tasks: BackgroundTas
     Step 1: Verify Google token and send OTP to user's email
     Returns: Success message indicating OTP has been sent
     """
+    # Only the token check returns 401. Database or email problems below are
+    # server errors and must not look like "Invalid Google token".
     try:
-        # Verify the Google token with audience check using reused request object
         idinfo = id_token.verify_oauth2_token(
-            google_data.credential, 
+            google_data.credential,
             google_request,
-            audience=settings.GOOGLE_CLIENT_ID
+            audience=settings.GOOGLE_CLIENT_ID,
+            clock_skew_in_seconds=10,  # small clock differences between Google and Render
+        )
+    except ValueError as e:
+        print(f"❌ Google token verification failed: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid Google token. Please try again."
         )
 
+    try:
         # Get user info from Google token
         email = idinfo.get('email')
         name = idinfo.get('name', '')
@@ -283,8 +292,8 @@ async def google_login(google_data: GoogleLogin, background_tasks: BackgroundTas
             user = User(
                 name=name,
                 email=email,
-                phone="", 
-                password_hash="google_authenticated_user", 
+                phone="",
+                password_hash="google_authenticated_user",
                 location="",
                 language="en",
                 community_type="general",
@@ -316,15 +325,10 @@ async def google_login(google_data: GoogleLogin, background_tasks: BackgroundTas
             "requires_otp": True
         }
 
-    except ValueError as e:
-        print(f"❌ Google token verification failed: {str(e)}")
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid Google token. Please try again."
-        )
     except HTTPException:
         raise
     except Exception as e:
+        db.rollback()
         print(f"❌ Google authentication error: {str(e)}")
         import traceback
         traceback.print_exc()

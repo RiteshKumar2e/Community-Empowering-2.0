@@ -256,3 +256,41 @@ def test_logs_mask_emails(capsys):
 def test_health_answers_get_and_head_for_uptime_monitors():
     assert client.get("/health").json() == {"status": "healthy"}
     assert client.head("/health").status_code == 200
+
+
+def test_idle_database_connection_is_replaced_not_reused():
+    # Turso drops idle streams ("stream not found"); the guard must hand out a
+    # fresh connection after idling instead of the dead one. Separate SQLite
+    # engine: never the real database.
+    import time
+    from sqlalchemy import create_engine, text
+    from sqlalchemy.pool import StaticPool
+    from app.core.database import install_stale_connection_guard, is_stale_stream_error
+
+    eng = create_engine("sqlite://", poolclass=StaticPool, connect_args={"check_same_thread": False})
+    install_stale_connection_guard(eng, max_idle_seconds=0.05)
+    with eng.connect() as c:
+        first = c.connection.dbapi_connection
+        c.execute(text("SELECT 1"))
+    with eng.connect() as c:  # used again right away: same connection
+        assert c.connection.dbapi_connection is first
+    time.sleep(0.1)
+    with eng.connect() as c:  # after idling: replaced, and it works
+        assert c.connection.dbapi_connection is not first
+        assert c.execute(text("SELECT 1")).scalar() == 1
+
+    assert is_stale_stream_error(ValueError('Hrana: `api error: `status=404 Not Found, body={"error":"stream not found: c4c583cd:6bd6522"}``'))
+    assert not is_stale_stream_error(ValueError("Wrong number of segments in token"))
+
+
+def test_google_login_database_error_is_500_not_invalid_token(monkeypatch):
+    from app.api import auth as auth_module
+    monkeypatch.setattr(auth_module.id_token, "verify_oauth2_token",
+                        lambda *a, **k: {"email": "gina@example.com", "name": "Gina"})
+
+    def broken_query(*a, **k):
+        raise ValueError('Hrana: api error: status=404 Not Found, body={"error":"stream not found: x"}')
+    monkeypatch.setattr(auth_module.Session, "query", broken_query)
+    res = client.post("/api/auth/google-login", json={"credential": "anything"})
+    assert res.status_code == 500
+    assert "Invalid Google token" not in res.text
