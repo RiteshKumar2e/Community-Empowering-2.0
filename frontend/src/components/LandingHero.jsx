@@ -108,7 +108,6 @@ const LandingHero = ({ isAuthenticated }) => {
 
     return (
         <section id="home" className="hero hero-interactive">
-            <div className="hero-glow" aria-hidden="true" />
             <div className="container hero-grid">
                 <motion.div
                     className="hero-copy"
