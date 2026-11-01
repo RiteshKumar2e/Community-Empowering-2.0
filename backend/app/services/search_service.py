@@ -1,14 +1,14 @@
 try:
-    from duckduckgo_search import DDGS
+    from ddgs import DDGS  # formerly published as duckduckgo_search
 except ImportError:
-    print("⚠️ WARNING: duckduckgo_search not found. Search functionality will be disabled.")
+    print("⚠️ WARNING: ddgs not found. Search functionality will be disabled.")
     DDGS = None
 
 import json
 
 class SearchService:
     def __init__(self):
-        self.ddgs = DDGS()
+        self.ddgs = DDGS() if DDGS else None
 
     def search(self, query: str, max_results: int = 5) -> str:
         """Perform a web search using DuckDuckGo (Google-like results)"""
