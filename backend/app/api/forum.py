@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import func
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from typing import List, Optional
 from pydantic import BaseModel, ConfigDict, Field
 from datetime import datetime
@@ -114,13 +114,13 @@ async def get_categories(
     """Get all forum categories with discussion counts in one go"""
     # Optimized query using group_by to avoid N+1
     counts = db.query(
-        ForumDiscussion.category_id, 
+        ForumDiscussion.category_id,
         func.count(ForumDiscussion.id).label('count')
     ).group_by(ForumDiscussion.category_id).all()
-    
+
     count_map = {c_id: count for c_id, count in counts}
     categories = db.query(ForumCategory).all()
-    
+
     result = []
     for cat in categories:
         result.append({
@@ -146,7 +146,7 @@ async def create_category(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Only admins can create categories"
         )
-    
+
     new_category = ForumCategory(**category.dict())
     db.add(new_category)
     db.commit()
@@ -165,15 +165,15 @@ async def delete_category(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Only admins can delete categories"
         )
-    
+
     category = db.query(ForumCategory).filter(ForumCategory.id == category_id).first()
     if not category:
         raise HTTPException(status_code=404, detail="Category not found")
-    
+
     # Cascade delete discussions and replies
     discussions = db.query(ForumDiscussion).filter(ForumDiscussion.category_id == category_id).all()
     disc_ids = [d.id for d in discussions]
-    
+
     # 1. Delete reply likes/views for these discussions
     if disc_ids:
         # Get reply IDs
@@ -186,14 +186,14 @@ async def delete_category(
         # 2. Delete discussion likes/views
         db.query(ForumLike).filter(ForumLike.discussion_id.in_(disc_ids)).delete(synchronize_session=False)
         db.query(ForumView).filter(ForumView.discussion_id.in_(disc_ids)).delete(synchronize_session=False)
-        
+
         # 3. Delete discussions
         db.query(ForumDiscussion).filter(ForumDiscussion.category_id == category_id).delete(synchronize_session=False)
 
     # 4. Finally delete the category
     db.delete(category)
     db.commit()
-    
+
     return {"message": f"Category '{category.name}' and all its content deleted successfully"}
 
 # Discussions Endpoints
@@ -209,18 +209,18 @@ async def get_discussions(
 ):
     """Optimized discussions fetch using batching and joinedload"""
     from sqlalchemy.orm import joinedload
-    
+
     # Base query
     query = db.query(ForumDiscussion)
-    
+
     if category_id:
         query = query.filter(ForumDiscussion.category_id == category_id)
-    
+
     if tags:
         tag_list = tags.split(',')
         for t in tag_list:
             query = query.filter(ForumDiscussion.tags.like(f'%"{t}"%'))
-    
+
     if filter_type == "featured":
         query = query.filter(ForumDiscussion.is_featured == True)
     elif filter_type == "unanswered":
@@ -231,27 +231,27 @@ async def get_discussions(
         query = query.order_by(ForumDiscussion.views.desc())
     else:  # latest
         query = query.order_by(ForumDiscussion.created_at.desc())
-    
+
     # Apply joinedload after filtering to avoid GROUP BY conflicts
     query = query.options(joinedload(ForumDiscussion.user))
-    
+
     # Bound pagination so one request can't pull the whole table.
     skip = max(0, skip)
     limit = max(1, min(limit, 100))
     discussions = query.offset(skip).limit(limit).all()
-    
+
     if not discussions:
         return []
 
     disc_ids = [d.id for d in discussions]
-    
+
     # Batch fetch reply counts
     reply_counts = db.query(
-        ForumReply.discussion_id, 
+        ForumReply.discussion_id,
         func.count(ForumReply.id).label('count')
     ).filter(ForumReply.discussion_id.in_(disc_ids)).group_by(ForumReply.discussion_id).all()
     reply_count_map = {d_id: count for d_id, count in reply_counts}
-    
+
     # Batch fetch likes status
     liked_ids = set()
     if current_user:
@@ -260,13 +260,13 @@ async def get_discussions(
             ForumLike.user_id == current_user.id
         ).all()
         liked_ids = {l.discussion_id for l in likes}
-        
+
     # Batch fetch latest replies in ONE query
     subq = db.query(
         ForumReply.discussion_id,
         func.max(ForumReply.created_at).label('max_created')
     ).filter(ForumReply.discussion_id.in_(disc_ids)).group_by(ForumReply.discussion_id).subquery()
-    
+
     latest_replies = db.query(ForumReply).join(
         subq, (ForumReply.discussion_id == subq.c.discussion_id) & (ForumReply.created_at == subq.c.max_created)
     ).options(joinedload(ForumReply.user)).all()
@@ -278,7 +278,7 @@ async def get_discussions(
         if disc.tags:
             try: tag_list = json.loads(disc.tags)
             except: tag_list = []
-        
+
         reply = latest_reply_map.get(disc.id)
         latest_info = None
         if reply:
@@ -287,7 +287,7 @@ async def get_discussions(
                 "user_name": reply.user.name if reply.user else "Unknown",
                 "created_at": reply.created_at
             }
-        
+
         result.append({
             "id": disc.id,
             "title": disc.title,
@@ -308,7 +308,7 @@ async def get_discussions(
             "latest_reply": latest_info,
             "is_liked": disc.id in liked_ids
         })
-    
+
     return result
 
 @router.get("/discussions/{discussion_id}", response_model=DiscussionResponse)
@@ -321,13 +321,13 @@ async def get_discussion(
     discussion = db.query(ForumDiscussion).filter(
         ForumDiscussion.id == discussion_id
     ).first()
-    
+
     if not discussion:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Discussion not found"
         )
-    
+
     # Increment view count (Unique for logged-in users)
     if current_user:
         # Check if user already viewed
@@ -335,30 +335,30 @@ async def get_discussion(
             ForumView.discussion_id == discussion_id,
             ForumView.user_id == current_user.id
         ).first()
-        
+
         if not existing_view:
             # Add view record
             new_view = ForumView(discussion_id=discussion_id, user_id=current_user.id)
             db.add(new_view)
-            
+
             # Increment discussion view count
             discussion.views += 1
             db.commit()
     else:
-        # For guests, we can blindly increment or choose not to. 
-        # Requirement says "ek user ka ek he view count". 
-        # To avoid inflation, let's NOT increment for guests, or increment blindly? 
+        # For guests, we can blindly increment or choose not to.
+        # Requirement says "ek user ka ek he view count".
+        # To avoid inflation, let's NOT increment for guests, or increment blindly?
         # Standard practice: Increment blindly for guests (cookies are better but harder).
-        # But "one user one view" implies strictness. 
+        # But "one user one view" implies strictness.
         # I will Increment for guests to keep traffic visible, but logged in is unique.
         discussion.views += 1
         db.commit()
-    
+
     user = db.query(User).filter(User.id == discussion.user_id).first()
     reply_count = db.query(ForumReply).filter(
         ForumReply.discussion_id == discussion.id
     ).count()
-    
+
     tags = []
     if discussion.tags:
         try:
@@ -372,7 +372,7 @@ async def get_discussion(
             ForumLike.discussion_id == discussion_id,
             ForumLike.user_id == current_user.id
         ).first() is not None
-    
+
     return {
         "id": discussion.id,
         "title": discussion.title,
@@ -404,15 +404,15 @@ async def create_discussion(
     category = db.query(ForumCategory).filter(
         ForumCategory.id == discussion.category_id
     ).first()
-    
+
     if not category:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Category not found"
         )
-    
+
     tags_json = json.dumps(discussion.tags) if discussion.tags else "[]"
-    
+
     new_discussion = ForumDiscussion(
         title=discussion.title,
         content=discussion.content,
@@ -420,18 +420,18 @@ async def create_discussion(
         user_id=current_user.id,
         tags=tags_json
     )
-    
+
     db.add(new_discussion)
     db.commit()
     db.refresh(new_discussion)
-    
+
     # Log activity
     try:
         from app.services.activity_tracker import ActivityTracker
         ActivityTracker.log_forum_post(db, current_user.id, new_discussion.title, new_discussion.id)
     except Exception as e:
         print(f"Error logging forum activity: {str(e)}")
-        
+
     return {
         "id": new_discussion.id,
         "title": new_discussion.title,
@@ -459,36 +459,35 @@ async def get_replies(
     db: Session = Depends(get_db),
     current_user: Optional[User] = Depends(get_current_user_optional)
 ):
-    """Get all replies for a discussion"""
-    replies = db.query(ForumReply).filter(
-        ForumReply.discussion_id == discussion_id
-    ).order_by(ForumReply.created_at.asc()).all()
-    
+    """Get all replies for a discussion. A fixed number of queries however many
+    replies there are (this endpoint is polled while a discussion is open)."""
+    replies = (
+        db.query(ForumReply)
+        .options(joinedload(ForumReply.user))
+        .filter(ForumReply.discussion_id == discussion_id)
+        .order_by(ForumReply.created_at.asc())
+        .all()
+    )
+    if not replies:
+        return []
+
+    reply_ids = [r.id for r in replies]
+    seen_ids, liked_ids = set(), set()
+    if current_user:
+        seen_ids = {row.reply_id for row in db.query(ForumReplyView.reply_id).filter(
+            ForumReplyView.reply_id.in_(reply_ids), ForumReplyView.user_id == current_user.id)}
+        liked_ids = {row.reply_id for row in db.query(ForumReplyLike.reply_id).filter(
+            ForumReplyLike.reply_id.in_(reply_ids), ForumReplyLike.user_id == current_user.id)}
+
     result = []
+    new_views = False
     for reply in replies:
-        user = db.query(User).filter(User.id == reply.user_id).first()
-        
-        # Track view for logged-in users (one user one view)
-        if current_user:
-            existing_view = db.query(ForumReplyView).filter(
-                ForumReplyView.reply_id == reply.id,
-                ForumReplyView.user_id == current_user.id
-            ).first()
-            
-            if not existing_view:
-                new_view = ForumReplyView(reply_id=reply.id, user_id=current_user.id)
-                db.add(new_view)
-                reply.views += 1
-                db.commit()
-        
-        # Check if current user liked this reply
-        is_liked = False
-        if current_user:
-            is_liked = db.query(ForumReplyLike).filter(
-                ForumReplyLike.reply_id == reply.id,
-                ForumReplyLike.user_id == current_user.id
-            ).first() is not None
-        
+        # One view per logged-in user per reply.
+        if current_user and reply.id not in seen_ids:
+            db.add(ForumReplyView(reply_id=reply.id, user_id=current_user.id))
+            reply.views = (reply.views or 0) + 1
+            new_views = True
+        user = reply.user
         result.append({
             "id": reply.id,
             "discussion_id": reply.discussion_id,
@@ -501,9 +500,12 @@ async def get_replies(
             "updated_at": reply.updated_at,
             "user_name": user.name if user else "Unknown",
             "user_email": visible_email(current_user, user),
-            "is_liked": is_liked
+            "is_liked": reply.id in liked_ids,
         })
-    
+    # Commit once, after the response data is built (reading the rows after a
+    # commit would reload each one from the database).
+    if new_views:
+        db.commit()
     return result
 
 @router.post("/discussions/{discussion_id}/replies", response_model=ReplyResponse)
@@ -518,23 +520,23 @@ async def create_reply(
     discussion = db.query(ForumDiscussion).filter(
         ForumDiscussion.id == discussion_id
     ).first()
-    
+
     if not discussion:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Discussion not found"
         )
-    
+
     new_reply = ForumReply(
         discussion_id=discussion_id,
         user_id=current_user.id,
         content=reply.content
     )
-    
+
     db.add(new_reply)
     db.commit()
     db.refresh(new_reply)
-    
+
     return {
         "id": new_reply.id,
         "discussion_id": new_reply.discussion_id,
@@ -557,13 +559,14 @@ async def get_forum_stats(
     current_user: Optional[User] = Depends(get_current_user_optional)
 ):
     """Get forum statistics (Admin only sees full stats, users see limited)"""
-    total_discussions = db.query(ForumDiscussion).count()
-    total_replies = db.query(ForumReply).count()
-    active_discussions = db.query(ForumDiscussion).filter(
-        ForumDiscussion.status == "active"
-    ).count()
-    total_views = db.query(func.sum(ForumDiscussion.views)).scalar() or 0
-    
+    # All counts in one database round trip.
+    total_discussions, total_replies, active_discussions, total_views = db.query(
+        db.query(func.count(ForumDiscussion.id)).scalar_subquery(),
+        db.query(func.count(ForumReply.id)).scalar_subquery(),
+        db.query(func.count(ForumDiscussion.id)).filter(ForumDiscussion.status == "active").scalar_subquery(),
+        db.query(func.coalesce(func.sum(ForumDiscussion.views), 0)).scalar_subquery(),
+    ).one()
+
     stats = {
         "total_discussions": total_discussions,
         "total_replies": total_replies,
@@ -571,25 +574,25 @@ async def get_forum_stats(
         "total_views": total_views,
         "total_users": 0  # Default for non-admin
     }
-    
+
     # Only admins can see total user count
     if current_user and is_admin(current_user):
         total_users = db.query(User).count()
         stats["total_users"] = total_users
-    
+
     return stats
 
 @router.get("/top-contributors", response_model=List[ContributorResponse])
 async def get_top_contributors(db: Session = Depends(get_db)):
     """Get top 3 contributors using high-performance SQL aggregation"""
     # Points: Discussion (10), Reply (5), Like Received (2)
-    
+
     # Discussions points
     disc_p = db.query(
         ForumDiscussion.user_id.label('u_id'),
         (func.count(ForumDiscussion.id) * 10).label('pts')
     ).group_by(ForumDiscussion.user_id).subquery()
-     
+
     # Replies points
     reply_p = db.query(
         ForumReply.user_id.label('u_id'),
@@ -601,7 +604,7 @@ async def get_top_contributors(db: Session = Depends(get_db)):
         ForumDiscussion.user_id.label('u_id'),
         (func.sum(ForumDiscussion.likes) * 2).label('pts')
     ).group_by(ForumDiscussion.user_id).subquery()
-    
+
     reply_l = db.query(
         ForumReply.user_id.label('u_id'),
         (func.sum(ForumReply.likes) * 2).label('pts')
@@ -615,10 +618,10 @@ async def get_top_contributors(db: Session = Depends(get_db)):
 
     # Get set of all user IDs who have any points to avoid looping over all users
     active_uids = set(d_map.keys()) | set(r_map.keys()) | set(dl_map.keys()) | set(rl_map.keys())
-    
+
     if not active_uids:
         return []
-        
+
     # Only fetch names for active users
     active_users = db.query(User.id, User.name).filter(User.id.in_(active_uids)).all()
 
@@ -626,7 +629,7 @@ async def get_top_contributors(db: Session = Depends(get_db)):
     for u_id, name in active_users:
         total = d_map.get(u_id, 0) + r_map.get(u_id, 0) + int(dl_map.get(u_id, 0) or 0) + int(rl_map.get(u_id, 0) or 0)
         results.append({"user_id": u_id, "name": name, "points": total})
-            
+
     results.sort(key=lambda x: x["points"], reverse=True)
     return results[:3]
 
@@ -641,19 +644,19 @@ async def like_discussion(
     discussion = db.query(ForumDiscussion).filter(
         ForumDiscussion.id == discussion_id
     ).first()
-    
+
     if not discussion:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Discussion not found"
         )
-    
+
     # Check if user already liked
     existing_like = db.query(ForumLike).filter(
         ForumLike.discussion_id == discussion_id,
         ForumLike.user_id == current_user.id
     ).first()
-    
+
     if existing_like:
         # Unlike
         db.delete(existing_like)
@@ -677,19 +680,19 @@ async def like_reply(
 ):
     """Like/Unlike a reply"""
     reply = db.query(ForumReply).filter(ForumReply.id == reply_id).first()
-    
+
     if not reply:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Reply not found"
         )
-    
+
     # Check if user already liked
     existing_like = db.query(ForumReplyLike).filter(
         ForumReplyLike.reply_id == reply_id,
         ForumReplyLike.user_id == current_user.id
     ).first()
-    
+
     if existing_like:
         # Unlike
         db.delete(existing_like)
@@ -714,23 +717,23 @@ async def pin_reply(
     reply = db.query(ForumReply).filter(ForumReply.id == reply_id).first()
     if not reply:
         raise HTTPException(status_code=404, detail="Reply not found")
-        
+
     discussion = db.query(ForumDiscussion).filter(ForumDiscussion.id == reply.discussion_id).first()
-    
+
     # Authorized if admin or discussion author
     if not (is_admin(current_user) or discussion.user_id == current_user.id):
         raise HTTPException(status_code=403, detail="Not authorized to pin this reply")
-        
+
     # Toggle solution status
     reply.is_solution = not reply.is_solution
-    
+
     # Optional: If you only want ONE pinned reply per discussion, unpin others
     if reply.is_solution:
         db.query(ForumReply).filter(
             ForumReply.discussion_id == discussion.id,
             ForumReply.id != reply_id
         ).update({"is_solution": False})
-        
+
     db.commit()
     return {"message": "Reply pin status updated", "is_pinned": reply.is_solution}
 

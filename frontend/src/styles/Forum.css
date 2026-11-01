@@ -1334,3 +1334,38 @@
     padding: var(--space-5);
   }
 }
+
+/* Placeholder cards while the first list loads (page itself shows at once) */
+.forum-container {
+  width: 100%;
+}
+
+.forum-container .discussion-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  cursor: default;
+}
+
+.forum-container .skeleton-line {
+  display: block;
+  height: 12px;
+  border-radius: 6px;
+  background: var(--bg-tertiary);
+  animation: forum-skeleton 1.2s ease-in-out infinite;
+}
+
+.forum-container .skeleton-line.tall { height: 18px; }
+.forum-container .skeleton-line.w-30 { width: 30%; }
+.forum-container .skeleton-line.w-60 { width: 60%; }
+.forum-container .skeleton-line.w-80 { width: 80%; }
+.forum-container .skeleton-line.w-95 { width: 95%; }
+
+@keyframes forum-skeleton {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .forum-container .skeleton-line { animation: none; }
+}

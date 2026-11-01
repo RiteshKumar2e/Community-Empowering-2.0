@@ -25,8 +25,22 @@ import { useRef } from 'react'
 import LiveChat from '../components/LiveChat'
 import '../styles/Forum.css'
 
+// Last forum data seen in this browser tab, so reopening the forum shows the
+// list instantly while fresh data loads in the background.
+const FORUM_CACHE_KEY = 'forum-cache-v1'
+// Keyed by user, so a different account in the same tab never sees it.
+const cacheKey = (userId) => `${FORUM_CACHE_KEY}:${userId || 'anon'}`
+const readCache = (userId) => {
+    try { return JSON.parse(sessionStorage.getItem(cacheKey(userId))) || {} } catch { return {} }
+}
+const writeCache = (userId, part) => {
+    try { sessionStorage.setItem(cacheKey(userId), JSON.stringify({ ...readCache(userId), ...part })) } catch { /* storage full or blocked */ }
+}
+
 const Forum = () => {
     const { user } = useAuth()
+    const readForumCache = () => readCache(user?.id)
+    const writeForumCache = (part) => writeCache(user?.id, part)
     const [categories, setCategories] = useState([
         { id: 1, name: "Community Support", icon: "🤝", color: "#6366f1" },
         { id: 2, name: "Social Impact", icon: "❤️", color: "#f59e0b" },
@@ -35,9 +49,10 @@ const Forum = () => {
         { id: 5, name: "Success Stories", icon: "🏆", color: "#facc15" },
         { id: 6, name: "General Help", icon: "💬", color: "#64748b" }
     ])
-    const [discussions, setDiscussions] = useState([])
-    const [stats, setStats] = useState(null)
-    const [loading, setLoading] = useState(true)
+    const [discussions, setDiscussions] = useState(() => readForumCache().discussions || [])
+    const [stats, setStats] = useState(() => readForumCache().stats || null)
+    // True only until the first discussion list arrives (or a cached one exists).
+    const [loading, setLoading] = useState(() => !readForumCache().discussions)
     const [selectedCategory, setSelectedCategory] = useState(null)
     const [selectedTags, setSelectedTags] = useState([])
     const [filterType, setFilterType] = useState('all')
@@ -54,7 +69,7 @@ const Forum = () => {
     const [replies, setReplies] = useState([])
     const [newReply, setNewReply] = useState('')
     const [isPostingReply, setIsPostingReply] = useState(false)
-    const [contributors, setContributors] = useState([])
+    const [contributors, setContributors] = useState(() => readForumCache().contributors || [])
     const repliesEndRef = useRef(null)
 
     const [tagsOpen, setTagsOpen] = useState(false)
@@ -73,15 +88,22 @@ const Forum = () => {
     }, [tagList])
     const isAdmin = user?.email === 'riteshkumar90359@gmail.com'
 
+    // Categories, stats and contributors change rarely: load once, then every minute.
     useEffect(() => {
-        fetchData()
+        fetchSidebarData()
+        const id = setInterval(() => { if (!document.hidden) fetchSidebarData() }, 60000)
+        return () => clearInterval(id)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
-        // Polling for discussions list and stats (Automatic updates for 'Last Replied', counts, etc.)
-        const discussionsInterval = setInterval(() => {
-            fetchDiscussionsAndStats()
-        }, 10000) // Every 10 seconds
-
-        return () => clearInterval(discussionsInterval)
+    // The discussion list: loaded on open and whenever a filter changes (the
+    // current list stays on screen meanwhile), then refreshed every 15 s while
+    // the tab is visible.
+    useEffect(() => {
+        fetchDiscussions()
+        const id = setInterval(() => { if (!document.hidden) fetchDiscussions() }, 15000)
+        return () => clearInterval(id)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedCategory, filterType, selectedTags])
 
     // Polling for replies when a discussion is open (Live comments)
@@ -117,48 +139,46 @@ const Forum = () => {
         }
     }, [replies.length])
 
-    const fetchDiscussionsAndStats = async () => {
+    const fetchDiscussions = async () => {
+        let url = `/forum/discussions?filter_type=${filterType}`
+        if (selectedCategory) url += `&category_id=${selectedCategory}`
+        if (selectedTags.length > 0) url += `&tags=${encodeURIComponent(selectedTags.join(','))}`
         try {
-            // Build the URL for discussions
-            let url = `/forum/discussions?filter_type=${filterType}`
-            if (selectedCategory) url += `&category_id=${selectedCategory}`
-            if (selectedTags.length > 0) url += `&tags=${encodeURIComponent(selectedTags.join(','))}`
-
-            // Fetch discussions, stats, and contributors in parallel for speed
-            const [discussionsRes, statsRes, contributorsRes] = await Promise.all([
-                api.get(url),
-                api.get('/forum/stats'),
-                api.get('/forum/top-contributors')
-            ]);
-
-            setDiscussions(Array.isArray(discussionsRes.data) ? discussionsRes.data : [])
-            setStats(statsRes.data)
-            setContributors(contributorsRes.data || [])
-        } catch (error) {
-            console.error('Error fetching dynamic data:', error)
-        }
-    }
-
-    const fetchData = async () => {
-        try {
-            setLoading(true)
-
-            // 1. Fetch categories
-            const categoriesRes = await api.get('/forum/categories')
-            if (Array.isArray(categoriesRes.data) && categoriesRes.data.length > 0) {
-                setCategories(categoriesRes.data)
+            const res = await api.get(url)
+            const list = Array.isArray(res.data) ? res.data : []
+            setDiscussions(list)
+            if (!selectedCategory && filterType === 'all' && selectedTags.length === 0) {
+                writeForumCache({ discussions: list })
             }
-
-            // 2. Fetch the dynamic data in parallel
-            await fetchDiscussionsAndStats()
-
         } catch (error) {
-            console.error('Error fetching forum base data:', error)
-            setDiscussions([])
+            console.error('Error fetching discussions:', error)
         } finally {
             setLoading(false)
         }
     }
+
+    const fetchSidebarData = async () => {
+        const [categoriesRes, statsRes, contributorsRes] = await Promise.allSettled([
+            api.get('/forum/categories'),
+            api.get('/forum/stats'),
+            api.get('/forum/top-contributors'),
+        ])
+        if (categoriesRes.status === 'fulfilled' && Array.isArray(categoriesRes.value.data) && categoriesRes.value.data.length > 0) {
+            setCategories(categoriesRes.value.data)
+        }
+        if (statsRes.status === 'fulfilled') {
+            setStats(statsRes.value.data)
+            writeForumCache({ stats: statsRes.value.data })
+        }
+        if (contributorsRes.status === 'fulfilled') {
+            setContributors(contributorsRes.value.data || [])
+            writeForumCache({ contributors: contributorsRes.value.data || [] })
+        }
+    }
+
+    // Kept for the places below that refresh everything after a change.
+    const fetchDiscussionsAndStats = () => Promise.all([fetchDiscussions(), fetchSidebarData()])
+    const fetchData = fetchDiscussionsAndStats
 
     const handleCreateDiscussion = async (e) => {
         e.preventDefault()
@@ -279,14 +299,6 @@ const Forum = () => {
         disc.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         disc.content.toLowerCase().includes(searchQuery.toLowerCase())
     )
-
-    if (loading) {
-        return (
-            <div className="forum-container">
-                <div className="loading-spinner">Loading forum...</div>
-            </div>
-        )
-    }
 
     return (
         <div className="forum-container">
@@ -547,8 +559,17 @@ const Forum = () => {
                     </div>
 
                     {/* Discussions List */}
-                    <div className="discussions-list">
-                        {filteredDiscussions.length === 0 ? (
+                    <div className="discussions-list" aria-busy={loading}>
+                        {loading && discussions.length === 0 ? (
+                            [0, 1, 2, 3].map((i) => (
+                                <div key={i} className="discussion-card discussion-skeleton" aria-hidden="true">
+                                    <span className="skeleton-line w-30" />
+                                    <span className="skeleton-line w-80 tall" />
+                                    <span className="skeleton-line w-95" />
+                                    <span className="skeleton-line w-60" />
+                                </div>
+                            ))
+                        ) : filteredDiscussions.length === 0 ? (
                             <div className="no-discussions">
                                 <MessageSquare size={48} />
                                 <p>No discussions found. Start a new one!</p>

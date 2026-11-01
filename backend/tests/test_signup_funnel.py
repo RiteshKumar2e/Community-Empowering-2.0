@@ -309,3 +309,46 @@ def test_wrong_google_otp_says_how_many_attempts_are_left(monkeypatch):
     assert ok.status_code == 200 and ok.json()["token"]
     again = client.post("/api/auth/verify-google-otp", json={"email": "hana@example.com", "otp": code})
     assert again.status_code == 400  # single use
+
+
+def test_server_errors_keep_cors_headers_so_browsers_show_the_real_status():
+    from fastapi.testclient import TestClient as _TC
+    import main as _main
+
+    @_main.app.get("/api/_test_boom")
+    async def _boom():
+        raise RuntimeError("boom")
+
+    c = _TC(_main.app, raise_server_exceptions=False)
+    ok = c.get("/api/_test_boom", headers={"Origin": "http://localhost:5173"})
+    assert ok.status_code == 500 and ok.headers.get("access-control-allow-origin") == "http://localhost:5173"
+    assert "boom" not in ok.text
+    evil = c.get("/api/_test_boom", headers={"Origin": "https://evil.example"})
+    assert "access-control-allow-origin" not in evil.headers
+
+
+def test_forum_replies_and_stats_use_few_queries():
+    from sqlalchemy import event
+    from app.models.models import ForumCategory
+    a = register("fiona@example.com").json()["token"]
+    b = register("gus@example.com").json()["token"]
+    db = database.SessionLocal(); cat = ForumCategory(name="Speed"); db.add(cat); db.commit(); cid = cat.id; db.close()
+    did = client.post("/api/forum/discussions", json={"title": "Fast forum", "content": "Body text", "category_id": cid}, headers=auth(a)).json()["id"]
+    for i in range(6):
+        client.post(f"/api/forum/discussions/{did}/replies", json={"content": f"reply {i}"}, headers=auth(b if i % 2 else a))
+
+    statements = []
+    listener = lambda *args: statements.append(1)
+    event.listen(database.engine, "before_cursor_execute", listener)
+    try:
+        first = client.get(f"/api/forum/discussions/{did}/replies", headers=auth(b))
+    finally:
+        event.remove(database.engine, "before_cursor_execute", listener)
+    assert first.status_code == 200 and len(first.json()) == 6
+    assert len(statements) <= 12, f"{len(statements)} queries for 6 replies"
+    views_after_first = [r["views"] for r in first.json()]
+    again = client.get(f"/api/forum/discussions/{did}/replies", headers=auth(b)).json()
+    assert [r["views"] for r in again] == views_after_first  # one view per user
+
+    stats = client.get("/api/forum/stats", headers=auth(a)).json()
+    assert stats["total_discussions"] >= 1 and stats["total_replies"] >= 6

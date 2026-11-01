@@ -75,11 +75,23 @@ async def security_middleware(request: Request, call_next):
     return response
 
 
+# Never "*" together with credentials (see CORSMiddleware below).
+_CORS_ORIGINS = [o for o in settings.ALLOWED_ORIGINS if o.strip() not in ("*", "null")]
+
+
 @app.exception_handler(Exception)
 async def unhandled_error(request: Request, exc: Exception):
     # Log the details on the server; never send stack traces or DB errors to clients.
     print(f"[ERROR] {request.method} {request.url.path}: {type(exc).__name__}: {exc}")
-    return JSONResponse({"detail": "Something went wrong. Please try again."}, status_code=500)
+    response = JSONResponse({"detail": "Something went wrong. Please try again."}, status_code=500)
+    # This handler runs outside CORSMiddleware, so without these headers the
+    # browser reports a 500 as a misleading "blocked by CORS policy" error.
+    origin = request.headers.get("origin")
+    if origin and origin in _CORS_ORIGINS:
+        response.headers["Access-Control-Allow-Origin"] = origin
+        response.headers["Access-Control-Allow-Credentials"] = "true"
+        response.headers["Vary"] = "Origin"
+    return response
 
 # Ensure uploads directory exists
 os.makedirs("uploads/profiles", exist_ok=True)
@@ -92,7 +104,7 @@ app.add_middleware(
     CORSMiddleware,
     # Never "*" together with credentials: that would let any website make
     # logged-in requests on a user's behalf. Only explicit origins are kept.
-    allow_origins=[o for o in settings.ALLOWED_ORIGINS if o.strip() not in ("*", "null")],
+    allow_origins=_CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
