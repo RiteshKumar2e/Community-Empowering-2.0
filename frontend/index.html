@@ -29,8 +29,11 @@
   <!--seo:end-->
 
   <!-- Site icons -->
-  <link rel="icon" href="/favicon.ico" sizes="48x48">
-  <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
+  <!-- SVG for modern browsers (turns white on dark tab bars); the .ico is
+       the fallback for older browsers. sizes="32x32" on the .ico makes
+       Chrome prefer the SVG. -->
+  <link rel="icon" href="/favicon.ico" sizes="32x32">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
   <!-- Social preview (Open Graph / Twitter). Crawlers need absolute URLs. -->

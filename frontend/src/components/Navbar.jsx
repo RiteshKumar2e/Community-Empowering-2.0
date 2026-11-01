@@ -7,6 +7,7 @@ import FontSizeControl from './FontSizeControl'
 import LanguageToggle from './LanguageToggle'
 import '../styles/Navbar.css'
 import { warmUpGoogleSignIn } from '../utils/googleSignIn'
+import BrandMark from './BrandMark'
 
 const Navbar = () => {
     const { isAuthenticated, user, logout } = useAuth()
@@ -38,7 +39,7 @@ const Navbar = () => {
             <nav className="navbar">
                 <div className="container navbar-container">
                     <Link to="/" className="navbar-logo">
-                        <div className="logo-icon">🌟</div>
+                        <BrandMark className="logo-icon" />
                         <span className="logo-text">Community AI</span>
                     </Link>
                     <div className="navbar-actions">
@@ -73,7 +74,7 @@ const Navbar = () => {
         <nav className="navbar">
             <div className="container navbar-container">
                 <Link to="/" className="navbar-logo">
-                    <div className="logo-icon">🌟</div>
+                    <BrandMark className="logo-icon" />
                     <span className="logo-text">Community AI</span>
                 </Link>
 
@@ -190,7 +191,7 @@ const Navbar = () => {
                 <div className="mobile-menu hide-desktop full-screen-menu">
                     <div className="mobile-menu-header">
                         <Link to="/" className="navbar-logo" onClick={() => setMobileMenuOpen(false)}>
-                            <div className="logo-icon">🌟</div>
+                            <BrandMark className="logo-icon" />
                             <span className="logo-text">Community AI</span>
                         </Link>
                         <div className="mobile-menu-controls">

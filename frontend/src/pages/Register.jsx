@@ -12,6 +12,7 @@ import '../styles/RegisterWizard.css'
 import { trackOnce } from '../utils/analytics'
 import { getPendingResult } from '../services/myData'
 import { getScheme } from '../data/schemes'
+import BrandMark from '../components/BrandMark'
 
 const STEPS = [
     { id: 'about', title: 'About you', hint: 'So we know who to help' },
@@ -244,7 +245,7 @@ const Register = () => {
 
                 <div className="auth-card">
                     <div className="auth-header">
-                        <div className="logo-icon">🌟</div>
+                        <BrandMark className="logo-icon" />
                         <h1>Join Community AI</h1>
                         <p>{STEPS[step].hint}</p>
                     </div>

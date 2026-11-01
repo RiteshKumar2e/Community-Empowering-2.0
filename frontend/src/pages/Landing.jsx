@@ -11,6 +11,7 @@ import { motion, AnimatePresence, useScroll, useSpring, useReducedMotion } from 
 import '../styles/Landing.css'
 import '../styles/LandingInteractive.css'
 import { trackOnce } from '../utils/analytics'
+import BrandMark from '../components/BrandMark'
 
 const Landing = () => {
     const { isAuthenticated } = useAuth()
@@ -537,7 +538,7 @@ const Landing = () => {
                     <div className="footer-grid">
                         <div className="footer-column brand-column">
                             <div className="footer-brand-header">
-                                <div className="logo-icon">🌟</div>
+                                <BrandMark className="logo-icon" />
                                 <span className="logo-text">Community AI</span>
                             </div>
                             <h5 className="connect-title">Connect With Us</h5>

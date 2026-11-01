@@ -9,6 +9,7 @@ import { getPendingResult } from '../services/myData'
 
 import '../styles/Auth.css'
 import { warmUpGoogleSignIn } from '../utils/googleSignIn'
+import BrandMark from '../components/BrandMark'
 
 // Google OAuth Client ID. This is a public identifier (it ships in every
 // sign-in request), not a secret, so a fallback here is safe.
@@ -127,7 +128,7 @@ const Login = () => {
 
                 <div className="auth-card">
                     <div className="auth-header">
-                        <div className="logo-icon">🌟</div>
+                        <BrandMark className="logo-icon" />
                         <h1>Welcome Back</h1>
                         <p>Sign in to access your community dashboard</p>
                     </div>

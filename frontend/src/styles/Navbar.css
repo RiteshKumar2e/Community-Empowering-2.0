@@ -493,3 +493,15 @@
     gap: var(--space-2);
   }
 }
+
+/* Logo (components/BrandMark.jsx) in place of the old emoji box. Takes the
+   text colour, so it follows light/dark theme. */
+.logo-icon.brand-mark {
+  display: block;
+  flex-shrink: 0;
+  padding: 0;
+  color: var(--text-primary);
+  background: none;
+  border: 0;
+  border-radius: 0;
+}
