@@ -209,3 +209,35 @@ body.light-theme .otp-error {
     font-size: var(--text-md);
   }
 }
+
+/* "Verifying..." state of the submit button */
+.otp-submit-busy {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.otp-spinner {
+    animation: otp-spin 0.8s linear infinite;
+}
+
+@keyframes otp-spin {
+    to { transform: rotate(360deg); }
+}
+
+.otp-status {
+    min-height: 1.2em;
+    margin: 6px 0 0;
+    font-size: 0.85rem;
+    color: #64748b;
+    text-align: center;
+}
+
+.otp-status:empty {
+    display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .otp-spinner { animation: none; }
+}

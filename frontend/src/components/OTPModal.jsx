@@ -1,16 +1,22 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Loader2 } from "lucide-react";
 import api from "../services/api";
 import "../styles/OTPModal.css";
 
 export default function OTPModal({ isOpen, onClose, email, onVerify, loading }) {
     const [otp, setOtp] = useState(["", "", "", "", "", ""]);
     const [error, setError] = useState("");
+    // Own flag for the verify request: `loading` from the parent only covers
+    // the Google sign-in step.
+    const [verifying, setVerifying] = useState(false);
+    const busy = loading || verifying;
 
     useEffect(() => {
         if (isOpen) {
             setOtp(["", "", "", "", "", ""]);
             setError("");
+            setVerifying(false);
             // Focus first input for speed
             setTimeout(() => {
                 document.getElementById('otp-0')?.focus();
@@ -62,10 +68,15 @@ export default function OTPModal({ isOpen, onClose, email, onVerify, loading }) 
             return;
         }
 
+        if (busy) return;
+        setError("");
+        setVerifying(true);
         try {
             await onVerify(otpValue);
+            // On success the app navigates away; keep "Verifying..." until then.
         } catch (err) {
             setError(err.response?.data?.detail || "Invalid OTP");
+            setVerifying(false);
         }
     };
 
@@ -121,6 +132,7 @@ export default function OTPModal({ isOpen, onClose, email, onVerify, loading }) 
                                         onPaste={handlePaste}
                                         className="otp-input"
                                         autoComplete="one-time-code"
+                                        disabled={busy}
                                     />
                                 ))}
                             </div>
@@ -138,18 +150,27 @@ export default function OTPModal({ isOpen, onClose, email, onVerify, loading }) 
                             <motion.button
                                 type="submit"
                                 className="otp-submit"
-                                disabled={loading || otp.join("").length !== 6}
+                                disabled={busy || otp.join("").length !== 6}
+                                aria-busy={busy}
                                 whileHover={{ scale: 1.01 }}
                                 whileTap={{ scale: 0.99 }}
                             >
-                                {loading ? "Verifying..." : "Verify OTP"}
+                                {busy ? (
+                                    <span className="otp-submit-busy">
+                                        <Loader2 size={18} className="otp-spinner" aria-hidden="true" />
+                                        Verifying...
+                                    </span>
+                                ) : "Verify OTP"}
                             </motion.button>
+                            <p className="otp-status" role="status" aria-live="polite">
+                                {verifying ? "Checking your code, please wait..." : ""}
+                            </p>
 
                             <button
                                 type="button"
                                 className="otp-cancel"
                                 onClick={onClose}
-                                disabled={loading}
+                                disabled={busy}
                             >
                                 Cancel
                             </button>
@@ -171,7 +192,7 @@ export default function OTPModal({ isOpen, onClose, email, onVerify, loading }) 
                                         setError("Failed to resend OTP. Please try again.");
                                     }
                                 }}
-                                disabled={loading}
+                                disabled={busy}
                             >
                                 Resend OTP
                             </button>

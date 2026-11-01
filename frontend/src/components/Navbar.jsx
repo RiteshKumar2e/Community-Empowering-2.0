@@ -6,6 +6,7 @@ import ThemeToggle from './ThemeToggle'
 import FontSizeControl from './FontSizeControl'
 import LanguageToggle from './LanguageToggle'
 import '../styles/Navbar.css'
+import { warmUpGoogleSignIn } from '../utils/googleSignIn'
 
 const Navbar = () => {
     const { isAuthenticated, user, logout } = useAuth()
@@ -167,7 +168,7 @@ const Navbar = () => {
                             </>
                         ) : (
                             <div className="auth-nav-buttons">
-                                <Link to="/login" className="btn-signin">Sign In</Link>
+                                <Link to="/login" className="btn-signin" onMouseEnter={warmUpGoogleSignIn} onFocus={warmUpGoogleSignIn} onTouchStart={warmUpGoogleSignIn}>Sign In</Link>
                             </div>
                         )}
                     </div>
@@ -262,7 +263,7 @@ const Navbar = () => {
                         ) : (
                             <div className="mobile-nav-links">
                                 <div className="mobile-auth-actions">
-                                    <Link to="/login" className="btn-signin mobile-auth-btn" onClick={() => setMobileMenuOpen(false)}>
+                                    <Link to="/login" className="btn-signin mobile-auth-btn" onTouchStart={warmUpGoogleSignIn} onClick={() => setMobileMenuOpen(false)}>
                                         <User size={18} /> Sign In
                                     </Link>
                                 </div>

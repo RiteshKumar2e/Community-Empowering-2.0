@@ -504,3 +504,36 @@ body.light-theme .auth-page .error-message {
 body:not(.light-theme) .auth-page .session-note {
   color: var(--secondary-300);
 }
+
+/* Google button: a look-alike placeholder holds the spot until Google's
+   iframe (rendered on top of it) has loaded. */
+.auth-page .google-login-wrapper {
+  position: relative;
+  min-height: 44px;
+}
+
+.auth-page .google-login-wrapper > div:not(.google-btn-placeholder) {
+  position: relative;
+  z-index: 1;
+}
+
+.auth-page .google-btn-placeholder {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  height: 40px;
+  max-width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border: 1px solid #dadce0;
+  border-radius: 4px;
+  background: #fff;
+  color: #3c4043;
+  font-family: Roboto, Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  pointer-events: none;
+}
