@@ -251,3 +251,8 @@ def test_logs_mask_emails(capsys):
     client.post("/api/auth/forgot-password", json={"email": "maskme@example.com"})
     from app.core.privacy import mask_email
     assert mask_email("maskme@example.com") == "ma***@example.com"
+
+
+def test_health_answers_get_and_head_for_uptime_monitors():
+    assert client.get("/health").json() == {"status": "healthy"}
+    assert client.head("/health").status_code == 200

@@ -158,7 +158,9 @@ async def root():
         "version": "1.0.0",
     }
 
-@app.get("/health")
+# HEAD too: uptime monitors (UptimeRobot) often send HEAD, and a 405 would
+# show as "down". No database call, so pings stay cheap. See docs/UPTIME-MONITORING.md.
+@app.api_route("/health", methods=["GET", "HEAD"])
 async def health_check():
     return {"status": "healthy"}
 
