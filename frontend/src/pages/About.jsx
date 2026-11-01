@@ -44,7 +44,7 @@ const About = () => {
 
                 <h2>Who builds it</h2>
                 <ul>
-                    <li><strong>Ritesh Kumar</strong>, project lead (<a href="https://github.com/RiteshKumar2e" target="_blank" rel="noopener noreferrer">GitHub</a>, <a href="https://www.linkedin.com/in/ritesh-kumar-b3a654253" target="_blank" rel="noopener noreferrer">LinkedIn</a>)</li>
+                    <li><strong>Ritesh Kumar</strong>, project lead (<a href="https://github.com/RiteshKumar2e" target="_blank" rel="noopener noreferrer">GitHub</a>, <a href="https://www.linkedin.com/in/riteshkumar-tech" target="_blank" rel="noopener noreferrer">LinkedIn</a>, <a href="https://riteshkr.info/" target="_blank" rel="noopener noreferrer">Portfolio</a>)</li>
                     <li><strong>Ankit</strong>, project co-lead (<a href="https://github.com/Ankitkr-ak007/" target="_blank" rel="noopener noreferrer">GitHub</a>, <a href="https://www.linkedin.com/in/dev-ankit29/" target="_blank" rel="noopener noreferrer">LinkedIn</a>)</li>
                 </ul>
 

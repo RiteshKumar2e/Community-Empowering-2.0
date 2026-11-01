@@ -393,8 +393,8 @@ const Landing = () => {
                     <div className="team-grid">
                         <div className="team-card premium-member-card">
                             <div className="member-avatar-wrapper">
-                                <div className="member-avatar">
-                                    <span className="avatar-icon">👨‍💻</span>
+                                <div className="member-avatar has-photo">
+                                    <img src="/team/ritesh-kumar.webp" alt="Ritesh Kumar" width="96" height="96" loading="lazy" decoding="async" />
                                 </div>
                             </div>
                             <h3 className="member-name">Ritesh Kumar</h3>
@@ -405,11 +405,14 @@ const Landing = () => {
                                 <span>Passionate about Full-Stack Innovation</span>
                             </p>
                             <div className="member-social">
-                                <a href="https://linkedin.com/in/ritesh-kumar-b3a654253" target="_blank" rel="noopener noreferrer" className="social-btn linkedin">
+                                <a href="https://www.linkedin.com/in/riteshkumar-tech" target="_blank" rel="noopener noreferrer" className="social-btn linkedin" aria-label="Ritesh Kumar on LinkedIn" title="LinkedIn">
                                     <Linkedin size={20} />
                                 </a>
-                                <a href="https://github.com/RiteshKumar2e" target="_blank" rel="noopener noreferrer" className="social-btn github">
+                                <a href="https://github.com/RiteshKumar2e" target="_blank" rel="noopener noreferrer" className="social-btn github" aria-label="Ritesh Kumar on GitHub" title="GitHub">
                                     <Github size={20} />
+                                </a>
+                                <a href="https://riteshkr.info/" target="_blank" rel="noopener noreferrer" className="social-btn portfolio" aria-label="Ritesh Kumar's portfolio website" title="Portfolio">
+                                    <Globe size={20} />
                                 </a>
                             </div>
                         </div>
@@ -542,7 +545,7 @@ const Landing = () => {
                                 <a href="https://github.com/RiteshKumar2e" target="_blank" rel="noopener noreferrer" className="social-icon-link" aria-label="GitHub">
                                     <Github size={24} />
                                 </a>
-                                <a href="https://www.linkedin.com/in/ritesh-kumar-b3a654253" target="_blank" rel="noopener noreferrer" className="social-icon-link" aria-label="LinkedIn">
+                                <a href="https://www.linkedin.com/in/riteshkumar-tech" target="_blank" rel="noopener noreferrer" className="social-icon-link" aria-label="LinkedIn">
                                     <Linkedin size={24} />
                                 </a>
                                 <a href="mailto:riteshkumar90359@gmail.com" className="social-icon-link" aria-label="Email us">
