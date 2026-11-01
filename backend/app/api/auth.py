@@ -350,6 +350,7 @@ async def verify_google_otp(otp_data: GoogleOTPVerify, db: Session = Depends(get
 
         # Same answer whether or not the account exists (no account enumeration).
         if not user or not user.google_otp:
+            print(f"⚠️ Google OTP rejected for {mask_email(otp_data.email)}: no active code (never sent, already used or replaced)")
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="This code is invalid or has expired. Please sign in with Google again."
@@ -364,13 +365,14 @@ async def verify_google_otp(otp_data: GoogleOTPVerify, db: Session = Depends(get
             expiry = expiry.replace(tzinfo=timezone.utc)
 
         if not expiry or expiry < now:
+            print(f"⚠️ Google OTP rejected for {mask_email(user.email)}: code expired")
             # Clear expired OTP
             user.google_otp = None
             user.google_otp_expiry = None
             db.commit()
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="OTP has expired. Please request a new one."
+                detail="This code has expired. Please close this window and sign in with Google again."
             )
 
         # Verify OTP. After OTP_MAX_FAILURES wrong guesses the code is destroyed,
@@ -379,6 +381,7 @@ async def verify_google_otp(otp_data: GoogleOTPVerify, db: Session = Depends(get
             failures = otp_failures.get(user.id, 0) + 1
             otp_failures[user.id] = failures
             if failures >= OTP_MAX_FAILURES:
+                print(f"⚠️ Google OTP locked for {mask_email(user.email)}: too many wrong codes")
                 user.google_otp = None
                 user.google_otp_expiry = None
                 db.commit()
@@ -387,9 +390,10 @@ async def verify_google_otp(otp_data: GoogleOTPVerify, db: Session = Depends(get
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail="Too many wrong codes. Please sign in with Google again to get a new code."
                 )
+            left = OTP_MAX_FAILURES - failures
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid OTP. Please check and try again."
+                detail=f"Wrong code. {left} attempt{'s' if left != 1 else ''} left. Use the latest code we emailed you."
             )
         otp_failures.pop(user.id, None)
 

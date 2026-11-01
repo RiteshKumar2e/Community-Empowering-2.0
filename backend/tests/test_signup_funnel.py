@@ -294,3 +294,18 @@ def test_google_login_database_error_is_500_not_invalid_token(monkeypatch):
     res = client.post("/api/auth/google-login", json={"credential": "anything"})
     assert res.status_code == 500
     assert "Invalid Google token" not in res.text
+
+
+def test_wrong_google_otp_says_how_many_attempts_are_left(monkeypatch):
+    from app.api import auth as auth_module
+    monkeypatch.setattr(auth_module.id_token, "verify_oauth2_token",
+                        lambda *a, **k: {"email": "hana@example.com", "name": "Hana"})
+    assert client.post("/api/auth/google-login", json={"credential": "t"}).status_code == 200
+    code = SENT_CODES["hana@example.com"]
+    wrong = "000000" if code != "000000" else "111111"
+    res = client.post("/api/auth/verify-google-otp", json={"email": "hana@example.com", "otp": wrong})
+    assert res.status_code == 401 and "4 attempts left" in res.json()["detail"]
+    ok = client.post("/api/auth/verify-google-otp", json={"email": "hana@example.com", "otp": code})
+    assert ok.status_code == 200 and ok.json()["token"]
+    again = client.post("/api/auth/verify-google-otp", json={"email": "hana@example.com", "otp": code})
+    assert again.status_code == 400  # single use
