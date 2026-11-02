@@ -32,10 +32,15 @@ async def lifespan(app: FastAPI):
     # Seed data
     await seed_database()
     
-    # Run market scan in background on startup to ensure fresh data
+    # Scan on startup and then once a day so schemes, jobs and learning links
+    # stay current even when no administrator opens the dashboard.
     print("🔔 Server starting... Initiating background market scan.")
-    asyncio.create_task(market_scanner.scan_and_update())
-    yield
+    market_scan_task = asyncio.create_task(market_scanner.run_periodically())
+    try:
+        yield
+    finally:
+        market_scan_task.cancel()
+        await asyncio.gather(market_scan_task, return_exceptions=True)
 
 app = FastAPI(
     title="Community AI Platform API",

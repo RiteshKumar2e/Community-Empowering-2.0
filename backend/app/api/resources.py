@@ -8,7 +8,7 @@ router = APIRouter()
 @router.get("/")
 async def get_resources(db: Session = Depends(get_db)):
     """Get all resources"""
-    resources = db.query(Resource).all()
+    resources = db.query(Resource).order_by(Resource.created_at.desc(), Resource.id.desc()).all()
     
     return [{
         "id": r.id,
@@ -18,7 +18,8 @@ async def get_resources(db: Session = Depends(get_db)):
         "eligibility": r.eligibility,
         "provider": r.provider,
         "link": r.link,
-        "isNew": r.is_new
+        "isNew": r.is_new,
+        "createdAt": r.created_at.isoformat() if r.created_at else None
     } for r in resources]
 
 @router.get("/{resource_id}")
@@ -37,5 +38,6 @@ async def get_resource(resource_id: int, db: Session = Depends(get_db)):
         "eligibility": resource.eligibility,
         "provider": resource.provider,
         "link": resource.link,
-        "isNew": resource.is_new
+        "isNew": resource.is_new,
+        "createdAt": resource.created_at.isoformat() if resource.created_at else None
     }

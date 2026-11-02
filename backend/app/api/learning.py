@@ -52,7 +52,9 @@ async def get_enrolled_courses(
 async def get_platforms(db: Session = Depends(get_db)):
     """Get all external learning platforms"""
     import json
-    platforms = db.query(LearningPlatform).all()
+    platforms = db.query(LearningPlatform).order_by(
+        LearningPlatform.created_at.desc(), LearningPlatform.id.desc()
+    ).all()
     
     return [{
         "id": p.id,
@@ -65,7 +67,8 @@ async def get_platforms(db: Session = Depends(get_db)):
         "level": p.level,
         "link": p.link,
         "features": json.loads(p.features) if p.features else [],
-        "isOfficial": p.is_official
+        "isOfficial": p.is_official,
+        "createdAt": p.created_at.isoformat() if p.created_at else None
     } for p in platforms]
 
 @router.post("/enroll/{course_id}")

@@ -1837,7 +1837,6 @@ const Resources = () => {
             }
         }
         fetchResources()
-        fetchResources()
     }, [])
 
     // Log search queries (Debounced)
