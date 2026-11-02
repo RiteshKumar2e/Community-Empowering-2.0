@@ -78,7 +78,8 @@ const AdminDashboard = () => {
     // slow or failing request no longer blanks the whole dashboard.
     const fetchAdminData = async () => {
         setLoading(true)
-        const get = (url) => api.get(url).then((r) => r.data).catch((error) => {
+        // 20 s cap per request so one stuck call can't keep the page loading forever.
+        const get = (url) => api.get(url, { timeout: 20000 }).then((r) => r.data).catch((error) => {
             console.error(`Error fetching ${url}:`, error)
             return null
         })
@@ -363,18 +364,16 @@ const AdminDashboard = () => {
         }
     }
 
-    if (loading) {
-        return (
-            <div className="admin-loading">
-                <div className="spinner-large"></div>
-                <p>Loading admin dashboard...</p>
-            </div>
-        )
-    }
-
     return (
         <div className="admin-dashboard">
             <div className="container">
+                {/* The dashboard shows at once; data fills in as each request returns. */}
+                {loading && (
+                    <div className="admin-loading-note" role="status">
+                        <div className="spinner-small" aria-hidden="true"></div>
+                        Loading latest data...
+                    </div>
+                )}
                 {/* Header */}
                 <div className="admin-header">
                     <div>
