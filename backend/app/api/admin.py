@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from typing import List, Optional
@@ -37,6 +38,16 @@ class PlatformCreate(BaseModel):
     link: str
     features: List[str]
     isOfficial: bool = False
+
+def _names_by_id(db: Session, model, ids, attr="name"):
+    """One query for many rows instead of one query per row (each query is a
+    network round trip to Turso)."""
+    ids = {i for i in ids if i is not None}
+    if not ids:
+        return {}
+    column = getattr(model, attr)
+    return {row_id: value for row_id, value in db.query(model.id, column).filter(model.id.in_(ids))}
+
 
 async def verify_admin(current_user: User = Depends(get_current_user)):
     """Verify that the current user is an admin"""
@@ -97,7 +108,7 @@ async def get_all_users(
 ):
     """Get all registered users"""
     users = db.query(User).all()
-    
+
     user_list = []
     for user in users:
         # Convert timestamps to IST
@@ -105,12 +116,12 @@ async def get_all_users(
         if user.created_at:
             utc_time = user.created_at.replace(tzinfo=timezone.utc)
             created_at_ist = utc_time.astimezone(IST).strftime("%d %b %Y, %I:%M %p")
-        
+
         last_login_ist = None
         if user.last_login:
             utc_time = user.last_login.replace(tzinfo=timezone.utc)
             last_login_ist = utc_time.astimezone(IST).strftime("%d %b %Y, %I:%M %p")
-        
+
         user_list.append({
             "id": user.id,
             "name": user.name,
@@ -123,7 +134,7 @@ async def get_all_users(
             "created_at": created_at_ist,
             "last_login": last_login_ist
         })
-    
+
     return user_list
 
 @router.get("/queries")
@@ -132,8 +143,10 @@ async def get_all_queries(
     db: Session = Depends(get_db)
 ):
     """Get all AI queries"""
-    queries = db.query(Query).order_by(Query.created_at.desc()).all()
-    
+    # Newest first and bounded: this list grows forever and each row carries
+    # the full AI answer.
+    queries = db.query(Query).order_by(Query.created_at.desc()).limit(500).all()
+
     query_list = []
     for query in queries:
         # Convert timestamp to IST
@@ -141,7 +154,7 @@ async def get_all_queries(
         if query.created_at:
             utc_time = query.created_at.replace(tzinfo=timezone.utc)
             created_at_ist = utc_time.astimezone(IST).strftime("%d %b %Y, %I:%M %p")
-        
+
         query_list.append({
             "id": query.id,
             "user_id": query.user_id,
@@ -150,7 +163,7 @@ async def get_all_queries(
             "language": query.language,
             "created_at": created_at_ist
         })
-    
+
     return query_list
 
 @router.delete("/queries/{query_id}")
@@ -195,29 +208,29 @@ async def get_all_enrollments(
 ):
     """Get all course enrollments"""
     enrollments = db.query(Enrollment).all()
-    
+    user_names = _names_by_id(db, User, [e.user_id for e in enrollments])
+    course_titles = _names_by_id(db, Course, [e.course_id for e in enrollments], "title")
+
     result = []
     for enrollment in enrollments:
-        user = db.query(User).filter(User.id == enrollment.user_id).first()
-        course = db.query(Course).filter(Course.id == enrollment.course_id).first()
-        
+
         # Convert timestamp to IST
         enrolled_at_ist = None
         if enrollment.enrolled_at:
             utc_time = enrollment.enrolled_at.replace(tzinfo=timezone.utc)
             enrolled_at_ist = utc_time.astimezone(IST).strftime("%d %b %Y, %I:%M %p")
-        
+
         result.append({
             "id": enrollment.id,
             "user_id": enrollment.user_id,
-            "user_name": user.name if user else "Unknown",
+            "user_name": user_names.get(enrollment.user_id, "Unknown"),
             "course_id": enrollment.course_id,
-            "course_title": course.title if course else "Unknown",
+            "course_title": course_titles.get(enrollment.course_id, "Unknown"),
             "progress": enrollment.progress,
             "completed": enrollment.completed,
             "enrolled_at": enrolled_at_ist
         })
-    
+
     return result
 
 @router.get("/stats")
@@ -226,11 +239,14 @@ async def get_admin_stats(
     db: Session = Depends(get_db)
 ):
     """Get platform statistics"""
-    total_users = db.query(User).count()
-    active_users = db.query(User).filter(User.is_active == True).count()
-    total_queries = db.query(Query).count()
-    total_enrollments = db.query(Enrollment).count()
-    
+    # All four counts in one database round trip.
+    total_users, active_users, total_queries, total_enrollments = db.query(
+        db.query(func.count(User.id)).scalar_subquery(),
+        db.query(func.count(User.id)).filter(User.is_active == True).scalar_subquery(),  # noqa: E712
+        db.query(func.count(Query.id)).scalar_subquery(),
+        db.query(func.count(Enrollment.id)).scalar_subquery(),
+    ).one()
+
     return {
         "totalUsers": total_users,
         "activeUsers": active_users,
@@ -248,11 +264,11 @@ async def delete_user(
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    
+
     # Check if trying to delete yourself or another admin
     if user.email == admin.email:
         raise HTTPException(status_code=400, detail="Cannot delete your own admin account")
-    
+
     db.delete(user)
     db.commit()
     return {"message": "User deleted successfully"}
@@ -328,20 +344,33 @@ async def get_all_discussions(
 ):
     """Get all forum discussions for admin management"""
     discussions = db.query(ForumDiscussion).order_by(ForumDiscussion.created_at.desc()).all()
-    
+    disc_ids = [d.id for d in discussions]
+    users = {}
+    user_ids = {d.user_id for d in discussions if d.user_id is not None}
+    if user_ids:
+        users = {u.id: u for u in db.query(User.id, User.name, User.email).filter(User.id.in_(user_ids))}
+    category_names = _names_by_id(db, ForumCategory, [d.category_id for d in discussions])
+    reply_counts = {}
+    if disc_ids:
+        reply_counts = dict(
+            db.query(ForumReply.discussion_id, func.count(ForumReply.id))
+            .filter(ForumReply.discussion_id.in_(disc_ids))
+            .group_by(ForumReply.discussion_id)
+            .all()
+        )
+
     result = []
     for disc in discussions:
-        user = db.query(User).filter(User.id == disc.user_id).first()
-        category = db.query(ForumCategory).filter(ForumCategory.id == disc.category_id).first()
-        reply_count = db.query(ForumReply).filter(ForumReply.discussion_id == disc.id).count()
-        
+        user = users.get(disc.user_id)
+        reply_count = reply_counts.get(disc.id, 0)
+
         result.append({
             "id": disc.id,
             "title": disc.title,
             "content": disc.content,
             "user_name": user.name if user else "Unknown",
             "user_email": user.email if user else "N/A",
-            "category_name": category.name if category else "General",
+            "category_name": category_names.get(disc.category_id, "General"),
             "views": disc.views,
             "likes": disc.likes,
             "reply_count": reply_count,
@@ -360,20 +389,20 @@ async def delete_discussion(
     discussion = db.query(ForumDiscussion).filter(ForumDiscussion.id == discussion_id).first()
     if not discussion:
         raise HTTPException(status_code=404, detail="Discussion not found")
-    
+
     # First, get all reply IDs to clean up reply-level interactions
     replies = db.query(ForumReply).filter(ForumReply.discussion_id == discussion_id).all()
     reply_ids = [r.id for r in replies]
-    
+
     if reply_ids:
         db.query(ForumReplyLike).filter(ForumReplyLike.reply_id.in_(reply_ids)).delete(synchronize_session=False)
         db.query(ForumReplyView).filter(ForumReplyView.reply_id.in_(reply_ids)).delete(synchronize_session=False)
-    
+
     # Delete discussion-level interactions and replies
     db.query(ForumLike).filter(ForumLike.discussion_id == discussion_id).delete()
     db.query(ForumView).filter(ForumView.discussion_id == discussion_id).delete()
     db.query(ForumReply).filter(ForumReply.discussion_id == discussion_id).delete()
-    
+
     # Finally delete the discussion itself
     db.delete(discussion)
     db.commit()
@@ -389,7 +418,7 @@ async def toggle_feature_discussion(
     discussion = db.query(ForumDiscussion).filter(ForumDiscussion.id == discussion_id).first()
     if not discussion:
         raise HTTPException(status_code=404, detail="Discussion not found")
-    
+
     discussion.is_featured = not discussion.is_featured
     db.commit()
     return {"message": "Featured status updated", "is_featured": discussion.is_featured}
@@ -401,25 +430,25 @@ async def get_user_activities(
 ):
     """Get comprehensive user activity logs"""
     activities = db.query(UserActivity).order_by(UserActivity.created_at.desc()).limit(100).all()
-    
+    user_names = _names_by_id(db, User, [a.user_id for a in activities])
+
     result = []
     for act in activities:
-        user = db.query(User).filter(User.id == act.user_id).first()
-        
+
         created_at_ist = None
         if act.created_at:
             created_at_ist = act.created_at.replace(tzinfo=timezone.utc).astimezone(IST).strftime("%d %b %Y, %I:%M %p")
-            
+
         result.append({
             "id": act.id,
             "user_id": act.user_id,
-            "user_name": user.name if user else "Unknown",
+            "user_name": user_names.get(act.user_id, "Unknown"),
             "type": act.activity_type,
             "title": act.activity_title,
             "description": act.activity_description,
             "created_at": created_at_ist
         })
-    
+
     return result
 
 @router.delete("/activities/{activity_id}")
@@ -432,7 +461,7 @@ async def delete_activity(
     act = db.query(UserActivity).filter(UserActivity.id == activity_id).first()
     if not act:
         raise HTTPException(status_code=404, detail="Activity not found")
-    
+
     db.delete(act)
     db.commit()
     return {"message": "Activity deleted successfully"}

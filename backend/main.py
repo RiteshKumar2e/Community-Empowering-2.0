@@ -56,6 +56,61 @@ MAX_BODY_BYTES = 1 * 1024 * 1024          # 1 MB for normal API calls
 MAX_UPLOAD_BYTES = 5 * 1024 * 1024        # 5 MB for the profile photo upload
 
 
+def _error_response(request: Request) -> JSONResponse:
+    response = JSONResponse({"detail": "Something went wrong. Please try again."}, status_code=500)
+    # Error responses are built outside CORSMiddleware, so without these
+    # headers the browser reports a 500 as a misleading "blocked by CORS".
+    origin = request.headers.get("origin")
+    if origin and origin in _CORS_ORIGINS:
+        response.headers["Access-Control-Allow-Origin"] = origin
+        response.headers["Access-Control-Allow-Credentials"] = "true"
+        response.headers["Vary"] = "Origin"
+    return response
+
+
+class DriverPanicGuard:
+    """The Turso driver is written in Rust; when it panics it raises pyo3's
+    PanicException, which is NOT an Exception subclass. It skipped FastAPI's
+    error handler (and the CORS headers) and the browser got a bare 500.
+    This outermost layer turns it into a normal JSON 500 and drops the
+    database connections, which may be broken, so the next request starts
+    clean. Plain ASGI on purpose: @app.middleware runs requests inside a task
+    group that cancels the request before such an error could be caught."""
+
+    def __init__(self, app):
+        self.app = app
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] != "http":
+            return await self.app(scope, receive, send)
+        response_started = False
+
+        async def send_and_track(message):
+            nonlocal response_started
+            if message["type"] == "http.response.start":
+                response_started = True
+            await send(message)
+
+        try:
+            await self.app(scope, receive, send_and_track)
+        except Exception:
+            raise
+        except BaseException as exc:
+            if isinstance(exc, (KeyboardInterrupt, SystemExit, asyncio.CancelledError)):
+                raise
+            inner = exc
+            while getattr(inner, "exceptions", None):  # unwrap (Base)ExceptionGroup
+                inner = inner.exceptions[0]
+            request = Request(scope)
+            print(f"[ERROR] {request.method} {request.url.path}: {type(inner).__name__}: {inner}")
+            try:
+                engine.dispose()
+            except Exception as dispose_error:  # never mask the original problem
+                print(f"[DB] dispose after driver panic failed: {dispose_error}")
+            if not response_started:
+                await _error_response(request)(scope, receive, send)
+
+
 @app.middleware("http")
 async def security_middleware(request: Request, call_next):
     # Reject oversized bodies early (stops memory/CPU exhaustion via huge JSON).
@@ -83,15 +138,7 @@ _CORS_ORIGINS = [o for o in settings.ALLOWED_ORIGINS if o.strip() not in ("*", "
 async def unhandled_error(request: Request, exc: Exception):
     # Log the details on the server; never send stack traces or DB errors to clients.
     print(f"[ERROR] {request.method} {request.url.path}: {type(exc).__name__}: {exc}")
-    response = JSONResponse({"detail": "Something went wrong. Please try again."}, status_code=500)
-    # This handler runs outside CORSMiddleware, so without these headers the
-    # browser reports a 500 as a misleading "blocked by CORS policy" error.
-    origin = request.headers.get("origin")
-    if origin and origin in _CORS_ORIGINS:
-        response.headers["Access-Control-Allow-Origin"] = origin
-        response.headers["Access-Control-Allow-Credentials"] = "true"
-        response.headers["Vary"] = "Origin"
-    return response
+    return _error_response(request)
 
 # Ensure uploads directory exists
 os.makedirs("uploads/profiles", exist_ok=True)
@@ -109,6 +156,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Outermost layer, so it also covers errors raised inside the middlewares above.
+app.add_middleware(DriverPanicGuard)
 
 # Include routers
 app.include_router(auth.router, prefix="/api/auth", tags=["Authentication"])

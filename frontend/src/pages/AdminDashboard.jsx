@@ -74,65 +74,68 @@ const AdminDashboard = () => {
         fetchAdminData()
     }, [user, navigate])
 
+    // Every list is requested at once and shown as soon as it arrives; one
+    // slow or failing request no longer blanks the whole dashboard.
     const fetchAdminData = async () => {
-        try {
-            setLoading(true)
-            const [usersRes, queriesRes, statsRes, feedbackRes, resRes, platformsRes, discussionsRes, activitiesRes] = await Promise.all([
-                api.get('/admin/users'),
-                api.get('/admin/queries'),
-                api.get('/admin/stats'),
-                api.get('/admin/feedback'),
-                api.get('/admin/resources'),
-                api.get('/admin/learning-platforms'),
-                api.get('/admin/forum/discussions'),
-                api.get('/admin/activities')
-            ])
+        setLoading(true)
+        const get = (url) => api.get(url).then((r) => r.data).catch((error) => {
+            console.error(`Error fetching ${url}:`, error)
+            return null
+        })
+        const usersP = get('/admin/users')
+        const queriesP = get('/admin/queries')
+        const statsP = get('/admin/stats')
+        const feedbackP = get('/admin/feedback')
+        const resourcesP = get('/admin/resources')
+        const platformsP = get('/admin/learning-platforms')
+        const discussionsP = get('/admin/forum/discussions')
+        const activitiesP = get('/admin/activities')
+        const categoriesP = get('/forum/categories')
 
-            setDiscussions(discussionsRes.data || [])
-            setUsers(usersRes.data || [])
-            setRecentQueries(queriesRes.data || [])
-            setFeedback(feedbackRes.data || [])
-            setExistingResources(resRes.data || [])
-            setExistingPlatforms(platformsRes.data || [])
-            setDetailedActivities(activitiesRes.data || [])
-
-            setStats({
-                totalUsers: statsRes.data.totalUsers,
-                totalQueries: statsRes.data.totalQueries,
-                totalCourses: statsRes.data.totalEnrollments,
-                totalResources: resRes.data?.length || 0,
-                activeUsers: statsRes.data.activeUsers,
-                todayQueries: queriesRes.data?.filter(q => {
-                    const today = new Date().toDateString()
-                    return new Date(q.created_at).toDateString() === today
-                })?.length || 0
-            })
-
-            const activity = [
-                ...(usersRes.data || []).map(u => ({ type: 'user', name: u.name, time: u.created_at })),
-                ...(feedbackRes.data || []).map(f => ({ type: 'feedback', name: f.user_name || 'User', time: f.created_at })),
-                ...(activitiesRes.data || []).map(a => ({
-                    id: a.id,
-                    type: a.type === 'ai_query' ? 'ai_query' : a.type,
-                    name: a.user_name,
-                    time: a.created_at,
-                    title: a.title
+        statsP.then((data) => {
+            if (data) {
+                setStats((prev) => ({
+                    ...prev,
+                    totalUsers: data.totalUsers,
+                    totalQueries: data.totalQueries,
+                    totalCourses: data.totalEnrollments,
+                    activeUsers: data.activeUsers,
                 }))
-            ].sort((a, b) => new Date(b.time || b.created_at) - new Date(a.time || a.created_at)).slice(0, 10)
+            }
+            setLoading(false) // the overview can show now
+        })
+        usersP.then((data) => data && setUsers(data))
+        feedbackP.then((data) => data && setFeedback(data))
+        platformsP.then((data) => data && setExistingPlatforms(data))
+        discussionsP.then((data) => data && setDiscussions(data))
+        activitiesP.then((data) => data && setDetailedActivities(data))
+        categoriesP.then((data) => data && setForumCategories(data))
+        resourcesP.then((data) => {
+            if (!data) return
+            setExistingResources(data)
+            setStats((prev) => ({ ...prev, totalResources: data.length }))
+        })
+        queriesP.then((data) => {
+            if (!data) return
+            setRecentQueries(data)
+            const today = new Date().toDateString()
+            setStats((prev) => ({ ...prev, todayQueries: data.filter((q) => new Date(q.created_at).toDateString() === today).length }))
+        })
 
-            setRecentActivity(activity)
-
-            // Fetch forum categories
-            try {
-                const catRes = await api.get('/forum/categories')
-                setForumCategories(catRes.data || [])
-            } catch (err) { console.error('Error fetching forum categories:', err) }
-
-        } catch (error) {
-            console.error('Error fetching admin data:', error)
-        } finally {
-            setLoading(false)
-        }
+        const [usersData, feedbackData, activitiesData] = await Promise.all([usersP, feedbackP, activitiesP, statsP])
+        const activity = [
+            ...(usersData || []).map(u => ({ type: 'user', name: u.name, time: u.created_at })),
+            ...(feedbackData || []).map(f => ({ type: 'feedback', name: f.user_name || 'User', time: f.created_at })),
+            ...(activitiesData || []).map(a => ({
+                id: a.id,
+                type: a.type === 'ai_query' ? 'ai_query' : a.type,
+                name: a.user_name,
+                time: a.created_at,
+                title: a.title
+            }))
+        ].sort((a, b) => new Date(b.time || b.created_at) - new Date(a.time || a.created_at)).slice(0, 10)
+        setRecentActivity(activity)
+        setLoading(false)
     }
 
     const handleCreateForumCategory = async (e) => {

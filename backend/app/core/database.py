@@ -6,6 +6,7 @@ import time
 from sqlalchemy import create_engine, event, exc, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import QueuePool
 
 # =========================================================================
 # TURSO / LIBSQL DIALECT PATCHES
@@ -199,7 +200,6 @@ def _build_engine():
     token = DATABASE_TOKEN
 
     if url.startswith("sqlite+libsql://"):
-        from sqlalchemy.pool import StaticPool
         
         # Clean the host for the engine URL
         host = url.split("?")[0].replace("sqlite+libsql://", "").rstrip("/")
@@ -221,10 +221,21 @@ def _build_engine():
         else:
             print(f"[DB] WARNING: Initializing Turso connection to {host} WITHOUT auth_token")
 
+        # A real pool, NOT StaticPool: StaticPool hands the same libsql
+        # connection to every request at once. When the frontend fires several
+        # requests together (admin dashboard: 8, forum: 4), one request was
+        # querying while another rolled back/closed that same connection, and
+        # the Rust driver panicked (PanicException) -> plain 500 responses.
+        # With QueuePool each request has its own connection. poolclass must be
+        # explicit: for this URL (no file path) SQLAlchemy would otherwise pick
+        # SingletonThreadPool, which rejects pool_size and fails at startup.
         turso_engine = create_engine(
             sqlalchemy_url,
             connect_args=connect_args,
-            poolclass=StaticPool,
+            poolclass=QueuePool,
+            pool_size=5,
+            max_overflow=10,
+            pool_timeout=30,
         )
         install_stale_connection_guard(turso_engine)
         return turso_engine

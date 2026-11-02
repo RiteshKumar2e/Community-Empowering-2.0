@@ -352,3 +352,63 @@ def test_forum_replies_and_stats_use_few_queries():
 
     stats = client.get("/api/forum/stats", headers=auth(a)).json()
     assert stats["total_discussions"] >= 1 and stats["total_replies"] >= 6
+
+
+def test_admin_lists_use_a_fixed_number_of_queries():
+    from sqlalchemy import event
+    from app.models.models import User, UserActivity, ForumCategory
+    from app.core.security import create_access_token
+    admin = register("ivan.admin@example.com").json()["token"]
+    db = database.SessionLocal()
+    db.query(User).filter(User.email == "ivan.admin@example.com").update({"is_admin": True})
+    members = []
+    for i in range(5):  # created directly: the signup rate limit allows only a few per test
+        u = User(name="Test User", email=f"member{i}@example.com", phone="", password_hash="x",
+                 location="", language="en", community_type="general")
+        db.add(u); db.flush()
+        members.append({"user": {"id": u.id}, "token": create_access_token({"sub": u.email})})
+        for k in range(4):
+            db.add(UserActivity(user_id=u.id, activity_type="resource_view", activity_title=f"View {k}"))
+    cat = ForumCategory(name="Admin speed"); db.add(cat); db.commit(); cid = cat.id; db.close()
+    for m in members:
+        client.post("/api/forum/discussions", json={"title": "Question here", "content": "Body", "category_id": cid}, headers=auth(m["token"]))
+
+    for path, check in (
+        ("/api/admin/activities", lambda b: len(b) >= 20 and all(a["user_name"] == "Test User" for a in b[:20])),
+        ("/api/admin/forum/discussions", lambda b: len(b) >= 5 and any(d["category_name"] == "Admin speed" for d in b)),
+        ("/api/admin/stats", lambda b: b["totalUsers"] >= 6 and b["activeUsers"] >= 6),
+        ("/api/admin/enrollments", lambda b: isinstance(b, list)),
+        ("/api/admin/queries", lambda b: isinstance(b, list)),
+    ):
+        statements = []
+        listener = lambda *args: statements.append(1)
+        event.listen(database.engine, "before_cursor_execute", listener)
+        try:
+            res = client.get(path, headers=auth(admin))
+        finally:
+            event.remove(database.engine, "before_cursor_execute", listener)
+        assert res.status_code == 200, (path, res.text)
+        assert check(res.json()), path
+        assert len(statements) <= 6, f"{path}: {len(statements)} queries"
+
+
+def test_driver_panic_becomes_json_500_with_cors():
+    # pyo3's PanicException (raised when the Rust Turso driver panics) derives
+    # from BaseException, not Exception, so it used to skip every handler.
+    from fastapi.testclient import TestClient as _TC
+    import main as _main
+
+    class FakePanic(BaseException):
+        pass
+
+    @_main.app.get("/api/_test_panic")
+    async def _panic():
+        raise FakePanic("already borrowed")
+
+    c = _TC(_main.app, raise_server_exceptions=False)
+    r = c.get("/api/_test_panic", headers={"Origin": "https://communityai.co.in"})
+    assert r.status_code == 500
+    assert r.json()["detail"].startswith("Something went wrong")
+    assert r.headers.get("access-control-allow-origin") == "https://communityai.co.in"
+    assert "already borrowed" not in r.text
+    assert c.get("/health").status_code == 200  # app keeps working afterwards
