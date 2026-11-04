@@ -104,26 +104,26 @@
   flex-shrink: 0;
   width: 48px;
   height: 48px;
-  color: var(--primary-600);
+  color: var(--text-accent);
   background: color-mix(in srgb, var(--primary-500) 14%, transparent);
   border-radius: var(--radius-lg);
 }
 
 .app .resources-page .stat-card:nth-child(2) .stat-icon,
 .app .learning-hub-page .stat-card:nth-child(2) .stat-icon {
-  color: var(--success-600);
+  color: var(--text-success);
   background: color-mix(in srgb, var(--success-500) 14%, transparent);
 }
 
 .app .resources-page .stat-card:nth-child(3) .stat-icon,
 .app .learning-hub-page .stat-card:nth-child(3) .stat-icon {
-  color: var(--secondary-700);
+  color: var(--text-warning);
   background: color-mix(in srgb, var(--secondary-400) 22%, transparent);
 }
 
 .app .resources-page .stat-card:nth-child(4) .stat-icon,
 .app .learning-hub-page .stat-card:nth-child(4) .stat-icon {
-  color: var(--primary-700);
+  color: var(--text-accent);
   background: color-mix(in srgb, var(--primary-500) 14%, transparent);
 }
 
@@ -270,7 +270,7 @@
 
 .app .ai-assistant-page .suggestion-chip:hover {
   border-color: var(--primary-500);
-  color: var(--primary-700);
+  color: var(--text-accent);
   transform: translateY(-1px);
 }
 
@@ -344,7 +344,7 @@ body:not(.light-theme) .app .learning-hub-page .stat-card:nth-child(4) .stat-ico
 
 body:not(.light-theme) .app .resources-page .stat-card:nth-child(3) .stat-icon,
 body:not(.light-theme) .app .learning-hub-page .stat-card:nth-child(3) .stat-icon {
-  color: var(--secondary-400);
+  color: var(--text-warning);
 }
 
 @media (max-width: 640px) {
@@ -378,7 +378,7 @@ body:not(.light-theme) .app .learning-hub-page .stat-card:nth-child(3) .stat-ico
   gap: var(--space-2);
   margin: 0 0 var(--space-2);
   font-size: var(--text-md);
-  color: var(--error-700);
+  color: var(--text-danger);
 }
 
 .app .profile-page .danger-zone p {
@@ -423,5 +423,5 @@ body:not(.light-theme) .app .learning-hub-page .stat-card:nth-child(3) .stat-ico
 .app .profile-page .danger-msg {
   margin-top: var(--space-3);
   font-size: var(--text-sm);
-  color: var(--error-600);
+  color: var(--text-danger);
 }

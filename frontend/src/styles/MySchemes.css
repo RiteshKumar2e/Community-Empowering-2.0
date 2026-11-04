@@ -16,7 +16,7 @@
 }
 
 .my-schemes a:not(.btn):not(.scheme-card) {
-  color: var(--primary-600);
+  color: var(--text-accent);
 }
 
 .my-schemes-head {
@@ -40,7 +40,7 @@
 .my-notice {
   padding: var(--space-3) var(--space-4);
   font-size: var(--text-sm);
-  color: var(--success-700);
+  color: var(--text-success);
   background-color: color-mix(in srgb, var(--success-500) 10%, transparent);
   border-radius: var(--radius-lg);
 }
@@ -107,7 +107,7 @@
 }
 
 .saved-actions button:hover {
-  color: var(--error-600);
+  color: var(--text-danger);
   border-color: var(--error-500);
 }
 
@@ -151,7 +151,7 @@
 .my-error {
   padding: var(--space-3) var(--space-4);
   font-size: var(--text-sm);
-  color: var(--secondary-800);
+  color: var(--text-warning);
   background-color: color-mix(in srgb, var(--secondary-400) 16%, transparent);
   border-radius: var(--radius-lg);
 }
@@ -182,7 +182,7 @@ body:not(.light-theme) .my-error {
   font-family: inherit;
   font-size: var(--text-sm);
   font-weight: 600;
-  color: var(--primary-600);
+  color: var(--text-accent);
   background: color-mix(in srgb, var(--primary-500) 10%, transparent);
   border: none;
   border-radius: var(--radius-lg);
@@ -223,7 +223,7 @@ body:not(.light-theme) .my-error {
   grid-column: 1 / -1;
   margin: 0;
   font-size: var(--text-sm);
-  color: var(--error-600);
+  color: var(--text-danger);
 }
 
 .reminder-list {
@@ -305,7 +305,7 @@ body:not(.light-theme) .my-error {
 }
 
 .reminder-del:hover {
-  color: var(--error-600);
+  color: var(--text-danger);
   background: var(--bg-hover);
 }
 

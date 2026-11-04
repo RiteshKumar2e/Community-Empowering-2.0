@@ -220,7 +220,7 @@
   width: 16px;
   height: 16px;
   flex-shrink: 0;
-  color: var(--success-500);
+  color: var(--text-success);
 }
 
 .landing .about-stats-card h3 {
@@ -271,7 +271,7 @@
   width: 36px;
   height: 36px;
   margin-bottom: var(--space-4);
-  color: var(--primary-500);
+  color: var(--text-accent);
   background-color: var(--bg-tertiary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
@@ -677,7 +677,7 @@
   background: var(--bg-tertiary) !important;
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
-  color: var(--primary-500);
+  color: var(--text-accent);
 }
 
 .landing .modal-icon svg {
@@ -743,7 +743,7 @@
   display: grid;
   place-items: center;
   flex-shrink: 0;
-  color: var(--success-500);
+  color: var(--text-success);
 }
 
 .landing .detail-check svg {

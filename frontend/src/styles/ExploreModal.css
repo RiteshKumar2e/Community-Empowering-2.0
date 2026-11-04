@@ -71,7 +71,7 @@
   width: 44px;
   height: 44px;
   margin: 0 auto var(--space-4);
-  color: var(--primary-500);
+  color: var(--text-accent);
   background-color: var(--bg-tertiary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-xl);

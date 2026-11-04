@@ -44,7 +44,7 @@
 }
 
 .breadcrumbs a:hover {
-  color: var(--primary-600);
+  color: var(--text-accent);
   text-decoration: underline;
 }
 
@@ -80,11 +80,11 @@
   align-items: center;
   gap: 6px;
   font-size: var(--text-sm);
-  color: var(--success-700);
+  color: var(--text-success);
 }
 
 body:not(.light-theme) .privacy-note {
-  color: var(--success-500);
+  color: var(--text-success);
 }
 
 /* --- Search & filters --- */
@@ -232,16 +232,16 @@ body:not(.light-theme) .privacy-note {
 }
 
 .level-tag.central {
-  color: var(--primary-700);
+  color: var(--text-accent);
   background-color: color-mix(in srgb, var(--primary-500) 12%, transparent);
 }
 
 .level-tag.state {
-  color: var(--secondary-800);
+  color: var(--text-warning);
   background-color: color-mix(in srgb, var(--secondary-400) 22%, transparent);
 }
 
-body:not(.light-theme) .level-tag.central { color: var(--primary-300); }
+body:not(.light-theme) .level-tag.central { color: var(--text-accent); }
 body:not(.light-theme) .level-tag.state { color: var(--secondary-300); }
 
 .cat-tag {
@@ -256,10 +256,10 @@ body:not(.light-theme) .level-tag.state { color: var(--secondary-300); }
   margin-top: var(--space-1);
   font-size: var(--text-sm);
   font-weight: 600;
-  color: var(--primary-600);
+  color: var(--text-accent);
 }
 
-body:not(.light-theme) .scheme-card-link { color: var(--primary-300); }
+body:not(.light-theme) .scheme-card-link { color: var(--text-accent); }
 
 .schemes-empty {
   padding: var(--space-10) var(--space-4);
@@ -323,7 +323,7 @@ body:not(.light-theme) .scheme-card-link { color: var(--primary-300); }
 .scheme-disclaimer svg {
   flex-shrink: 0;
   margin-top: 2px;
-  color: var(--secondary-700);
+  color: var(--text-warning);
 }
 
 .scheme-disclaimer p {
@@ -347,16 +347,16 @@ body:not(.light-theme) .scheme-card-link { color: var(--primary-300); }
 }
 
 .review-pill.verified {
-  color: var(--success-700);
+  color: var(--text-success);
   background-color: color-mix(in srgb, var(--success-500) 14%, transparent);
 }
 
 .review-pill.pending {
-  color: var(--secondary-800);
+  color: var(--text-warning);
   background-color: color-mix(in srgb, var(--secondary-400) 22%, transparent);
 }
 
-body:not(.light-theme) .review-pill.verified { color: var(--success-500); }
+body:not(.light-theme) .review-pill.verified { color: var(--text-success); }
 body:not(.light-theme) .review-pill.pending { color: var(--secondary-300); }
 
 /* --- Detail page --- */
@@ -432,7 +432,7 @@ body:not(.light-theme) .review-pill.pending { color: var(--secondary-300); }
 }
 
 .scheme-toc a:hover {
-  color: var(--primary-600);
+  color: var(--text-accent);
 }
 
 .scheme-section {
@@ -450,7 +450,7 @@ body:not(.light-theme) .review-pill.pending { color: var(--secondary-300); }
 
 .scheme-section h2 > svg,
 .scheme-section h2 > span {
-  color: var(--primary-600);
+  color: var(--text-accent);
   font-weight: 700;
 }
 
@@ -472,8 +472,8 @@ body:not(.light-theme) .review-pill.pending { color: var(--secondary-300); }
   color: var(--text-secondary);
 }
 
-.scheme-section .check-list li::marker { color: var(--success-600); }
-.scheme-section .cross-list li::marker { color: var(--error-600); }
+.scheme-section .check-list li::marker { color: var(--text-success); }
+.scheme-section .cross-list li::marker { color: var(--text-danger); }
 
 .scheme-section .steps-list {
   padding-left: var(--space-6);
@@ -485,7 +485,7 @@ body:not(.light-theme) .review-pill.pending { color: var(--secondary-300); }
 
 .scheme-section .steps-list li::marker {
   font-weight: 700;
-  color: var(--primary-600);
+  color: var(--text-accent);
 }
 
 .scheme-section .deadline {
@@ -499,7 +499,7 @@ body:not(.light-theme) .review-pill.pending { color: var(--secondary-300); }
 .scheme-section .deadline svg {
   flex-shrink: 0;
   margin-top: 3px;
-  color: var(--primary-600);
+  color: var(--text-accent);
 }
 
 .faq {
@@ -524,7 +524,7 @@ body:not(.light-theme) .review-pill.pending { color: var(--secondary-300); }
 .scheme-section p a,
 .schemes-empty a,
 .eligibility-results p a {
-  color: var(--primary-600);
+  color: var(--text-accent);
 }
 
 .report-link {
@@ -534,7 +534,7 @@ body:not(.light-theme) .review-pill.pending { color: var(--secondary-300); }
   margin-top: var(--space-2);
   font-size: var(--text-sm);
   font-weight: 600;
-  color: var(--error-600);
+  color: var(--text-danger);
 }
 
 .related {
@@ -569,7 +569,7 @@ body:not(.light-theme) .review-pill.pending { color: var(--secondary-300); }
   margin-bottom: var(--space-1);
   font-size: var(--text-sm);
   font-weight: 600;
-  color: var(--primary-600);
+  color: var(--text-accent);
 }
 
 .eligibility-question h2,
@@ -643,7 +643,7 @@ body:not(.light-theme) .review-pill.pending { color: var(--secondary-300); }
   width: 100%;
   margin: 0;
   font-size: var(--text-sm);
-  color: var(--error-600);
+  color: var(--text-danger);
 }
 
 .back-link {
@@ -754,7 +754,7 @@ body:not(.light-theme) .review-pill.pending { color: var(--secondary-300); }
 .signup-prompt li svg {
   flex-shrink: 0;
   margin-top: 3px;
-  color: var(--success-600);
+  color: var(--text-success);
 }
 
 .signup-prompt-close {
@@ -790,7 +790,7 @@ body:not(.light-theme) .review-pill.pending { color: var(--secondary-300); }
 .signup-prompt-login {
   font-size: var(--text-sm);
   font-weight: 600;
-  color: var(--primary-600);
+  color: var(--text-accent);
 }
 
 .signup-prompt-skip {
@@ -830,7 +830,7 @@ body:not(.light-theme) .review-pill.pending { color: var(--secondary-300); }
   font-family: inherit;
   font-size: inherit;
   font-weight: 600;
-  color: var(--primary-600);
+  color: var(--text-accent);
   background: none;
   border: none;
   text-decoration: underline;

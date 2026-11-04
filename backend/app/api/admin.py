@@ -1,4 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException
+import time
+
+from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi.encoders import jsonable_encoder
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
@@ -39,6 +42,12 @@ class PlatformCreate(BaseModel):
     features: List[str]
     isOfficial: bool = False
 
+# Short cache for /admin/overview. Only admins can read it; it is cleared by any
+# admin write (see verify_admin).
+OVERVIEW_CACHE_SECONDS = 20
+_overview_cache = {"data": None, "at": 0.0}
+
+
 def _names_by_id(db: Session, model, ids, attr="name"):
     """One query for many rows instead of one query per row (each query is a
     network round trip to Turso)."""
@@ -49,10 +58,12 @@ def _names_by_id(db: Session, model, ids, attr="name"):
     return {row_id: value for row_id, value in db.query(model.id, column).filter(model.id.in_(ids))}
 
 
-async def verify_admin(current_user: User = Depends(get_current_user)):
+async def verify_admin(request: Request, current_user: User = Depends(get_current_user)):
     """Verify that the current user is an admin"""
     if not current_user.is_admin and current_user.email != 'riteshkumar90359@gmail.com':
         raise HTTPException(status_code=403, detail="Admin access required")
+    if request.method != "GET":
+        _overview_cache["data"] = None  # an admin is changing something
     return current_user
 
 @router.post("/resources")
@@ -588,3 +599,39 @@ async def get_growth_stats(
             "Google Analytics 4 (property G-E62VV5FB9M), not in this database."
         ),
     }
+
+
+@router.get("/overview")
+async def get_admin_overview(
+    refresh: bool = False,
+    admin: User = Depends(verify_admin),
+    db: Session = Depends(get_db),
+):
+    """Everything the admin dashboard needs in ONE request.
+
+    The Turso driver holds Python's GIL while it waits for the network, so
+    every database round trip freezes the whole server, and parallel requests
+    only queue up behind each other. The dashboard used to send 9 requests,
+    each repeating the login check and opening its own connection, and they
+    timed out together. One request on one connection does far fewer trips.
+    """
+    now = time.monotonic()
+    cached = _overview_cache["data"]
+    if cached is not None and not refresh and now - _overview_cache["at"] < OVERVIEW_CACHE_SECONDS:
+        return cached
+
+    from app.api.forum import get_categories
+
+    data = jsonable_encoder({
+        "stats": await get_admin_stats(admin=admin, db=db),
+        "users": await get_all_users(admin=admin, db=db),
+        "queries": await get_all_queries(admin=admin, db=db),
+        "feedback": await get_all_feedback(admin=admin, db=db),
+        "resources": await get_all_resources(admin=admin, db=db),
+        "platforms": await get_all_learning_platforms(admin=admin, db=db),
+        "discussions": await get_all_discussions(admin=admin, db=db),
+        "activities": await get_user_activities(admin=admin, db=db),
+        "categories": await get_categories(db=db),
+    })
+    _overview_cache.update(data=data, at=now)
+    return data

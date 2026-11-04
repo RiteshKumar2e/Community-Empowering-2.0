@@ -187,12 +187,12 @@
 }
 
 .profile-page .action-btn.danger {
-  color: var(--error-500);
+  color: var(--text-danger);
   border-color: color-mix(in srgb, var(--error-500) 30%, transparent);
 }
 
 .profile-page .action-btn.danger:hover {
-  color: var(--error-500);
+  color: var(--text-danger);
   background-color: color-mix(in srgb, var(--error-500) 10%, transparent);
   border-color: var(--error-500);
 }

@@ -14,6 +14,7 @@ const AdminDashboard = () => {
     const { user } = useAuth()
     const navigate = useNavigate()
     const [loading, setLoading] = useState(true)
+    const [loadError, setLoadError] = useState('')
     const [stats, setStats] = useState({
         totalUsers: 0,
         totalQueries: 0,
@@ -74,69 +75,48 @@ const AdminDashboard = () => {
         fetchAdminData()
     }, [user, navigate])
 
-    // Every list is requested at once and shown as soon as it arrives; one
-    // slow or failing request no longer blanks the whole dashboard.
-    const fetchAdminData = async () => {
+    // One request for the whole dashboard: parallel requests queue up behind
+    // each other on the server (see /admin/overview in backend/app/api/admin.py).
+    const fetchAdminData = async (refresh = false) => {
         setLoading(true)
-        // 20 s cap per request so one stuck call can't keep the page loading forever.
-        const get = (url) => api.get(url, { timeout: 20000 }).then((r) => r.data).catch((error) => {
-            console.error(`Error fetching ${url}:`, error)
-            return null
-        })
-        const usersP = get('/admin/users')
-        const queriesP = get('/admin/queries')
-        const statsP = get('/admin/stats')
-        const feedbackP = get('/admin/feedback')
-        const resourcesP = get('/admin/resources')
-        const platformsP = get('/admin/learning-platforms')
-        const discussionsP = get('/admin/forum/discussions')
-        const activitiesP = get('/admin/activities')
-        const categoriesP = get('/forum/categories')
-
-        statsP.then((data) => {
-            if (data) {
-                setStats((prev) => ({
-                    ...prev,
-                    totalUsers: data.totalUsers,
-                    totalQueries: data.totalQueries,
-                    totalCourses: data.totalEnrollments,
-                    activeUsers: data.activeUsers,
-                }))
-            }
-            setLoading(false) // the overview can show now
-        })
-        usersP.then((data) => data && setUsers(data))
-        feedbackP.then((data) => data && setFeedback(data))
-        platformsP.then((data) => data && setExistingPlatforms(data))
-        discussionsP.then((data) => data && setDiscussions(data))
-        activitiesP.then((data) => data && setDetailedActivities(data))
-        categoriesP.then((data) => data && setForumCategories(data))
-        resourcesP.then((data) => {
-            if (!data) return
-            setExistingResources(data)
-            setStats((prev) => ({ ...prev, totalResources: data.length }))
-        })
-        queriesP.then((data) => {
-            if (!data) return
-            setRecentQueries(data)
+        setLoadError('')
+        try {
+            const { data } = await api.get('/admin/overview', { params: refresh ? { refresh: true } : {}, timeout: 60000 })
             const today = new Date().toDateString()
-            setStats((prev) => ({ ...prev, todayQueries: data.filter((q) => new Date(q.created_at).toDateString() === today).length }))
-        })
 
-        const [usersData, feedbackData, activitiesData] = await Promise.all([usersP, feedbackP, activitiesP, statsP])
-        const activity = [
-            ...(usersData || []).map(u => ({ type: 'user', name: u.name, time: u.created_at })),
-            ...(feedbackData || []).map(f => ({ type: 'feedback', name: f.user_name || 'User', time: f.created_at })),
-            ...(activitiesData || []).map(a => ({
-                id: a.id,
-                type: a.type === 'ai_query' ? 'ai_query' : a.type,
-                name: a.user_name,
-                time: a.created_at,
-                title: a.title
-            }))
-        ].sort((a, b) => new Date(b.time || b.created_at) - new Date(a.time || a.created_at)).slice(0, 10)
-        setRecentActivity(activity)
-        setLoading(false)
+            setUsers(data.users || [])
+            setRecentQueries(data.queries || [])
+            setFeedback(data.feedback || [])
+            setExistingResources(data.resources || [])
+            setExistingPlatforms(data.platforms || [])
+            setDiscussions(data.discussions || [])
+            setDetailedActivities(data.activities || [])
+            setForumCategories(data.categories || [])
+            setStats({
+                totalUsers: data.stats?.totalUsers,
+                totalQueries: data.stats?.totalQueries,
+                totalCourses: data.stats?.totalEnrollments,
+                totalResources: data.resources?.length || 0,
+                activeUsers: data.stats?.activeUsers,
+                todayQueries: (data.queries || []).filter((q) => new Date(q.created_at).toDateString() === today).length,
+            })
+            setRecentActivity([
+                ...(data.users || []).map(u => ({ type: 'user', name: u.name, time: u.created_at })),
+                ...(data.feedback || []).map(f => ({ type: 'feedback', name: f.user_name || 'User', time: f.created_at })),
+                ...(data.activities || []).map(a => ({
+                    id: a.id,
+                    type: a.type === 'ai_query' ? 'ai_query' : a.type,
+                    name: a.user_name,
+                    time: a.created_at,
+                    title: a.title
+                }))
+            ].sort((a, b) => new Date(b.time || b.created_at) - new Date(a.time || a.created_at)).slice(0, 10))
+        } catch (error) {
+            console.error('Error fetching admin data:', error)
+            setLoadError('Could not load the latest data. The server may be busy.')
+        } finally {
+            setLoading(false)
+        }
     }
 
     const handleCreateForumCategory = async (e) => {
@@ -311,7 +291,7 @@ const AdminDashboard = () => {
             setIsScanning(true)
             const res = await api.post('/admin/scan-market')
             alert(res.data.message)
-            fetchAdminData() // refresh
+            fetchAdminData(true) // refresh
         } catch (error) {
             alert('Scan failed')
         } finally {
@@ -372,6 +352,12 @@ const AdminDashboard = () => {
                     <div className="admin-loading-note" role="status">
                         <div className="spinner-small" aria-hidden="true"></div>
                         Loading latest data...
+                    </div>
+                )}
+                {loadError && !loading && (
+                    <div className="admin-loading-note" role="alert">
+                        {loadError}
+                        <button type="button" className="admin-retry" onClick={() => fetchAdminData(true)}>Try again</button>
                     </div>
                 )}
                 {/* Header */}

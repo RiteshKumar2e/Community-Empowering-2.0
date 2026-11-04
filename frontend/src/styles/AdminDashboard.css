@@ -268,7 +268,7 @@
 }
 
 .admin-dashboard .btn-delete-small:hover {
-  color: var(--error-500);
+  color: var(--text-danger);
   border-color: color-mix(in srgb, var(--error-500) 40%, transparent);
   background-color: color-mix(in srgb, var(--error-500) 8%, transparent);
 }
@@ -285,7 +285,7 @@
 }
 
 .admin-dashboard .btn-delete-small.danger {
-  color: var(--error-500);
+  color: var(--text-danger);
   border-color: color-mix(in srgb, var(--error-500) 40%, transparent);
 }
 
@@ -500,7 +500,7 @@
 }
 
 .admin-dashboard .status-badge.featured {
-  color: var(--secondary-600);
+  color: var(--text-warning);
   background-color: color-mix(in srgb, var(--secondary-500) 14%, transparent);
   border-color: color-mix(in srgb, var(--secondary-500) 28%, transparent);
 }
@@ -529,12 +529,12 @@
 }
 
 .admin-dashboard .action-btn-mini.active {
-  color: var(--primary-500);
+  color: var(--text-accent);
   border-color: color-mix(in srgb, var(--primary-500) 40%, transparent);
 }
 
 .admin-dashboard .action-btn-mini.delete:hover {
-  color: var(--error-500);
+  color: var(--text-danger);
   border-color: color-mix(in srgb, var(--error-500) 40%, transparent);
 }
 
@@ -680,7 +680,7 @@
 }
 
 .admin-dashboard .action-btn.delete:hover {
-  color: var(--error-500);
+  color: var(--text-danger);
   border-color: color-mix(in srgb, var(--error-500) 40%, transparent);
 }
 
@@ -900,4 +900,19 @@
 
 @keyframes admin-note-spin {
   to { transform: rotate(360deg); }
+}
+
+.admin-retry {
+  padding: 0;
+  font: inherit;
+  font-weight: 600;
+  color: var(--text-accent);
+  text-decoration: underline;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+body:not(.light-theme) .admin-retry {
+  color: var(--text-accent);
 }

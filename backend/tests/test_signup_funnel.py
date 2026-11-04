@@ -412,3 +412,38 @@ def test_driver_panic_becomes_json_500_with_cors():
     assert r.headers.get("access-control-allow-origin") == "https://communityai.co.in"
     assert "already borrowed" not in r.text
     assert c.get("/health").status_code == 200  # app keeps working afterwards
+
+
+def test_admin_overview_is_one_request_cached_and_cleared_by_writes():
+    from sqlalchemy import event
+    from app.api import admin as admin_api
+    from app.models.models import User
+    token = register("olive.admin@example.com").json()["token"]
+    assert client.get("/api/admin/overview", headers=auth(token)).status_code == 403
+    db = database.SessionLocal()
+    db.query(User).filter(User.email == "olive.admin@example.com").update({"is_admin": True})
+    db.commit(); db.close()
+
+    def statements_for(url):
+        statements = []
+        listener = lambda *args: statements.append(1)
+        event.listen(database.engine, "before_cursor_execute", listener)
+        try:
+            res = client.get(url, headers=auth(token))
+        finally:
+            event.remove(database.engine, "before_cursor_execute", listener)
+        assert res.status_code == 200, res.text
+        return res.json(), len(statements)
+
+    admin_api._overview_cache["data"] = None
+    body, first = statements_for("/api/admin/overview")
+    assert set(body) == {"stats", "users", "queries", "feedback", "resources", "platforms", "discussions", "activities", "categories"}
+    assert body["stats"]["totalUsers"] >= 1 and len(body["users"]) >= 1
+    assert first <= 16, f"{first} queries"
+    _, cached = statements_for("/api/admin/overview")
+    assert cached <= 1  # only the login check
+    _, fresh = statements_for("/api/admin/overview?refresh=true")
+    assert fresh > cached
+
+    client.post("/api/admin/queries/bulk-delete", json={"ids": []}, headers=auth(token))
+    assert admin_api._overview_cache["data"] is None  # any admin write clears it

@@ -53,13 +53,13 @@
 }
 
 .legal-page a {
-  color: var(--primary-600);
+  color: var(--text-accent);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
 
 body:not(.light-theme) .legal-page a {
-  color: var(--primary-300);
+  color: var(--text-accent);
 }
 
 @media (max-width: 640px) {

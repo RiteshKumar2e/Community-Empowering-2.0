@@ -107,7 +107,7 @@
 .admin-link,
 .admin-link:hover,
 .admin-link.active {
-  color: var(--primary-500);
+  color: var(--text-accent);
 }
 
 /* --- Right-hand actions --- */
@@ -267,7 +267,7 @@
 .menu-item.logout,
 .menu-item.logout svg,
 .menu-item.logout:hover {
-  color: var(--error-500);
+  color: var(--text-danger);
 }
 
 .menu-divider {
@@ -420,7 +420,7 @@
 
 .mobile-link.logout-link,
 .mobile-link.logout-link svg {
-  color: var(--error-500);
+  color: var(--text-danger);
 }
 
 .mobile-auth-actions {

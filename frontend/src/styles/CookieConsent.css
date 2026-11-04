@@ -29,12 +29,12 @@
 }
 
 .cookie-consent a {
-  color: var(--primary-600);
+  color: var(--text-accent);
   text-decoration: underline;
 }
 
 body:not(.light-theme) .cookie-consent a {
-  color: var(--primary-300);
+  color: var(--text-accent);
 }
 
 .cookie-consent-actions {

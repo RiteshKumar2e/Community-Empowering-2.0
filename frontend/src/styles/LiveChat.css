@@ -72,7 +72,7 @@
 }
 
 .live-chat-panel .mode-toggle.active {
-  color: var(--primary-500);
+  color: var(--text-accent);
   background-color: var(--bg-hover);
   border-color: var(--border-color);
 }
@@ -141,7 +141,7 @@
 }
 
 .live-chat-panel .user-select-item.selected {
-  color: var(--primary-500);
+  color: var(--text-accent);
   background-color: var(--bg-hover);
 }
 
@@ -247,7 +247,7 @@
 }
 
 .live-chat-panel .delete-msg-btn:hover {
-  color: var(--error-500);
+  color: var(--text-danger);
 }
 
 .live-chat-panel .delete-msg-btn svg {

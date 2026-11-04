@@ -261,7 +261,7 @@ body:not(.light-theme) .message.user * {
 
 .message-time {
     font-size: 0.7rem;
-    opacity: 0.65;
+    opacity: 0.9;
     margin-top: 8px;
     white-space: nowrap;
     user-select: none;
