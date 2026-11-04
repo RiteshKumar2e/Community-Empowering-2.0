@@ -12,9 +12,11 @@ export const warmUpGoogleSignIn = () => {
     const preconnect = document.createElement('link')
     preconnect.rel = 'preconnect'
     preconnect.href = 'https://accounts.google.com'
-    const preload = document.createElement('link')
-    preload.rel = 'preload'
-    preload.as = 'script'
-    preload.href = GSI_SCRIPT
-    document.head.append(preconnect, preload)
+    // prefetch, not preload: the visitor may never open /login, and an unused
+    // preload logs a warning in the console.
+    const prefetch = document.createElement('link')
+    prefetch.rel = 'prefetch'
+    prefetch.as = 'script'
+    prefetch.href = GSI_SCRIPT
+    document.head.append(preconnect, prefetch)
 }
