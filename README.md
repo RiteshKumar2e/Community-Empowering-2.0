@@ -93,43 +93,57 @@ The **Community AI Platform** is a high-performance, production-ready applicatio
 - **Smart Recommendations** - ML-driven content suggestions
 - **UX: Auto-Focus Input** - Chatbot input automatically focuses on hover for instant interaction
 
-### 🎨 **Premium UI/UX Features**
+### 📚 **Public Scheme Guides**
 
-- **Sign-In Prompt Modal** - Intelligent modal that appears after 5 seconds for non-authenticated users
-  - Theme-aware design (transparent glassmorphism for dark, solid white for light)
-  - Responsive positioning (left-aligned on desktop, centered on mobile)
-  - Feature highlights with animated cards
-  - Single-action CTA ("Sign In Now")
-- **Explore Modal** - User-triggered modal via "Explore Solutions" button
-  - Showcases 4 key platform features with icons
-  - Dual CTAs: "Sign In Now" and "Explore Features" (smooth scroll)
-  - Mobile-optimized with viewport-based positioning
-- **Theme System** - Seamless light/dark mode toggle
-  - Persistent theme preference
-  - Smooth transitions
-  - All components theme-aware
-- **Particle Cursor** - GPU-accelerated custom cursor with stellar trail effect
-  - Dynamic particle trails
-  - Smooth animations
-  - Performance-optimized
-- **Three.js Background** - Animated cosmic background
-  - Particle systems
-  - Interactive elements
-  - Theme-responsive colors
-- **Mobile-First Design** - Fully responsive across all devices
-  - Adaptive layouts
-  - Touch-optimized interactions
-  - Viewport-based positioning
+- **Scheme Pages** - Plain-language guides to 12 central and Jharkhand schemes: who can apply, benefits, documents and official links
+- **Category Hubs** - Students, farmers, women, senior citizens, business, health and employment
+- **Eligibility Checker** - 8 questions, no sign-up needed, with matching schemes as the result
+- **Sign Up to Save and Apply** - Reading is open to everyone; saving progress needs a free account, and anything done before signing up is kept
+- **Editorial Policy** - Every page shows when it was last updated, and that Community AI is not a government website
+
+### 👤 **User Account**
+
+- **My Schemes** - Saved schemes, saved eligibility results and reminders on the dashboard
+- **Sign-In Options** - Email and password, or Google with an emailed OTP
+- **Email Verification and Password Reset** - 6-digit codes that expire and allow limited attempts
+- **Your Data** - Export your data or delete your account from the app
+
+### 💬 **Community**
+
+- **Forum** - Discussions, categories, tags, replies and likes
+- **Live Chat** - Real-time community chat over WebSocket
+- **AI Assistant** - Full assistant page and a floating chatbot on every page
+
+### 🎨 **Design & Accessibility**
+
+- **Design System** - Navy and orange palette, IBM Plex Sans, flat surfaces and line icons
+- **Light and Dark Themes** - Saved per browser; text colours meet WCAG AA contrast in both
+- **Language Toggle** - English and Hindi site text, with the AI assistant available in more languages
+- **Text Size Control** - A- / A / A+ for easier reading
+- **Sign-Up Wizard** - Three short steps, with the answers shaping what the user sees first
+- **Mobile-First Design** - Responsive layouts across all devices
+
+### 🔎 **SEO & Analytics**
+
+- **Prerendered Pages** - Public pages are built as real HTML, so search engines and AI search crawlers can read them
+- **Search Basics** - Per-page titles and descriptions, canonical URLs, JSON-LD, `sitemap.xml`, `robots.txt` and `llms.txt`
+- **Private Pages Stay Private** - Signed-in pages are `noindex` and left out of the sitemap
+- **Google Analytics 4** - Consent Mode: analytics stays off until the visitor accepts cookies, and only the live site reports
+- **Growth Panel** - Signups and engagement for admins, from the app's own database
 
 ### 🔐 **Enterprise Security**
 
-- **JWT Authentication** - Secure token-based auth with refresh tokens
+- **JWT Authentication** - Secure token-based auth
 - **Bcrypt Password Hashing** - Industry-standard encryption
 - **Password Visibility Toggle** - Secure show/hide option on login and registration for better UX
 - **CORS Protection** - Configurable origin whitelisting
 - **SQL Injection Prevention** - ORM-based parameterized queries
 - **Input Validation** - Pydantic V2 models with strict type checking (ConfigDict)
-- **Rate Limiting** - DDoS protection and abuse prevention
+- **Rate Limiting** - Limits on login, signup, password reset, OTP and AI requests
+- **One-Time Codes** - Stored only as keyed hashes, with expiry and attempt limits
+- **Upload Checks** - Profile photos are verified by file content and size
+- **Security Headers** - HSTS, frame protection and no caching of API responses
+- **Private Logs** - Email addresses are masked in server logs
 
 ### � **Advanced Automation & Tracking**
 
@@ -250,7 +264,6 @@ Intelligent routing, task automation, workflow management
 
 - **Async/Await** - Non-blocking I/O for high concurrency
 - **Lifespan Management** - Modern FastAPI lifespan handlers for robust startup/shutdown
-- **Zero-Lag UI** - Optimized Particle Cursor with GPU acceleration and raw input tracking
 - **Background Tasks** - Non-blocking email dispatch (OTP) via Brevo API
 - **Connection Pooling** - Efficient database connections
 - **Response Caching** - Redis integration ready
@@ -321,6 +334,16 @@ Uvicorn            # Lightning-fast ASGI server
 Pydantic 2.0+      # Data validation using Python type hints
 ```
 
+### **Frontend**
+```text
+React 18 + Vite        # UI and build tool
+React Router           # Routing
+Framer Motion          # Animation
+Lucide React           # Icons
+Axios                  # API client
+@react-oauth/google    # Google sign-in
+```
+
 ### **Database & ORM**
 ```python
 SQLAlchemy 2.0+    # Powerful SQL toolkit and ORM
@@ -358,6 +381,7 @@ mypy               # Static type checking
 
 ```bash
 ✅ Python 3.10 or higher
+✅ Node.js 22 (frontend, same as CI)
 ✅ pip (Python package manager)
 ✅ Git
 ✅ Virtual environment tool (venv/virtualenv)
@@ -444,7 +468,17 @@ uvicorn main:app --reload --host 0.0.0.0 --port 8000
 uvicorn main:app --host 0.0.0.0 --port 8000 --workers 4
 ```
 
-#### 7️⃣ **Access the API**
+#### 7️⃣ **Run the Frontend**
+
+```bash
+cd frontend
+npm ci
+npm run dev        # http://localhost:5173
+```
+
+Set `VITE_API_URL` in `frontend/.env` to your backend URL. Use `npm ci`, and avoid `npm audit fix --force`: it can jump major versions and break the build.
+
+#### 8️⃣ **Access the API**
 
 - **API Base URL:** http://localhost:8000
 - **Interactive Docs (Swagger):** http://localhost:8000/docs
@@ -933,7 +967,6 @@ class Resource(Base):
 #### ✅ **Token Management**
 - JWT with HS256 algorithm
 - Configurable expiration (default: 7 days)
-- Refresh token support
 - Token blacklisting for logout
 
 #### ✅ **Input Validation**
@@ -1384,32 +1417,32 @@ logging.basicConfig(
 
 ## 🧪 Testing
 
-### **Run Tests**
+### **Backend**
 
 ```bash
-# Install test dependencies
-pip install pytest pytest-asyncio pytest-cov
-
-# Run all tests
-pytest
-
-# Run with coverage
-pytest --cov=app --cov-report=html
-
-# Run specific test file
-pytest tests/test_auth.py -v
+cd backend
+python -m pytest tests -q
 ```
 
-### **Test Structure**
+Tests run on a throwaway SQLite file and never touch the production database. Emails are stubbed.
 
 ```
 tests/
-├── test_auth.py          # Authentication tests
-├── test_users.py         # User management tests
-├── test_ai.py            # AI service tests
-├── test_resources.py     # Resource API tests
-└── conftest.py           # Test fixtures
+├── test_signup_funnel.py   # Signup, saved schemes, reset, admin, forum speed, health
+└── test_security.py        # Access control, OTP limits, uploads, CORS, headers
 ```
+
+### **Frontend**
+
+```bash
+cd frontend
+npm run build           # Build and prerender public pages
+npm run test:seo        # Metadata, sitemap, robots.txt, llms.txt, internal links
+npm run test:security   # Redirect allowlist
+npm run lint            # ESLint
+```
+
+CI runs on pushes to `main` and on pull requests (`.github/workflows/ci.yml`).
 
 ---
 
