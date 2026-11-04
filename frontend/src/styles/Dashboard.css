@@ -189,6 +189,10 @@ body:not(.light-theme) .dashboard-page .tone-violet { --tone: #a78bfa; }
   text-underline-offset: 3px;
 }
 
+.dash-progress li a:hover {
+  color: #fff; /* on the dark hero card */
+}
+
 /* --- Stats --- */
 
 .dash-stats {
