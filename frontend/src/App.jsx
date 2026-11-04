@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react'
+import { Suspense } from 'react'
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthContext'
 import { LanguageProvider } from './contexts/LanguageContext'
@@ -8,31 +8,32 @@ import ProtectedRoute from './components/ProtectedRoute'
 import SideChatBot from './components/SideChatBot'
 import PageMeta from './components/PageMeta'
 import UserLanguageSync from './components/UserLanguageSync'
+import { lazyPage } from './utils/lazyPage'
 import './styles/AppPages.css'
 
 // Every page except the landing page is loaded on demand, so first-time
 // visitors only download the code for the page they open.
-const Login = lazy(() => import('./pages/Login'))
-const Register = lazy(() => import('./pages/Register'))
-const Dashboard = lazy(() => import('./pages/Dashboard'))
-const AIAssistant = lazy(() => import('./pages/AIAssistant'))
-const Resources = lazy(() => import('./pages/Resources'))
-const LearningHub = lazy(() => import('./pages/LearningHub'))
-const Profile = lazy(() => import('./pages/Profile'))
-const AdminLogin = lazy(() => import('./pages/AdminLogin'))
-const AdminDashboard = lazy(() => import('./pages/AdminDashboard'))
-const Feedback = lazy(() => import('./pages/Feedback'))
-const Forum = lazy(() => import('./pages/Forum'))
-const NotFound = lazy(() => import('./pages/NotFound'))
-const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'))
-const Terms = lazy(() => import('./pages/Terms'))
-const Schemes = lazy(() => import('./pages/Schemes'))
-const SchemeDetail = lazy(() => import('./pages/SchemeDetail'))
-const EligibilityChecker = lazy(() => import('./pages/EligibilityChecker'))
-const EditorialPolicy = lazy(() => import('./pages/EditorialPolicy'))
-const About = lazy(() => import('./pages/About'))
-const ForgotPassword = lazy(() => import('./pages/ForgotPassword'))
-const CookieConsent = lazy(() => import('./components/CookieConsent'))
+const Login = lazyPage(() => import('./pages/Login'))
+const Register = lazyPage(() => import('./pages/Register'))
+const Dashboard = lazyPage(() => import('./pages/Dashboard'))
+const AIAssistant = lazyPage(() => import('./pages/AIAssistant'))
+const Resources = lazyPage(() => import('./pages/Resources'))
+const LearningHub = lazyPage(() => import('./pages/LearningHub'))
+const Profile = lazyPage(() => import('./pages/Profile'))
+const AdminLogin = lazyPage(() => import('./pages/AdminLogin'))
+const AdminDashboard = lazyPage(() => import('./pages/AdminDashboard'))
+const Feedback = lazyPage(() => import('./pages/Feedback'))
+const Forum = lazyPage(() => import('./pages/Forum'))
+const NotFound = lazyPage(() => import('./pages/NotFound'))
+const PrivacyPolicy = lazyPage(() => import('./pages/PrivacyPolicy'))
+const Terms = lazyPage(() => import('./pages/Terms'))
+const Schemes = lazyPage(() => import('./pages/Schemes'))
+const SchemeDetail = lazyPage(() => import('./pages/SchemeDetail'))
+const EligibilityChecker = lazyPage(() => import('./pages/EligibilityChecker'))
+const EditorialPolicy = lazyPage(() => import('./pages/EditorialPolicy'))
+const About = lazyPage(() => import('./pages/About'))
+const ForgotPassword = lazyPage(() => import('./pages/ForgotPassword'))
+const CookieConsent = lazyPage(() => import('./components/CookieConsent'))
 
 
 
