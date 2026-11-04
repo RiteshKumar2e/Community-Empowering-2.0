@@ -1,42 +1,42 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
-import { ArrowRight, Bot, ShieldCheck, Languages, BadgeIndianRupee, Sparkles } from 'lucide-react'
+import { ArrowRight, Bot, ShieldCheck, Languages, BadgeIndianRupee, GraduationCap, Sprout, Briefcase, Store, HeartPulse } from 'lucide-react'
 
 // Each "need" drives the live demo chat and is passed to /register?need=… so
 // the signup wizard can pre-select the matching community type.
 const NEEDS = [
     {
         id: 'scholarships',
-        emoji: '🎓',
+        icon: GraduationCap,
         label: 'Scholarships',
         question: "I'm in class 12 and my family earns under ₹2.5 lakh a year. Is there any scholarship for me?",
         answer: "Yes! You may qualify for the Post-Matric Scholarship and several schemes on the National Scholarship Portal (scholarships.gov.in). I can list the ones for your state and the documents you'll need.",
     },
     {
         id: 'farming',
-        emoji: '🌾',
+        icon: Sprout,
         label: 'Farming help',
         question: 'Mujhe kheti ke liye sarkari madad chahiye.',
         answer: 'PM-KISAN yojana mein saal ke ₹6,000 seedhe aapke bank khate mein aate hain. Fasal kharab hone par PM Fasal Bima Yojana madad karti hai. Kya main aavedan ke steps bataun?',
     },
     {
         id: 'jobs',
-        emoji: '🛠️',
+        icon: Briefcase,
         label: 'Jobs & skills',
         question: 'How can I learn a skill and find a job near my town?',
         answer: 'Skill India Digital has free courses with certificates, and PMKVY training centres offer placement support. Tell me your district and I will find the nearest centres.',
     },
     {
         id: 'business',
-        emoji: '🏪',
+        icon: Store,
         label: 'Start a business',
         question: 'I want a loan to open a small shop. Where do I start?',
         answer: 'PM MUDRA Yojana gives collateral-free loans: Shishu loans up to ₹50,000 to start, and Kishore and Tarun loans as you grow. I can walk you through applying at your bank.',
     },
     {
         id: 'health',
-        emoji: '🏥',
+        icon: HeartPulse,
         label: 'Health cover',
         question: 'Is there free hospital treatment for my parents?',
         answer: 'Ayushman Bharat PM-JAY covers up to ₹5 lakh per family per year for hospital care, and every senior citizen aged 70+ is now covered regardless of income. Let me check if your family is eligible.',
@@ -115,11 +115,6 @@ const LandingHero = ({ isAuthenticated }) => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
                 >
-                    <span className="hero-pill">
-                        <Sparkles size={14} />
-                        Free AI help for every Indian
-                    </span>
-
                     <h1 className="hero-title">
                         Find the government help <span className="hero-highlight">you deserve</span>, in your language
                     </h1>
@@ -140,7 +135,7 @@ const LandingHero = ({ isAuthenticated }) => {
                                 className={`need-chip ${i === active ? 'active' : ''}`}
                                 onClick={() => pick(i)}
                             >
-                                <span aria-hidden="true">{n.emoji}</span>
+                                <n.icon size={16} aria-hidden="true" />
                                 {n.label}
                                 {i === active && !userPicked && !reduceMotion && (
                                     <motion.span

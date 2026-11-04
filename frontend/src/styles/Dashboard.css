@@ -6,7 +6,6 @@
   min-height: 100svh;
   padding: calc(var(--navbar-height) + var(--space-6)) 0 var(--space-16);
   background:
-    radial-gradient(60% 40% at 100% 0%, color-mix(in srgb, var(--primary-500) 7%, transparent), transparent 70%),
     var(--bg-secondary);
 }
 
@@ -14,7 +13,7 @@
 .dashboard-page .tone-indigo { --tone: var(--primary-600); --tone-soft: color-mix(in srgb, var(--primary-500) 14%, transparent); }
 .dashboard-page .tone-green { --tone: var(--success-600); --tone-soft: color-mix(in srgb, var(--success-500) 14%, transparent); }
 .dashboard-page .tone-amber { --tone: var(--secondary-700); --tone-soft: color-mix(in srgb, var(--secondary-400) 22%, transparent); }
-.dashboard-page .tone-violet { --tone: #7c3aed; --tone-soft: color-mix(in srgb, #8b5cf6 14%, transparent); }
+.dashboard-page .tone-violet { --tone: var(--primary-700); --tone-soft: color-mix(in srgb, var(--primary-500) 14%, transparent); }
 body:not(.light-theme) .dashboard-page .tone-indigo { --tone: var(--primary-300); }
 body:not(.light-theme) .dashboard-page .tone-green { --tone: var(--success-500); }
 body:not(.light-theme) .dashboard-page .tone-amber { --tone: var(--secondary-400); }
@@ -30,7 +29,7 @@ body:not(.light-theme) .dashboard-page .tone-violet { --tone: #a78bfa; }
   padding: var(--space-8);
   overflow: hidden;
   color: #fff;
-  background: linear-gradient(135deg, var(--primary-600) 0%, var(--primary-800) 100%);
+  background: var(--primary-700);
   border-radius: var(--radius-2xl);
   box-shadow: 0 24px 48px -28px color-mix(in srgb, var(--primary-700) 80%, transparent);
 }
@@ -40,7 +39,7 @@ body:not(.light-theme) .dashboard-page .tone-violet { --tone: #a78bfa; }
   inset: -40% -10% auto auto;
   width: 420px;
   height: 420px;
-  background: radial-gradient(circle, color-mix(in srgb, var(--secondary-400) 45%, transparent), transparent 65%);
+  background: none;
   pointer-events: none;
 }
 

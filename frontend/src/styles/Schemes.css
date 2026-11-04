@@ -561,7 +561,7 @@ body:not(.light-theme) .review-pill.pending { color: var(--secondary-300); }
 
 .eligibility-card .wizard-progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--primary-500), var(--success-500));
+  background: var(--primary-600);
   border-radius: 999px;
 }
 
@@ -725,7 +725,7 @@ body:not(.light-theme) .review-pill.pending { color: var(--secondary-300); }
   position: relative;
   margin: var(--space-5) 0 var(--space-2);
   padding: var(--space-5);
-  background: linear-gradient(135deg, color-mix(in srgb, var(--primary-500) 10%, var(--bg-card)), var(--bg-card));
+  background: color-mix(in srgb, var(--primary-500) 6%, var(--bg-card));
   border: 1.5px solid color-mix(in srgb, var(--primary-500) 40%, transparent);
   border-radius: var(--radius-xl);
 }

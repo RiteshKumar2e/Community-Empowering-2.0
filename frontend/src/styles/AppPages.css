@@ -13,7 +13,6 @@
 .app .feedback-page,
 .app .forum-container {
   background:
-    radial-gradient(60% 40% at 100% 0%, color-mix(in srgb, var(--primary-500) 7%, transparent), transparent 70%),
     var(--bg-secondary);
 }
 
@@ -27,14 +26,14 @@
   overflow: hidden;
   text-align: left;
   color: #fff;
-  background: linear-gradient(135deg, var(--primary-600) 0%, var(--primary-800) 100%);
+  background: var(--primary-700);
   border: none;
   border-radius: var(--radius-2xl);
   box-shadow: 0 24px 48px -28px color-mix(in srgb, var(--primary-700) 80%, transparent);
 }
 
 .app .learning-hub-page .page-header {
-  background: linear-gradient(135deg, #0f766e 0%, var(--primary-700) 100%);
+  background: var(--primary-800);
 }
 
 .app .resources-page .page-header::after,
@@ -46,7 +45,7 @@
   right: -10%;
   width: 380px;
   height: 380px;
-  background: radial-gradient(circle, color-mix(in srgb, var(--secondary-400) 40%, transparent), transparent 65%);
+  background: none;
   pointer-events: none;
 }
 
@@ -124,8 +123,8 @@
 
 .app .resources-page .stat-card:nth-child(4) .stat-icon,
 .app .learning-hub-page .stat-card:nth-child(4) .stat-icon {
-  color: #7c3aed;
-  background: color-mix(in srgb, #8b5cf6 14%, transparent);
+  color: var(--primary-700);
+  background: color-mix(in srgb, var(--primary-500) 14%, transparent);
 }
 
 .app .resources-page .stat-number,
@@ -199,7 +198,7 @@
   position: absolute;
   inset: 0 0 auto 0;
   height: 3px;
-  background: linear-gradient(90deg, var(--primary-500), var(--secondary-400));
+  background: var(--primary-600);
   opacity: 0;
   transition: opacity var(--transition-fast);
 }
@@ -228,7 +227,7 @@
 
 .app .ai-assistant-page .assistant-header {
   color: #fff;
-  background: linear-gradient(135deg, var(--primary-600) 0%, var(--primary-800) 100%);
+  background: var(--primary-700);
   border-bottom: none;
 }
 
@@ -254,13 +253,12 @@
 
 .app .ai-assistant-page .messages-area {
   background:
-    radial-gradient(40% 30% at 0% 100%, color-mix(in srgb, var(--primary-500) 6%, transparent), transparent 70%),
     var(--bg-secondary);
 }
 
 .app .ai-assistant-page .user-message .message-content {
   color: #fff;
-  background: linear-gradient(135deg, var(--primary-500), var(--primary-700));
+  background: var(--primary-600);
   border: none;
 }
 
@@ -293,7 +291,7 @@
   position: relative;
   padding-top: 132px;
   background:
-    linear-gradient(135deg, var(--primary-600), var(--primary-800)) top / 100% 110px no-repeat;
+    linear-gradient(var(--primary-700), var(--primary-700)) top / 100% 110px no-repeat;
 }
 
 /* Avatar overlaps the cover banner; name and email sit below it on white. */

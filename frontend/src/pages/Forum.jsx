@@ -42,10 +42,10 @@ const Forum = () => {
     const readForumCache = () => readCache(user?.id)
     const writeForumCache = (part) => writeCache(user?.id, part)
     const [categories, setCategories] = useState([
-        { id: 1, name: "Community Support", icon: "🤝", color: "#6366f1" },
+        { id: 1, name: "Community Support", icon: "🤝", color: "#3a506b" },
         { id: 2, name: "Social Impact", icon: "❤️", color: "#f59e0b" },
         { id: 3, name: "Local Resources", icon: "📍", color: "#10b981" },
-        { id: 4, name: "Skill Building", icon: "🎓", color: "#8b5cf6" },
+        { id: 4, name: "Skill Building", icon: "🎓", color: "#0f766e" },
         { id: 5, name: "Success Stories", icon: "🏆", color: "#facc15" },
         { id: 6, name: "General Help", icon: "💬", color: "#64748b" }
     ])
@@ -76,7 +76,7 @@ const Forum = () => {
     const [tagList, setTagList] = useState(() => {
         const savedTags = localStorage.getItem('forum_tags');
         return savedTags ? JSON.parse(savedTags) : [
-            { name: 'Community Support', color: '#6366f1' },
+            { name: 'Community Support', color: '#3a506b' },
             { name: 'Social Impact', color: '#f59e0b' }
         ];
     })

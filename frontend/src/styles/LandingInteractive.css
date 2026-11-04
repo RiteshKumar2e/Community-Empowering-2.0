@@ -39,26 +39,9 @@
   text-align: left;
 }
 
-.landing .hero-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  margin-bottom: var(--space-5);
-  font-size: var(--text-sm);
-  font-weight: 600;
-  color: var(--primary-700);
-  background-color: color-mix(in srgb, var(--primary-500) 12%, transparent);
-  border: 1px solid color-mix(in srgb, var(--primary-500) 25%, transparent);
-  border-radius: 999px;
-}
-
-body:not(.light-theme) .landing .hero-pill {
-  color: var(--primary-300);
-}
-
 .landing .hero-interactive .hero-title {
-  font-size: clamp(2rem, 4.4vw, 3.1rem);
+  font-size: clamp(1.9rem, 3.8vw, 2.7rem);
+  line-height: 1.2;
   text-align: left;
 }
 
@@ -139,7 +122,17 @@ body:not(.light-theme) .landing .hero-highlight {
   height: 50px;
   padding: 0 var(--space-6);
   font-size: var(--text-md);
+  /* The one orange element on the page, so the main action stands out. */
+  background-color: var(--secondary-700);
+  border-color: var(--secondary-700);
+  color: #ffffff;
   box-shadow: var(--shadow-sm);
+}
+
+.landing .hero-cta:hover {
+  background-color: var(--secondary-800);
+  border-color: var(--secondary-800);
+  color: #ffffff;
 }
 
 .landing .hero-cta-arrow {

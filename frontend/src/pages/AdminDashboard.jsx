@@ -58,7 +58,7 @@ const AdminDashboard = () => {
         name: '',
         description: '',
         icon: '💬',
-        color: '#6366f1'
+        color: '#3a506b'
     })
     const [detailedActivities, setDetailedActivities] = useState([])
     const [selectedActivities, setSelectedActivities] = useState([])
@@ -144,7 +144,7 @@ const AdminDashboard = () => {
         try {
             const res = await api.post('/forum/categories', newForumCategory)
             setForumCategories([...forumCategories, res.data])
-            setNewForumCategory({ name: '', description: '', icon: '💬', color: '#6366f1' })
+            setNewForumCategory({ name: '', description: '', icon: '💬', color: '#3a506b' })
             alert('Category created successfully!')
         } catch (error) {
             alert(error.response?.data?.detail || 'Failed to create category')
