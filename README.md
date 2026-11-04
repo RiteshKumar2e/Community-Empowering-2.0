@@ -26,6 +26,7 @@
 ## 📋 Table of Contents
 
 - [Overview](#-overview)
+- [🆕 Recent Updates](#-recent-updates)
 - [Key Features](#-key-features)
 - [System Architecture](#-system-architecture)
 - [Technology Stack](#-technology-stack)
@@ -61,6 +62,22 @@ The **Community AI Platform** is a high-performance, production-ready applicatio
 | 🌐 AI chat languages | 11 |
 
 </div>
+
+---
+
+## 🆕 Recent Updates
+
+- **Database:** moved to Turso, with one connection per request and automatic replacement of idle connections
+- **Reliability:** Turso driver panics now return a normal JSON 500 with CORS headers, so the browser shows the real error instead of "blocked by CORS"
+- **Faster signup and OTP:** one-time codes use a keyed HMAC instead of bcrypt, signup saves in a single transaction, and bcrypt runs off the event loop
+- **Faster forum and admin:** batched queries, pages that show at once with placeholders, and one `/api/admin/overview` request for the admin dashboard
+- **Sign-in:** Google's script loads only on the login page with FedCM enabled, and the OTP window stays open on an outside click and shows "Verifying..."
+- **Design:** navy and orange palette, IBM Plex Sans (with Devanagari for Hindi), no gradients, line icons and no hover effects on buttons
+- **Dark theme:** theme-aware text colours (`--text-accent`, `--text-danger`, `--text-warning`, `--text-success`, `--text-info`)
+- **Brand:** new SVG logo and favicon, with PNG and ICO fallbacks
+- **Languages:** the preferred language chosen at signup or in Profile is applied to the site
+- **Deploys:** tabs opened before a deploy reload themselves when a page file has been renamed
+- **Emails:** formal OTP email in English and Hindi, stating that Community AI is not a government website
 
 ---
 
@@ -207,6 +224,7 @@ Courses, progress tracking, certificates, enrollments
 Content management, analytics, user moderation, dashboard
 
 **Key Endpoints:**
+- `GET /api/admin/overview` - Everything the admin dashboard needs in one request
 - `POST /api/admin/resources` - Add new resource
 - `GET /api/admin/analytics` - Get platform analytics
 - `PUT /api/admin/users/{id}` - Moderate users
@@ -278,7 +296,7 @@ Intelligent routing, task automation, workflow management
 ┌─────────────────────────────────────────────────────────────────┐
 │                      Database Layer                             │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐  │
-│  │  PostgreSQL  │  │   SQLite     │  │   Connection Pool    │  │
+│  │    Turso     │  │   SQLite     │  │   Connection Pool    │  │
 │  │  (Production)│  │  (Dev/Test)  │  │   Management         │  │
 │  └──────────────┘  └──────────────┘  └──────────────────────┘  │
 └─────────────────────────────────────────────────────────────────┘
@@ -306,8 +324,8 @@ Pydantic 2.0+      # Data validation using Python type hints
 ### **Database & ORM**
 ```python
 SQLAlchemy 2.0+    # Powerful SQL toolkit and ORM
-Alembic            # Database migration tool
-SQLite/PostgreSQL  # Flexible database options
+Turso (libSQL)     # Production database
+SQLite             # Local development and tests
 ```
 
 ### **Authentication & Security**
@@ -402,6 +420,8 @@ BREVO_API_KEY=your-brevo-api-key           # For Email Service
 
 # DB & CORS
 ALLOWED_ORIGINS=["http://localhost:5173","http://localhost:3000"]
+# Local development. In production use Turso (see "Turso Database"):
+# DATABASE_URL=libsql://your-db.turso.io?authToken=your-token
 DATABASE_URL=sqlite:///./community_ai.db
 MAX_UPLOAD_SIZE=5242880
 UPLOAD_DIR=./uploads
@@ -1236,189 +1256,54 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
 
 ---
 
-### **💾 Render PostgreSQL Database Pricing**
+### **💾 Turso Database**
 
-Render provides managed PostgreSQL databases with flexible pricing options:
+Production uses [Turso](https://turso.tech) (libSQL, SQLite-compatible). The backend reads one variable, which holds both the database URL and the auth token:
 
-#### **📊 Pricing Plans (as of 2024)**
-
-<details>
-<summary><b>Free Tier</b></summary>
-
-<br>
-
-| Feature | Specification |
-|---------|--------------|
-| **Price** | **$0/month** |
-| **RAM** | 512 MB |
-| **CPU** | 0.1 CPU |
-| **Storage** | 1 GB (fixed) |
-| **Connections** | 100 |
-| **Expiration** | 30 days (created after May 20, 2024) |
-| **Grace Period** | 14 days to upgrade before deletion |
-| **Limit** | 1 free database per account |
-
-⚠️ **Important:** Free databases expire after 30 days and are **not recommended for production**.
-
-</details>
-
-<details>
-<summary><b>Basic Plans (Flexible Compute + Storage)</b></summary>
-
-<br>
-
-**Storage:** $0.30/GB/month (billed separately)
-
-| Plan | Price/Month | CPU | RAM | Connections |
-|------|------------|-----|-----|-------------|
-| **Basic-256mb** | **$6** | 0.1 | 256 MB | 100 |
-| **Basic-1gb** | **$19** | 0.5 | 1 GB | 100 |
-| **Basic-4gb** | **$75** | 2 | 4 GB | 100 |
-
-**Features:**
-- Point-in-time recovery (3 days for Hobby plan)
-- Automated backups
-- SSL connections
-- Suitable for development and small applications
-
-</details>
-
-<details>
-<summary><b>Pro Plans (Production-Ready)</b></summary>
-
-<br>
-
-**Storage:** $0.30/GB/month (billed separately)
-
-**Optimized 1:4 CPU-to-RAM ratio for production workloads**
-
-| Plan | Price/Month | CPU | RAM | Connections | Use Case |
-|------|------------|-----|-----|-------------|----------|
-| **Pro-4gb** | **$55** | 1 | 4 GB | 100 | Small production apps |
-| **Pro-8gb** | **$110** | 2 | 8 GB | 200 | Medium apps |
-| **Pro-16gb** | **$220** | 4 | 16 GB | 300 | Large apps |
-| **Pro-32gb** | **$440** | 8 | 32 GB | 400 | High-traffic apps |
-| **Pro-64gb** | **$880** | 16 | 64 GB | 450 | Enterprise apps |
-| **Pro-128gb** | **$1,760** | 32 | 128 GB | 475 | Very large apps |
-| **Pro-256gb** | **$3,520** | 64 | 256 GB | 490 | Massive scale |
-| **Pro-512gb** | **$6,200** | 128 | 512 GB | 500 | Maximum scale |
-
-**Features:**
-- Point-in-time recovery (7 days for Professional plan)
-- Automated daily backups
-- High availability options
-- SSL/TLS encryption
-- Connection pooling
-- Performance insights
-- Production-grade reliability
-
-</details>
-
-#### **💰 Cost Breakdown Example**
-
-**Scenario:** Small production app with moderate traffic
-
-```
-Pro-4gb Plan:        $55/month
-Storage (10 GB):     $3/month  ($0.30 × 10)
-─────────────────────────────
-Total:               $58/month
+```bash
+DATABASE_URL=libsql://your-db.turso.io?authToken=your-token
 ```
 
-**Scenario:** Medium production app
+Without it the backend falls back to a local SQLite file, which is wiped on every Render deploy, so always set it on Render.
 
-```
-Pro-8gb Plan:        $110/month
-Storage (50 GB):     $15/month  ($0.30 × 50)
-─────────────────────────────
-Total:               $125/month
+```bash
+# Tables are created automatically when the server starts
+python main.py
 ```
 
-#### **💡 Cost Optimization Tips**
+#### **Things to know**
 
-1. **Start Small, Scale Up**
-   - Begin with **Basic-1gb** ($19/month) for development
-   - Upgrade to **Pro-4gb** ($55/month) when going to production
-   - Monitor usage and scale as needed
+- **Keep the database near the backend.** The Turso driver blocks the whole Python process during each query, so every query costs the full network round trip. Put the Turso database in the same region as the Render service.
+- **One connection per request.** The engine uses `QueuePool`. Never share one libSQL connection between requests: concurrent use makes the Rust driver panic.
+- **Idle connections are replaced.** Turso closes idle streams (`stream not found`), so connections idle for more than 5 seconds are reopened automatically.
+- **Few round trips.** Use batched queries instead of one query per row. The admin dashboard loads through a single `/api/admin/overview` request for the same reason.
 
-2. **Storage Management**
-   - Regularly clean up old data and logs
-   - Use data archiving for historical records
-   - Monitor storage usage (billed at $0.30/GB)
+#### **Keeping the Render free instance awake**
 
-3. **Connection Pooling**
-   - Use PgBouncer or similar to reduce connection overhead
-   - Optimize application connection settings
+A free Render instance sleeps after 15 minutes without traffic, and the next request can take 50+ seconds. Point an uptime monitor at the backend, not the frontend:
 
-4. **Backup Strategy**
-   - Free tier: No backups (30-day expiration)
-   - Hobby plan: 3-day point-in-time recovery
-   - Professional plan: 7-day point-in-time recovery
-
-5. **Development vs Production**
-   - Use **Free tier** for testing (remember 30-day limit)
-   - Use **Basic plans** for staging environments
-   - Use **Pro plans** for production workloads
-
-#### **🔄 Migration from SQLite to PostgreSQL**
-
-When deploying to production on Render:
-
-```python
-# Update DATABASE_URL in .env
-DATABASE_URL=postgresql://user:password@host:port/database
-
-# Run migrations
-alembic upgrade head
-
-# Or let FastAPI create tables automatically
-# Tables will be created on first run
+```
+https://community-empowering-2-0.onrender.com/health
 ```
 
-#### **📈 When to Upgrade**
-
-| Current Plan | Upgrade When... | Recommended Next Plan |
-|--------------|----------------|----------------------|
-| **Free** | Going to production | **Basic-1gb** or **Pro-4gb** |
-| **Basic-256mb** | >50 concurrent users | **Basic-1gb** |
-| **Basic-1gb** | >100 concurrent users | **Pro-4gb** |
-| **Pro-4gb** | >500 concurrent users | **Pro-8gb** |
-| **Pro-8gb** | >1,000 concurrent users | **Pro-16gb** |
-
-#### **🆚 Render vs Other Providers**
-
-| Provider | Entry Production | Mid-Range | Notes |
-|----------|-----------------|-----------|-------|
-| **Render** | $55/month (Pro-4gb) | $110/month (Pro-8gb) | Easy setup, auto-backups |
-| **Heroku** | $50/month (Standard-2X) | $200/month (Standard-7) | Legacy platform |
-| **DigitalOcean** | $15/month (1GB) | $60/month (4GB) | More manual setup |
-| **AWS RDS** | $12-15/month (t4g.micro) | $100/month (m6g.large) | Complex setup, flexible |
-| **Aiven** | $19/month | $75/month | Good free tier |
-
-**Render Advantages:**
-- ✅ Zero-config PostgreSQL setup
-- ✅ Automatic backups and point-in-time recovery
-- ✅ Built-in SSL/TLS
-- ✅ Easy scaling (just change plan)
-- ✅ Integrated with Render services
-- ✅ No infrastructure management needed
+`/health` answers both GET and HEAD and does not touch the database. Keep the interval under 15 minutes (5 minutes works).
 
 ---
 
 ### **Production Checklist**
 
 - [ ] Set strong `SECRET_KEY` (32+ characters)
-- [ ] Configure production database (PostgreSQL on Render - see pricing above)
-- [ ] Choose appropriate Render PostgreSQL plan (recommend Pro-4gb minimum for production)
+- [ ] Set `DATABASE_URL` to the Turso URL with its auth token (see "Turso Database")
+- [ ] Keep the Turso database in the same region as the backend
 - [ ] Set up HTTPS/SSL certificates (auto on Vercel)
 - [ ] Enable CORS for production domains only
 - [ ] Configure rate limiting
 - [ ] Set up monitoring (Vercel Analytics, Sentry)
-- [ ] Enable database backups (included in Render Pro plans)
+- [ ] Check the backup options on your Turso plan
 - [ ] Configure CDN (built-in on Vercel)
 - [ ] Set up CI/CD pipeline (auto on Vercel)
 - [ ] Enable logging and analytics
-- [ ] Monitor database storage usage (billed at $0.30/GB on Render)
+- [ ] Monitor database usage in the Turso dashboard
 - [ ] Set up AWS credentials for Amazon Q (if using)
 
 ---
@@ -1442,8 +1327,8 @@ async def get_resources(db: AsyncSession = Depends(get_db)):
 
 #### 💾 **Database Optimization**
 - Indexed columns for fast lookups
-- Connection pooling
-- Query optimization with `select_in_load`
+- One pooled connection per request (`QueuePool`)
+- Batched queries instead of one query per row
 - Lazy loading for relationships
 
 #### 📦 **Response Compression**
