@@ -134,19 +134,10 @@ body.light-theme .otp-error {
   border: 1px solid transparent;
 }
 
-.otp-submit:hover:not(:disabled) {
-  background-color: var(--primary-700);
-}
-
 .otp-cancel {
   color: var(--text-secondary);
   background-color: transparent;
   border: 1px solid var(--border-strong);
-}
-
-.otp-cancel:hover:not(:disabled) {
-  background-color: var(--bg-hover);
-  color: var(--text-primary);
 }
 
 .otp-submit:disabled,
@@ -183,11 +174,6 @@ body.light-theme .otp-error {
   border: none;
   cursor: pointer;
   transition: color var(--transition-fast);
-}
-
-.otp-resend:hover:not(:disabled) {
-  color: var(--text-accent);
-  text-decoration: underline;
 }
 
 .otp-resend:disabled {

@@ -296,12 +296,6 @@
   transition: background-color var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
 }
 
-.ai-assistant-page .suggestion-chip:hover {
-  background-color: var(--bg-hover);
-  border-color: var(--border-strong);
-  color: var(--text-primary);
-}
-
 /* --- Input --- */
 
 .ai-assistant-page .input-area {
@@ -364,11 +358,6 @@
   border-radius: var(--radius-lg);
   cursor: pointer;
   transition: background-color var(--transition-fast), color var(--transition-fast);
-}
-
-.ai-assistant-page .input-actions .btn-icon:hover {
-  background-color: var(--bg-hover);
-  color: var(--text-primary);
 }
 
 .ai-assistant-page .input-actions .btn-icon.listening {

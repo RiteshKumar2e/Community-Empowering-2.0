@@ -520,7 +520,7 @@ const Landing = () => {
                             <h2>Your benefits are waiting. Don't leave them unclaimed.</h2>
                             <p>Check what you may qualify for in a minute, then save it to a free account. Official links for every scheme.</p>
                         </div>
-                        <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+                        <motion.div whileTap={{ scale: 0.97 }}>
                             <Link to={isAuthenticated ? '/dashboard' : '/register'} className="btn final-cta-btn">
                                 {isAuthenticated ? 'Go to My Dashboard' : 'Create Free Account'}
                                 <ArrowRight size={20} />

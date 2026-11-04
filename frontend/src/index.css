@@ -338,7 +338,8 @@ a {
   transition: color var(--transition-fast);
 }
 
-a:hover {
+/* Plain text links only: a class-styled link (button, card) keeps its own colour. */
+a:not([class]):hover {
   color: var(--link-hover);
 }
 
@@ -517,11 +518,6 @@ hr {
   color: var(--text-on-accent);
 }
 
-.btn-primary:hover {
-  background-color: var(--primary-700);
-  color: var(--text-on-accent);
-}
-
 .btn-primary:active {
   background-color: var(--primary-800);
 }
@@ -532,22 +528,10 @@ hr {
   border-color: var(--border-color);
 }
 
-.btn-secondary:hover {
-  background-color: var(--bg-hover);
-  border-color: var(--border-strong);
-  color: var(--text-primary);
-}
-
 .btn-outline {
   background-color: transparent;
   color: var(--text-primary);
   border-color: var(--border-strong);
-}
-
-.btn-outline:hover {
-  background-color: var(--bg-hover);
-  border-color: var(--text-tertiary);
-  color: var(--text-primary);
 }
 
 .btn-ghost {
@@ -555,28 +539,13 @@ hr {
   color: var(--text-secondary);
 }
 
-.btn-ghost:hover {
-  background-color: var(--bg-hover);
-  color: var(--text-primary);
-}
-
 .btn-danger {
   background-color: var(--error-600);
   color: #fff;
 }
 
-.btn-danger:hover {
-  background-color: var(--error-700);
-  color: #fff;
-}
-
 .btn-success {
   background-color: var(--success-700);
-  color: #fff;
-}
-
-.btn-success:hover {
-  background-color: #065f46;
   color: #fff;
 }
 

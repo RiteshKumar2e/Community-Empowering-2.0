@@ -46,11 +46,6 @@
   transition: color var(--transition-fast), background-color var(--transition-fast);
 }
 
-.auth-page .back-to-home-btn:hover {
-  color: var(--text-primary);
-  background-color: var(--bg-hover);
-}
-
 .auth-page .back-to-home-btn svg {
   width: 15px;
   height: 15px;
@@ -233,11 +228,6 @@
   transition: color var(--transition-fast), background-color var(--transition-fast);
 }
 
-.auth-page .password-toggle-btn:hover {
-  color: var(--text-primary);
-  background-color: var(--bg-hover);
-}
-
 .auth-page .password-toggle-btn svg {
   width: 16px;
   height: 16px;
@@ -255,10 +245,6 @@
 .auth-page .auth-form .btn-admin {
   background-color: var(--primary-600);
   color: var(--text-on-accent);
-}
-
-.auth-page .auth-form .btn-admin:hover:not(:disabled) {
-  background-color: var(--primary-700);
 }
 
 .auth-page .auth-form .btn:disabled {
@@ -464,7 +450,6 @@ body.light-theme .auth-page .error-message {
   text-decoration: none;
 }
 
-.auth-page .auth-link-button:hover,
 .auth-page .forgot-link:hover {
   text-decoration: underline;
 }

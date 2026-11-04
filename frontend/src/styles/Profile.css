@@ -180,21 +180,9 @@
   flex-shrink: 0;
 }
 
-.profile-page .action-btn:hover {
-  background-color: var(--bg-hover);
-  border-color: var(--border-strong);
-  color: var(--text-primary);
-}
-
 .profile-page .action-btn.danger {
   color: var(--text-danger);
   border-color: color-mix(in srgb, var(--error-500) 30%, transparent);
-}
-
-.profile-page .action-btn.danger:hover {
-  color: var(--text-danger);
-  background-color: color-mix(in srgb, var(--error-500) 10%, transparent);
-  border-color: var(--error-500);
 }
 
 /* --- Responsive --- */

@@ -179,19 +179,10 @@
   border: 1px solid transparent;
 }
 
-.not-found-container .btn-home:hover {
-  background-color: var(--primary-700);
-}
-
 .not-found-container .btn-retry {
   color: var(--text-secondary);
   background-color: transparent;
   border: 1px solid var(--border-strong);
-}
-
-.not-found-container .btn-retry:hover {
-  background-color: var(--bg-hover);
-  color: var(--text-primary);
 }
 
 .not-found-container .btn-home svg,

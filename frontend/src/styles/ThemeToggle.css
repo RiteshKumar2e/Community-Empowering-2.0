@@ -12,12 +12,6 @@
   transition: background-color var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
 }
 
-.theme-toggle:hover {
-  background-color: var(--bg-hover);
-  border-color: var(--border-strong);
-  color: var(--text-primary);
-}
-
 .theme-icon {
   width: 17px;
   height: 17px;

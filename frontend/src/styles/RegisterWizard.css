@@ -192,10 +192,6 @@
   transition: all var(--transition-fast);
 }
 
-.auth-page .chip:hover {
-  border-color: var(--primary-300);
-}
-
 .auth-page .chip.selected {
   border-color: var(--primary-600);
   background-color: var(--primary-600);
@@ -303,10 +299,6 @@
   background: transparent;
   color: var(--text-primary);
   border: 1px solid var(--border-strong);
-}
-
-.auth-page .auth-form .wizard-actions .wizard-back:hover:not(:disabled) {
-  background-color: var(--bg-hover);
 }
 
 .auth-page .auth-form .wizard-actions .wizard-next {

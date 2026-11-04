@@ -29,12 +29,6 @@
   transition: background-color var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
 }
 
-.scroll-to-top .scroll-btn:hover {
-  background-color: var(--bg-hover);
-  border-color: var(--border-strong);
-  color: var(--text-primary);
-}
-
 .scroll-to-top .scroll-btn svg {
   width: 18px;
   height: 18px;

@@ -45,11 +45,6 @@
   font-size: 16px;
 }
 
-.font-size-btn:hover {
-  background-color: var(--bg-hover);
-  color: var(--text-primary);
-}
-
 .font-size-btn.active {
   background-color: var(--primary-600);
   color: #fff;

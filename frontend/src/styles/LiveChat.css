@@ -66,11 +66,6 @@
   transition: background-color var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
 }
 
-.live-chat-panel .mode-toggle:hover {
-  background-color: var(--bg-hover);
-  color: var(--text-primary);
-}
-
 .live-chat-panel .mode-toggle.active {
   color: var(--text-accent);
   background-color: var(--bg-hover);
@@ -246,10 +241,6 @@
   opacity: 1;
 }
 
-.live-chat-panel .delete-msg-btn:hover {
-  color: var(--text-danger);
-}
-
 .live-chat-panel .delete-msg-btn svg {
   width: 11px;
   height: 11px;
@@ -332,11 +323,6 @@
   transition: background-color var(--transition-fast), color var(--transition-fast);
 }
 
-.live-chat-panel .emoji-btn:hover {
-  background-color: var(--bg-hover);
-  color: var(--text-primary);
-}
-
 .live-chat-panel .emoji-btn svg {
   width: 16px;
   height: 16px;
@@ -407,10 +393,6 @@
   border-radius: var(--radius-full);
   cursor: pointer;
   transition: background-color var(--transition-fast);
-}
-
-.live-chat-panel .send-btn-main:hover:not(:disabled) {
-  background-color: var(--primary-700);
 }
 
 .live-chat-panel .send-btn-main:disabled {

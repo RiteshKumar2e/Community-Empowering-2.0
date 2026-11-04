@@ -138,11 +138,6 @@
   transition: background-color var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
 }
 
-.feedback-page .category-tab:hover {
-  border-color: var(--border-strong);
-  background-color: var(--bg-hover);
-}
-
 .feedback-page .category-tab.active {
   color: var(--text-on-accent);
   background-color: var(--primary-600);
@@ -228,10 +223,6 @@
   border-radius: var(--radius-lg);
   cursor: pointer;
   transition: background-color var(--transition-fast);
-}
-
-.feedback-page .fancy-submit:hover:not(:disabled) {
-  background-color: var(--primary-700);
 }
 
 .feedback-page .fancy-submit:disabled {

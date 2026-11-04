@@ -158,13 +158,6 @@
   height: 14px;
 }
 
-.learning-hub-page .filter-btn:hover,
-.learning-hub-page .sub-filter-btn:hover {
-  background-color: var(--bg-hover);
-  border-color: var(--border-strong);
-  color: var(--text-primary);
-}
-
 .learning-hub-page .filter-btn.active,
 .learning-hub-page .sub-filter-btn.active {
   color: var(--text-on-accent);
@@ -294,11 +287,6 @@
   border-radius: var(--radius-lg);
   cursor: pointer;
   transition: background-color var(--transition-fast), color var(--transition-fast);
-}
-
-.learning-hub-page .view-more-btn:hover {
-  background-color: var(--bg-hover);
-  color: var(--text-primary);
 }
 
 /* --- Additional resources --- */

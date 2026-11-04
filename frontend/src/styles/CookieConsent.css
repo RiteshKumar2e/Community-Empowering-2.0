@@ -58,18 +58,10 @@ body:not(.light-theme) .cookie-consent a {
   color: #fff;
 }
 
-.cookie-btn-primary:hover {
-  background-color: var(--primary-700);
-}
-
 .cookie-btn-secondary {
   background-color: transparent;
   color: var(--text-primary);
   border-color: var(--border-color);
-}
-
-.cookie-btn-secondary:hover {
-  background-color: var(--bg-secondary);
 }
 
 @media (max-width: 560px) {

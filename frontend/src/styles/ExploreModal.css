@@ -48,11 +48,6 @@
   transition: background-color var(--transition-fast), color var(--transition-fast);
 }
 
-.signin-prompt-close:hover {
-  background-color: var(--bg-hover);
-  color: var(--text-primary);
-}
-
 .signin-prompt-close svg {
   width: 16px;
   height: 16px;
@@ -164,10 +159,6 @@
   border-radius: var(--radius-lg);
   cursor: pointer;
   transition: background-color var(--transition-fast);
-}
-
-.btn-signin-primary:hover {
-  background-color: var(--primary-700);
 }
 
 @media (max-width: 480px) {

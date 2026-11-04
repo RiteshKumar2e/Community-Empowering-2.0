@@ -216,7 +216,6 @@ const Feedback = () => {
                                         <motion.button
                                             key={star}
                                             type="button"
-                                            whileHover={{ scale: 1.25 }}
                                             whileTap={{ scale: 0.9 }}
                                             className={`star-btn ${(hoverRating || rating) >= star ? 'active' : ''}`}
                                             onMouseEnter={() => setHoverRating(star)}

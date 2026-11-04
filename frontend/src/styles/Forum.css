@@ -73,10 +73,6 @@
   transition: background-color var(--transition-fast);
 }
 
-.forum-container .btn-start-discussion:hover {
-  background-color: var(--primary-700);
-}
-
 .forum-container .btn-start-discussion svg {
   width: 16px;
   height: 16px;
@@ -253,11 +249,6 @@
   border-radius: var(--radius-md);
   cursor: pointer;
   transition: background-color var(--transition-fast), color var(--transition-fast);
-}
-
-.forum-container .category-delete-btn:hover {
-  color: var(--text-danger);
-  background-color: color-mix(in srgb, var(--error-500) 12%, transparent);
 }
 
 /* --- Tags --- */
@@ -544,11 +535,6 @@
   cursor: pointer;
 }
 
-.forum-container .clear-search-btn:hover {
-  background-color: var(--bg-hover);
-  color: var(--text-primary);
-}
-
 .forum-container .filter-buttons {
   display: flex;
   flex-wrap: wrap;
@@ -575,12 +561,6 @@
 .forum-container .filter-btn svg {
   width: 14px;
   height: 14px;
-}
-
-.forum-container .filter-btn:hover {
-  background-color: var(--bg-hover);
-  border-color: var(--border-strong);
-  color: var(--text-primary);
 }
 
 .forum-container .filter-btn.active {
@@ -780,10 +760,6 @@
   transition: color var(--transition-fast);
 }
 
-.forum-container .btn-like:hover {
-  color: var(--text-primary);
-}
-
 .forum-container .btn-like.liked {
   color: var(--text-accent);
 }
@@ -862,11 +838,6 @@
   transition: background-color var(--transition-fast), color var(--transition-fast);
 }
 
-.forum-container .modal-close-btn:hover {
-  background-color: var(--bg-hover);
-  color: var(--text-primary);
-}
-
 .forum-container .modal-close-btn svg {
   width: 17px;
   height: 17px;
@@ -941,11 +912,6 @@
   border-radius: var(--radius-lg);
   cursor: pointer;
   transition: background-color var(--transition-fast);
-}
-
-.forum-container .btn-submit:hover,
-.forum-container .btn-submit-reply:hover:not(:disabled) {
-  background-color: var(--primary-700);
 }
 
 .forum-container .btn-submit-reply:disabled {
@@ -1025,11 +991,6 @@
   transition: background-color var(--transition-fast), color var(--transition-fast);
 }
 
-.forum-container .btn-contact-author:hover {
-  background-color: var(--bg-hover);
-  color: var(--text-primary);
-}
-
 .forum-container .btn-contact-author svg {
   width: 14px;
   height: 14px;
@@ -1077,10 +1038,6 @@
 .forum-container .action-btn {
   cursor: pointer;
   transition: color var(--transition-fast);
-}
-
-.forum-container .action-btn:hover {
-  color: var(--text-primary);
 }
 
 .forum-container .action-btn.liked {
@@ -1265,10 +1222,6 @@
 .forum-container .comment-action-btn {
   cursor: pointer;
   transition: color var(--transition-fast);
-}
-
-.forum-container .comment-action-btn:hover {
-  color: var(--text-primary);
 }
 
 .forum-container .comment-action-btn.liked,

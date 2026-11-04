@@ -106,11 +106,6 @@
   cursor: pointer;
 }
 
-.saved-actions button:hover {
-  color: var(--text-danger);
-  border-color: var(--error-500);
-}
-
 .chip-links {
   display: flex;
   flex-wrap: wrap;
@@ -272,10 +267,6 @@ body:not(.light-theme) .my-error {
   cursor: pointer;
 }
 
-.reminder-check:hover {
-  border-color: var(--success-500);
-}
-
 .reminder-check.checked {
   background: var(--success-600);
   border-color: var(--success-600);
@@ -302,11 +293,6 @@ body:not(.light-theme) .my-error {
   border: none;
   border-radius: var(--radius-md);
   cursor: pointer;
-}
-
-.reminder-del:hover {
-  color: var(--text-danger);
-  background: var(--bg-hover);
 }
 
 .reminder-done summary {

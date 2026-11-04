@@ -92,12 +92,6 @@ body:not(.light-theme) .landing .hero-highlight {
   transition: border-color var(--transition-fast), color var(--transition-fast), transform var(--transition-fast), background-color var(--transition-fast);
 }
 
-.landing .need-chip:hover {
-  border-color: var(--primary-300);
-  color: var(--text-primary);
-  transform: translateY(-1px);
-}
-
 .landing .need-chip.active {
   border-color: var(--primary-600);
   color: var(--text-primary);
@@ -129,18 +123,8 @@ body:not(.light-theme) .landing .hero-highlight {
   box-shadow: var(--shadow-sm);
 }
 
-.landing .hero-cta:hover {
-  background-color: var(--secondary-800);
-  border-color: var(--secondary-800);
-  color: #ffffff;
-}
-
 .landing .hero-cta-arrow {
   transition: transform var(--transition-fast);
-}
-
-.landing .hero-cta:hover .hero-cta-arrow {
-  transform: translateX(4px);
 }
 
 .landing .hero-trust {
@@ -484,10 +468,6 @@ body:not(.light-theme) .landing .step-time {
   white-space: nowrap;
   color: var(--primary-800); /* always on the white button */
   background-color: #fff;
-}
-
-.landing .final-cta-btn:hover {
-  background-color: var(--primary-50);
 }
 
 /* --- Responsive --- */

@@ -111,20 +111,10 @@ body:not(.light-theme) .dashboard-page .tone-violet { --tone: #a78bfa; }
   background: #fff;
 }
 
-.dash-btn-primary:hover {
-  transform: translateY(-1px);
-  color: var(--primary-800); /* a:hover would otherwise recolour the text */
-  background: var(--primary-50);
-}
-
 .dash-btn-ghost {
   color: #fff;
   background: rgba(255, 255, 255, 0.12);
   border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-.dash-btn-ghost:hover {
-  background: rgba(255, 255, 255, 0.2);
 }
 
 /* Progress checklist */

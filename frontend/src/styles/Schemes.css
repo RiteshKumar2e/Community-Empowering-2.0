@@ -159,11 +159,6 @@ body:not(.light-theme) .privacy-note {
   font-size: var(--text-xs);
 }
 
-.filter-chip:hover {
-  border-color: var(--primary-300);
-  color: var(--text-primary);
-}
-
 .filter-chip.active {
   color: #fff;
   background-color: var(--primary-600);
@@ -402,10 +397,6 @@ body:not(.light-theme) .review-pill.pending { color: var(--secondary-300); }
   text-decoration: none;
 }
 
-.schemes-page .btn-secondary-outline:hover {
-  background-color: var(--bg-hover);
-}
-
 .scheme-toc {
   position: sticky;
   top: var(--navbar-height);
@@ -601,11 +592,6 @@ body:not(.light-theme) .review-pill.pending { color: var(--secondary-300); }
   transition: all var(--transition-fast);
 }
 
-.answer-btn:hover {
-  border-color: var(--primary-500);
-  transform: translateY(-1px);
-}
-
 .answer-btn.selected {
   border-color: var(--primary-600);
   background-color: color-mix(in srgb, var(--primary-500) 10%, var(--bg-card));
@@ -769,10 +755,6 @@ body:not(.light-theme) .review-pill.pending { color: var(--secondary-300); }
   border: none;
   border-radius: var(--radius-md);
   cursor: pointer;
-}
-
-.signup-prompt-close:hover {
-  background-color: var(--bg-hover);
 }
 
 .signup-prompt-actions {

@@ -100,19 +100,10 @@
   color: var(--text-on-accent);
 }
 
-.landing .btn-explore:hover {
-  background-color: var(--primary-700);
-}
-
 .landing .btn-learn {
   background-color: transparent;
   color: var(--text-primary);
   border: 1px solid var(--border-strong);
-}
-
-.landing .btn-learn:hover {
-  background-color: var(--bg-hover);
-  border-color: var(--text-tertiary);
 }
 
 /* ===================================
@@ -398,13 +389,6 @@
   transition: color var(--transition-fast), border-color var(--transition-fast), background-color var(--transition-fast);
 }
 
-.landing .social-btn:hover,
-.landing .social-icon-link:hover {
-  color: var(--text-primary);
-  background-color: var(--bg-hover);
-  border-color: var(--border-strong);
-}
-
 .landing .social-btn svg,
 .landing .social-icon-link svg {
   width: 17px;
@@ -625,11 +609,6 @@
   }
 }
 
-.landing .scroll-to-top:hover {
-  background-color: var(--bg-hover);
-  color: var(--text-primary);
-}
-
 .landing .scroll-to-top svg {
   width: 18px;
   height: 18px;
@@ -698,11 +677,6 @@
   transition: background-color var(--transition-fast), color var(--transition-fast);
 }
 
-.landing .modal-close-btn:hover {
-  background-color: var(--bg-hover);
-  color: var(--text-primary);
-}
-
 .landing .modal-close-btn svg {
   width: 16px;
   height: 16px;
@@ -768,10 +742,6 @@
   border-radius: var(--radius-lg);
   cursor: pointer;
   transition: background-color var(--transition-fast);
-}
-
-.landing .btn-modal-action:hover {
-  background-color: var(--primary-700);
 }
 
 /* ===================================

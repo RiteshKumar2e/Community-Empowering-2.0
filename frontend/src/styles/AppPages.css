@@ -165,13 +165,6 @@
   transition: all var(--transition-fast);
 }
 
-.app .resources-page .filter-btn:hover,
-.app .resources-page .sub-filter-btn:hover,
-.app .learning-hub-page .filter-btn:hover {
-  border-color: var(--primary-300);
-  color: var(--text-primary);
-}
-
 .app .resources-page .filter-btn.active,
 .app .resources-page .sub-filter-btn.active,
 .app .learning-hub-page .filter-btn.active {
@@ -268,12 +261,6 @@
   transition: all var(--transition-fast);
 }
 
-.app .ai-assistant-page .suggestion-chip:hover {
-  border-color: var(--primary-500);
-  color: var(--text-accent);
-  transform: translateY(-1px);
-}
-
 .app .ai-assistant-page .input-container {
   border-radius: var(--radius-xl);
 }
@@ -319,10 +306,6 @@
 .app .profile-page .action-btn {
   border-radius: var(--radius-lg);
   transition: transform var(--transition-fast);
-}
-
-.app .profile-page .action-btn:hover {
-  transform: translateY(-1px);
 }
 
 /* --- Feedback --- */

@@ -152,7 +152,6 @@ export default function OTPModal({ isOpen, onClose, email, onVerify, loading }) 
                                 className="otp-submit"
                                 disabled={busy || otp.join("").length !== 6}
                                 aria-busy={busy}
-                                whileHover={{ scale: 1.01 }}
                                 whileTap={{ scale: 0.99 }}
                             >
                                 {busy ? (

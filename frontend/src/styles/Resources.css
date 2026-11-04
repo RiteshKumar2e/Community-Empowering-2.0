@@ -157,13 +157,6 @@
   height: 14px;
 }
 
-.resources-page .filter-btn:hover,
-.resources-page .sub-filter-btn:hover {
-  background-color: var(--bg-hover);
-  border-color: var(--border-strong);
-  color: var(--text-primary);
-}
-
 .resources-page .filter-btn.active,
 .resources-page .sub-filter-btn.active {
   color: var(--text-on-accent);
@@ -259,11 +252,6 @@
   border-radius: var(--radius-lg);
   cursor: pointer;
   transition: background-color var(--transition-fast), color var(--transition-fast);
-}
-
-.resources-page .view-more-btn:hover {
-  background-color: var(--bg-hover);
-  color: var(--text-primary);
 }
 
 /* --- Important links --- */

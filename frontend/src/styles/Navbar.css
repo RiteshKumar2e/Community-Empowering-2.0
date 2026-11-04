@@ -153,11 +153,6 @@
   transition: background-color var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
 }
 
-.btn-signin:hover {
-  background-color: var(--primary-700);
-  color: var(--text-on-accent);
-}
-
 /* --- Profile dropdown --- */
 
 .user-profile-dropdown {
@@ -178,7 +173,6 @@
   transition: background-color var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
 }
 
-.profile-trigger:hover,
 .profile-trigger.active {
   background-color: var(--bg-hover);
   border-color: var(--border-color);
@@ -289,11 +283,6 @@
   color: var(--text-secondary);
   cursor: pointer;
   transition: background-color var(--transition-fast), color var(--transition-fast);
-}
-
-.mobile-menu-btn:hover {
-  background-color: var(--bg-hover);
-  color: var(--text-primary);
 }
 
 .mobile-menu-btn svg {

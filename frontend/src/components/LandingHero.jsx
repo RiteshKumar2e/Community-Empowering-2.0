@@ -151,7 +151,7 @@ const LandingHero = ({ isAuthenticated }) => {
                     </div>
 
                     <div className="hero-actions">
-                        <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                        <motion.div whileTap={{ scale: 0.98 }}>
                             <Link to={ctaTo} className="btn btn-explore hero-cta">
                                 {ctaLabel}
                                 <ArrowRight size={20} className="hero-cta-arrow" />

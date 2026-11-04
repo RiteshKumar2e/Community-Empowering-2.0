@@ -24,11 +24,6 @@
   border-left: 1px solid var(--border-color);
 }
 
-.lang-toggle button:hover {
-  background: var(--bg-hover);
-  color: var(--text-primary);
-}
-
 .lang-toggle button.active {
   color: #fff;
   background: var(--primary-600);
