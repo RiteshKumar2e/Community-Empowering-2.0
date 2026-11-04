@@ -113,6 +113,7 @@ body:not(.light-theme) .dashboard-page .tone-violet { --tone: #a78bfa; }
 
 .dash-btn-primary:hover {
   transform: translateY(-1px);
+  color: var(--primary-800); /* a:hover would otherwise recolour the text */
   background: var(--primary-50);
 }
 
