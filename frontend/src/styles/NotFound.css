@@ -116,6 +116,7 @@
 }
 
 .not-found-container .pulse-text {
+  color: var(--text-primary);
   animation: pulse-text-soft 1.8s ease-in-out infinite;
 }
 
@@ -217,5 +218,5 @@
 /* Gentle pulse: the prompt stays readable at its faintest point. */
 @keyframes pulse-text-soft {
   0%, 100% { opacity: 1; }
-  50% { opacity: 0.75; }
+  50% { opacity: 0.85; }
 }

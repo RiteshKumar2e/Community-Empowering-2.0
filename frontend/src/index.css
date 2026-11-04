@@ -80,6 +80,7 @@
   --text-danger: #fca5a5;
   --text-warning: #fbbf24;
   --text-success: #34d399;
+  --text-info: #93c5fd;
   --text-on-accent: #ffffff;
 
   /* --- Lines --- */
@@ -89,7 +90,7 @@
   --focus-ring: rgba(91, 192, 222, 0.45);
 
   --link-color: var(--primary-400);
-  --link-hover: var(--primary-300);
+  --link-hover: #a8e0f2;
 
   /* --- Elevation: restrained. Dark UI leans on borders, not shadow. --- */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
@@ -175,8 +176,9 @@ body.light-theme {
   --text-muted: #6a6f77;
   --text-accent: #3a506b;
   --text-danger: #b91c1c;
-  --text-warning: #b45309;
+  --text-warning: #92400e;
   --text-success: #047857;
+  --text-info: #1d4ed8;
   --text-on-accent: #ffffff;
 
   --border-color: #e4e7eb;
@@ -794,7 +796,7 @@ hr {
 
 .badge-info {
   background-color: color-mix(in srgb, var(--info-500) 14%, transparent);
-  color: var(--info-500);
+  color: var(--text-info);
   border-color: color-mix(in srgb, var(--info-500) 28%, transparent);
 }
 
@@ -822,7 +824,7 @@ body.light-theme .badge-error {
 }
 
 body.light-theme .badge-info {
-  color: var(--info-600);
+  color: var(--text-info);
 }
 
 /* ===================================
