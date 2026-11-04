@@ -1,7 +1,7 @@
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { useLanguage } from '../contexts/LanguageContext'
-import { ArrowRight, MessageSquare, BookOpen, Search, Mic, Globe, Zap, Target, Heart, Award, CheckCircle, ArrowUp, Github, Linkedin, Mail, UserPlus, SlidersHorizontal, Sparkles } from 'lucide-react'
+import { ArrowRight, MessageSquare, BookOpen, Search, Mic, Globe, Target, Heart, Award, CheckCircle, ArrowUp, Github, Linkedin, Mail, UserPlus, SlidersHorizontal, Sparkles } from 'lucide-react'
 import ExploreModal from '../components/ExploreModal'
 import { SCHEMES } from '../data/schemes'
 import LandingHero from '../components/LandingHero'
@@ -15,7 +15,6 @@ import BrandMark from '../components/BrandMark'
 
 const Landing = () => {
     const { isAuthenticated } = useAuth()
-    const navigate = useNavigate()
     const { t } = useLanguage()
     const [selectedFeature, setSelectedFeature] = useState(null)
     const [showScrollTop, setShowScrollTop] = useState(false)
@@ -258,7 +257,7 @@ const Landing = () => {
                         <div className="mission-card">
                             <div className="mission-icon">🎯</div>
                             <h3>Bridge the Digital Divide</h3>
-                            <p>We're committed to making technology accessible to everyone, especially underserved communities across India.</p>
+                            <p>We&apos;re committed to making technology accessible to everyone, especially underserved communities across India.</p>
                         </div>
                         <div className="mission-card">
                             <div className="mission-icon">🌟</div>
@@ -281,7 +280,7 @@ const Landing = () => {
                         <div className="about-content">
                             <h2>About Community AI</h2>
                             <p className="about-lead">
-                                We are building India's most inclusive AI platform that brings public services, education, and opportunities directly to communities.
+                                We are building India&apos;s most inclusive AI platform that brings public services, education, and opportunities directly to communities.
                             </p>
                             <p>
                                 Our platform leverages cutting-edge AI technology to break down language barriers, simplify complex processes, and make critical information accessible to everyone.
@@ -310,7 +309,7 @@ const Landing = () => {
                         </div>
                         <div className="about-visual">
                             <div className="about-stats-card">
-                                <h3>What's on Community AI</h3>
+                                <h3>What&apos;s on Community AI</h3>
                                 <div className="impact-stat">
                                     <div className="impact-number"><CountUp value={`${SCHEMES.length}`} /></div>
                                     <div className="impact-label">Scheme guides with official links</div>
@@ -517,7 +516,7 @@ const Landing = () => {
                 <div className="container">
                     <div className="final-cta-card">
                         <div>
-                            <h2>Your benefits are waiting. Don't leave them unclaimed.</h2>
+                            <h2>Your benefits are waiting. Don&apos;t leave them unclaimed.</h2>
                             <p>Check what you may qualify for in a minute, then save it to a free account. Official links for every scheme.</p>
                         </div>
                         <motion.div whileTap={{ scale: 0.97 }}>

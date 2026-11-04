@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
@@ -8,7 +8,6 @@ import {
     Zap,
     ShieldCheck,
     Users,
-    ArrowRight,
     Bot,
     Layout,
     Globe,
@@ -210,7 +209,7 @@ const Feedback = () => {
                     >
                         <form onSubmit={handleSubmit}>
                             <div className="rating-section">
-                                <span className="rating-label">How's the experience?</span>
+                                <span className="rating-label">How&apos;s the experience?</span>
                                 <div className="stars-row">
                                     {[1, 2, 3, 4, 5].map((star) => (
                                         <motion.button

@@ -45,8 +45,8 @@ const Terms = () => {
                 <h2>Acceptable use</h2>
                 <p>You agree not to:</p>
                 <ul>
-                    <li>Post content that is unlawful, abusive, hateful, misleading or that invades someone's privacy.</li>
-                    <li>Share other people's personal details without their permission.</li>
+                    <li>Post content that is unlawful, abusive, hateful, misleading or that invades someone&apos;s privacy.</li>
+                    <li>Share other people&apos;s personal details without their permission.</li>
                     <li>Send spam or advertising, or try to disrupt, overload or break into the service.</li>
                     <li>Use the service to impersonate anyone.</li>
                 </ul>
@@ -68,7 +68,7 @@ const Terms = () => {
 
                 <h2>Availability and liability</h2>
                 <p>
-                    The service is provided "as is" without guarantees that it will always be
+                    The service is provided &quot;as is&quot; without guarantees that it will always be
                     available or error-free. To the extent the law allows, we are not liable for
                     losses that result from relying on information from the service.
                 </p>

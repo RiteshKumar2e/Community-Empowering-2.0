@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import {
-    Users, MessageSquare, BookOpen, Search, TrendingUp, Award,
-    Shield, Activity, Database, Globe, AlertCircle, CheckCircle,
-    UserCheck, FileText, BarChart3, Clock, Trash2, Heart, ExternalLink, Radar
+    Users, MessageSquare, Award,
+    Shield, Activity, 
+    UserCheck, Trash2, Heart, ExternalLink, Radar
 } from 'lucide-react'
 import api from '../services/api'
 import AdminGrowthPanel from '../components/AdminGrowthPanel'
@@ -25,7 +25,6 @@ const AdminDashboard = () => {
     })
     const [users, setUsers] = useState([])
     const [recentQueries, setRecentQueries] = useState([])
-    const [recentEnrollments, setRecentEnrollments] = useState([])
     const [discussions, setDiscussions] = useState([])
     const [activeTab, setActiveTab] = useState('overview')
     const [newResource, setNewResource] = useState({
@@ -214,14 +213,6 @@ const AdminDashboard = () => {
         setSelectedQueries(prev =>
             prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
         )
-    }
-
-    const handleSelectAllQueries = (e) => {
-        if (e.target.checked) {
-            setSelectedQueries(recentQueries.map(q => q.id))
-        } else {
-            setSelectedQueries([])
-        }
     }
 
     const handleDeleteSelectedQueries = async () => {
@@ -545,7 +536,7 @@ const AdminDashboard = () => {
                                                     </button>
                                                 </div>
                                             </div>
-                                            <p className="query-text">"{query.message}"</p>
+                                            <p className="query-text">&quot;{query.message}&quot;</p>
                                         </div>
                                     ))}
                                     {recentQueries.length === 0 && <p className="text-muted">No queries yet.</p>}
@@ -860,7 +851,7 @@ const AdminDashboard = () => {
                                             </div>
                                         </div>
                                         <div className="feedback-category-tag">{f.category}</div>
-                                        <p className="feedback-message">"{f.message}"</p>
+                                        <p className="feedback-message">&quot;{f.message}&quot;</p>
                                         <div className="feedback-footer">
                                             {new Date(f.created_at).toLocaleString()}
                                         </div>

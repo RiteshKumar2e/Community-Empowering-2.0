@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Home, RefreshCcw, Trophy } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -218,7 +218,7 @@ const NotFound = () => {
 
                     <h2 className="error-title">Oops! Remote Server Not Found.</h2>
                     <p className="error-text">
-                        We couldn't find the page you're looking for.
+                        We couldn&apos;t find the page you&apos;re looking for.
                         It might have been archived or moved to a new sector.
                     </p>
 

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Zap, Shield, TrendingUp, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -28,22 +28,6 @@ const ExploreModal = ({ isOpen, onClose }) => {
     const handleSignIn = () => {
         onClose();
         navigate('/login');
-    };
-
-    const handleExploreFeatures = () => {
-        onClose();
-        // Scroll to features section
-        const featuresSection = document.getElementById('features');
-        if (featuresSection) {
-            const headerOffset = 80;
-            const elementPosition = featuresSection.getBoundingClientRect().top;
-            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-
-            window.scrollTo({
-                top: offsetPosition,
-                behavior: 'smooth'
-            });
-        }
     };
 
     const features = [

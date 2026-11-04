@@ -1,12 +1,10 @@
 import { useState, useEffect } from 'react'
-import { useLanguage } from '../contexts/LanguageContext'
 import { Search, Filter, ExternalLink, Building, Users, Briefcase, GraduationCap, Heart, Home, Leaf, BookOpen, Award, Baby, Accessibility, Rocket } from 'lucide-react'
 import api from '../services/api'
 import ScrollToTop from '../components/ScrollToTop'
 import '../styles/Resources.css'
 
 const Resources = () => {
-    const { t } = useLanguage()
     const [resources, setResources] = useState([])
     const [filteredResources, setFilteredResources] = useState([])
     const [searchQuery, setSearchQuery] = useState('')
@@ -1837,6 +1835,7 @@ const Resources = () => {
             }
         }
         fetchResources()
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- should only re-run when the listed values change
     }, [])
 
     // Log search queries (Debounced)
@@ -1855,6 +1854,7 @@ const Resources = () => {
 
     useEffect(() => {
         filterResources()
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- should only re-run when the listed values change
     }, [searchQuery, selectedCategory, selectedSubCategory, resources])
 
     const filterResources = () => {

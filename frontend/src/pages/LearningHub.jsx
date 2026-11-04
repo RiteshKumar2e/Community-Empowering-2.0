@@ -49,6 +49,7 @@ const LearningHub = () => {
             }
         }
         fetchPlatforms()
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- should only re-run when the listed values change
     }, [])
 
     // Log search queries (Debounced)

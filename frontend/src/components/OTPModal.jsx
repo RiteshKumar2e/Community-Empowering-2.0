@@ -113,7 +113,7 @@ export default function OTPModal({ isOpen, onClose, email, onVerify, loading }) 
                                 </svg>
                             </div>
                             <h2>Verify Your Email</h2>
-                            <p>We've sent a 6-digit code to</p>
+                            <p>We&apos;ve sent a 6-digit code to</p>
                             <p className="otp-email">{email}</p>
                         </div>
 
@@ -176,7 +176,7 @@ export default function OTPModal({ isOpen, onClose, email, onVerify, loading }) 
                         </form>
 
                         <div className="otp-footer">
-                            <p>Didn't receive the code?</p>
+                            <p>Didn&apos;t receive the code?</p>
                             <button
                                 className="otp-resend"
                                 type="button"

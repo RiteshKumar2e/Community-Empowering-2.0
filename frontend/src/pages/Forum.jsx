@@ -18,7 +18,6 @@ import {
     X,
     ChevronDown,
     Pin,
-    CheckCircle2,
     Trash2
 } from 'lucide-react'
 import { useRef } from 'react'
@@ -137,6 +136,7 @@ const Forum = () => {
         if (selectedDiscussion) {
             scrollToBottom()
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- should only re-run when the listed values change
     }, [replies.length])
 
     const fetchDiscussions = async () => {

@@ -116,7 +116,7 @@ const Register = () => {
     }, [])
 
     useEffect(() => {
-        const { password, confirmPassword, ...safe } = formData
+        const { password: _password, confirmPassword: _confirmPassword, ...safe } = formData
         sessionStorage.setItem(DRAFT_KEY, JSON.stringify(safe))
     }, [formData])
 
@@ -182,7 +182,7 @@ const Register = () => {
         }
 
         setLoading(true)
-        const { confirmPassword, ...userData } = formData
+        const { confirmPassword: _confirmPassword, ...userData } = formData
         const result = await register({ ...userData, name: userData.name.trim(), email: userData.email.trim() })
 
         if (result.success) {

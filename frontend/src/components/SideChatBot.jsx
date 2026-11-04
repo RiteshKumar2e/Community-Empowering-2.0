@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { MessageSquare, Send, Mic, MicOff, X, Bot, User, Hash, Tag, AlertCircle } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Mic, MicOff, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../services/api';
 import ReactMarkdown from 'react-markdown';
@@ -53,6 +53,7 @@ const SideChatBot = () => {
                 text: getGreeting(language)
             }]);
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- should only re-run when the listed values change
     }, [language]);
 
     const [inputText, setInputText] = useState('');
@@ -96,6 +97,7 @@ const SideChatBot = () => {
                 setIsRecording(false);
             };
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- should only re-run when the listed values change
     }, [language]);
 
     const toggleRecording = () => {

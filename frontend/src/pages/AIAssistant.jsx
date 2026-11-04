@@ -74,6 +74,7 @@ const AIAssistant = () => {
                 setIsListening(false)
             }
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- should only re-run when the listed values change
     }, [language])
 
     const scrollToBottom = () => {
@@ -228,7 +229,7 @@ const AIAssistant = () => {
                                         <ReactMarkdown
                                             remarkPlugins={[remarkGfm]}
                                             components={{
-                                                a: ({ node, ...props }) => <a {...props} target="_blank" rel="noopener noreferrer" />
+                                                a: ({ node: _node, ...props }) => <a {...props} target="_blank" rel="noopener noreferrer" />
                                             }}
                                         >
                                             {message.content}

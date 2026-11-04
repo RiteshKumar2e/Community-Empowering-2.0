@@ -16,7 +16,7 @@ const PrivacyPolicy = () => {
                 <p className="legal-updated">Last updated: 31 October 2026</p>
 
                 <p>
-                    Community AI ("we", "us") helps people find government schemes, learning
+                    Community AI (&quot;we&quot;, &quot;us&quot;) helps people find government schemes, learning
                     resources and local help. This policy explains what information we collect,
                     why we collect it and the choices you have.
                 </p>
@@ -51,13 +51,13 @@ const PrivacyPolicy = () => {
 
                 <h2>Cookies and local storage</h2>
                 <p>
-                    We store your login session, theme and language preference in your browser's
+                    We store your login session, theme and language preference in your browser&apos;s
                     local storage. These are needed for the site to work. We use Google Analytics to
                     understand which pages are useful. Analytics cookies are only set after you click
                     “Accept” in the cookie banner; until then Google Analytics runs in a cookieless
                     mode and cannot recognise you across visits. We never send your name, email,
                     phone number or eligibility answers to analytics. You can change your choice by
-                    clearing your browser's site data.
+                    clearing your browser&apos;s site data.
                 </p>
 
                 <h2>How long we keep data</h2>
@@ -85,7 +85,7 @@ const PrivacyPolicy = () => {
                 <h2>Children</h2>
                 <p>
                     Community AI is not intended for children under 13. Users under 18 should use
-                    it with a parent's or guardian's permission.
+                    it with a parent&apos;s or guardian&apos;s permission.
                 </p>
 
                 <h2>Changes</h2>

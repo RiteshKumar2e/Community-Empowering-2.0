@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Send, Hash, Lock, Users, Smile, MessageSquare, Trash2 } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Send, Hash, Lock, Smile, MessageSquare, Trash2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../services/api';
@@ -95,7 +95,7 @@ const LiveChat = () => {
                 }
             };
 
-            socket.onclose = (event) => {
+            socket.onclose = () => {
                 if (isMounted) {
                     console.log('⚠️ WebSocket connection closed. Reconnecting in 3s...');
                     ws.current = null;
