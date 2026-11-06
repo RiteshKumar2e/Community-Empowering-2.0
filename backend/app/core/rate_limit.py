@@ -62,6 +62,9 @@ otp_failures: dict = {}
 
 # AI endpoints call paid LLM APIs: cap per-IP usage to stop cost abuse.
 ai_limiter = RateLimiter(max_calls=20, period_seconds=60, scope="ai")
+# Spam protection for things other people read or that email the admin.
+forum_post_limiter = RateLimiter(max_calls=20, period_seconds=600, scope="forum-post")
+feedback_limiter = RateLimiter(max_calls=5, period_seconds=600, scope="feedback")
 
 # Longest message accepted by any AI endpoint (characters).
 AI_MAX_MESSAGE_CHARS = 2000

@@ -1,3 +1,6 @@
+import time
+from collections import deque
+
 from fastapi import APIRouter, Depends, HTTPException, WebSocket, WebSocketDisconnect, Query, status
 from sqlalchemy.orm import Session
 from typing import List, Optional, Dict
@@ -7,6 +10,9 @@ from app.core.database import get_db
 from app.core.security import decode_access_token
 from app.models.models import ChatMessage, User
 from app.api.users import get_current_user
+
+CHAT_MAX_MESSAGES = 20
+CHAT_WINDOW_SECONDS = 30
 
 router = APIRouter()
 
@@ -49,9 +55,17 @@ async def websocket_endpoint(
         return
 
     await manager.connect(websocket, user_id)
+    recent_messages = deque()
     try:
         while True:
             data = await websocket.receive_text()
+            # Spam protection: at most CHAT_MAX_MESSAGES per CHAT_WINDOW_SECONDS.
+            now = time.monotonic()
+            while recent_messages and now - recent_messages[0] > CHAT_WINDOW_SECONDS:
+                recent_messages.popleft()
+            if len(recent_messages) >= CHAT_MAX_MESSAGES:
+                continue
+            recent_messages.append(now)
             try:
                 message_data = json.loads(data)
                 # message_data format: {"text": "...", "receiver_id": int | None, "is_private": bool}

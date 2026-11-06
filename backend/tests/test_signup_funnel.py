@@ -40,7 +40,8 @@ SENT_CODES = {}
 @pytest.fixture(autouse=True)
 def _no_real_email_and_fresh_limits(monkeypatch):
     monkeypatch.setattr(email_service, "send_otp", lambda email, code, purpose="google_login": SENT_CODES.__setitem__(email, code) or True)
-    for limiter in (rate_limit.login_limiter, rate_limit.register_limiter, rate_limit.password_reset_limiter):
+    for limiter in (rate_limit.login_limiter, rate_limit.register_limiter, rate_limit.password_reset_limiter,
+                    rate_limit.forum_post_limiter, rate_limit.feedback_limiter):
         limiter._hits.clear()
     yield
 
@@ -447,3 +448,30 @@ def test_admin_overview_is_one_request_cached_and_cleared_by_writes():
 
     client.post("/api/admin/queries/bulk-delete", json={"ids": []}, headers=auth(token))
     assert admin_api._overview_cache["data"] is None  # any admin write clears it
+
+
+def test_feedback_is_saved_shown_to_admin_and_rate_limited(monkeypatch):
+    from app.models.models import User
+    monkeypatch.setattr(email_service, "send_feedback_to_admin", lambda **k: False)  # email down
+    token = register("nina@example.com").json()["token"]
+    body = {"category": "general", "rating": 4, "message": "Very useful guides"}
+    assert client.post("/api/feedback", json=body, headers=auth(token)).status_code == 200
+
+    db = database.SessionLocal()
+    db.query(User).filter(User.email == "nina@example.com").update({"is_admin": True})
+    db.commit(); db.close()
+    listed = client.get("/api/admin/feedback", headers=auth(token)).json()
+    mine = [f for f in listed if f["message"] == "Very useful guides"]
+    assert mine and mine[0]["user_email"] == "nina@example.com" and mine[0]["rating"] == 4
+
+    codes = [client.post("/api/feedback", json=body, headers=auth(token)).status_code for _ in range(6)]
+    assert codes[-1] == 429
+
+
+def test_forum_posting_is_rate_limited():
+    from app.models.models import ForumCategory
+    token = register("omar@example.com").json()["token"]
+    db = database.SessionLocal(); cat = ForumCategory(name="Spam check"); db.add(cat); db.commit(); cid = cat.id; db.close()
+    body = {"title": "Same post", "content": "Again and again", "category_id": cid}
+    codes = [client.post("/api/forum/discussions", json=body, headers=auth(token)).status_code for _ in range(21)]
+    assert codes[0] in (200, 201) and codes[-1] == 429

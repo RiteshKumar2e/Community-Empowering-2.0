@@ -291,7 +291,20 @@ async def get_all_feedback(
 ):
     """Get all user feedback submissions"""
     feedbacks = db.query(Feedback).order_by(Feedback.created_at.desc()).all()
-    return feedbacks
+    user_ids = {f.user_id for f in feedbacks if f.user_id is not None}
+    users = {u.id: u for u in db.query(User.id, User.name, User.email).filter(User.id.in_(user_ids))} if user_ids else {}
+    return [
+        {
+            "id": f.id,
+            "user_name": users[f.user_id].name if f.user_id in users else "Unknown",
+            "user_email": users[f.user_id].email if f.user_id in users else "",
+            "rating": f.rating,
+            "category": f.category,
+            "message": f.comment,
+            "created_at": f.created_at,
+        }
+        for f in feedbacks
+    ]
 
 @router.get("/resources")
 async def get_all_resources(

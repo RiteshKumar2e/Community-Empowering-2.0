@@ -9,6 +9,7 @@ import json
 from app.core.database import get_db
 from app.models.models import ForumCategory, ForumDiscussion, ForumReply, User, ForumLike, ForumView, ForumReplyLike, ForumReplyView
 from app.api.users import get_current_user, get_current_user_optional
+from app.core.rate_limit import forum_post_limiter
 
 router = APIRouter(prefix="/api/forum", tags=["forum"])
 
@@ -393,7 +394,7 @@ async def get_discussion(
         "is_liked": is_liked if current_user else False
     }
 
-@router.post("/discussions", response_model=DiscussionResponse)
+@router.post("/discussions", response_model=DiscussionResponse, dependencies=[Depends(forum_post_limiter)])
 async def create_discussion(
     discussion: DiscussionCreate,
     db: Session = Depends(get_db),
@@ -508,7 +509,7 @@ async def get_replies(
         db.commit()
     return result
 
-@router.post("/discussions/{discussion_id}/replies", response_model=ReplyResponse)
+@router.post("/discussions/{discussion_id}/replies", response_model=ReplyResponse, dependencies=[Depends(forum_post_limiter)])
 async def create_reply(
     discussion_id: int,
     reply: ReplyCreate,

@@ -52,6 +52,7 @@ const Forum = () => {
     const [stats, setStats] = useState(() => readForumCache().stats || null)
     // True only until the first discussion list arrives (or a cached one exists).
     const [loading, setLoading] = useState(() => !readForumCache().discussions)
+    const [loadFailed, setLoadFailed] = useState(false)
     const [selectedCategory, setSelectedCategory] = useState(null)
     const [selectedTags, setSelectedTags] = useState([])
     const [filterType, setFilterType] = useState('all')
@@ -147,11 +148,13 @@ const Forum = () => {
             const res = await api.get(url)
             const list = Array.isArray(res.data) ? res.data : []
             setDiscussions(list)
+            setLoadFailed(false)
             if (!selectedCategory && filterType === 'all' && selectedTags.length === 0) {
                 writeForumCache({ discussions: list })
             }
         } catch (error) {
             console.error('Error fetching discussions:', error)
+            setLoadFailed(true)
         } finally {
             setLoading(false)
         }
@@ -569,6 +572,12 @@ const Forum = () => {
                                     <span className="skeleton-line w-60" />
                                 </div>
                             ))
+                        ) : loadFailed && discussions.length === 0 ? (
+                            <div className="no-discussions" role="alert">
+                                <MessageSquare size={48} />
+                                <p>Could not load discussions. Please check your connection.</p>
+                                <button type="button" className="btn btn-primary" onClick={fetchDiscussions}>Try again</button>
+                            </div>
                         ) : filteredDiscussions.length === 0 ? (
                             <div className="no-discussions">
                                 <MessageSquare size={48} />
