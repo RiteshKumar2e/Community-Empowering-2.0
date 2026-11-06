@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import api from '../services/api'
 import { syncPending, takePostAuthRedirect, setPostAuthRedirect } from '../services/myData'
 import { trackEvent } from '../utils/analytics'
+import { isIdleExpired } from '../utils/idleSession'
 
 // Exported so the build-time prerenderer can render public pages as a
 // logged-out visitor (see entry-prerender.jsx).
@@ -14,6 +15,9 @@ const apiError = (error, fallback) => {
     if (Array.isArray(detail)) return detail[0]?.msg?.replace(/^Value error, /, '') || fallback
     return detail || error.response?.data?.message || fallback
 }
+
+const PRIVATE_PREFIXES = ['/dashboard', '/assistant', '/resources', '/learning', '/profile', '/feedback', '/forum', '/admin']
+const isPrivatePath = (path) => PRIVATE_PREFIXES.some((p) => path === p || path.startsWith(`${p}/`))
 
 export const useAuth = () => {
     const context = useContext(AuthContext)
@@ -33,7 +37,16 @@ export const AuthProvider = ({ children }) => {
         const token = localStorage.getItem('token')
         const userData = localStorage.getItem('user')
 
-        if (token && userData) {
+        if (token && userData && isIdleExpired()) {
+            // Came back after 30+ minutes away (browser closed, or tab reloaded).
+            localStorage.removeItem('token')
+            localStorage.removeItem('user')
+            const path = window.location.pathname
+            if (isPrivatePath(path)) {
+                try { sessionStorage.setItem('session-expired', 'idle') } catch { /* ignore */ }
+                setPostAuthRedirect(path)
+            }
+        } else if (token && userData) {
             setUser(JSON.parse(userData))
             api.defaults.headers.common['Authorization'] = `Bearer ${token}`
         }
@@ -45,16 +58,15 @@ export const AuthProvider = ({ children }) => {
     // Clear the dead session; on a signed-in-only page, send the user to log
     // in and bring them back afterwards. Public pages just carry on signed out.
     useEffect(() => {
-        const PRIVATE_PREFIXES = ['/dashboard', '/assistant', '/resources', '/learning', '/profile', '/feedback', '/forum', '/admin']
-        const onExpired = () => {
+        const onExpired = (event) => {
             if (!localStorage.getItem('token')) return // already handled
             localStorage.removeItem('token')
             localStorage.removeItem('user')
             delete api.defaults.headers.common['Authorization']
             setUser(null)
             const path = window.location.pathname
-            if (PRIVATE_PREFIXES.some((p) => path === p || path.startsWith(`${p}/`))) {
-                try { sessionStorage.setItem('session-expired', '1') } catch { /* ignore */ }
+            if (isPrivatePath(path)) {
+                try { sessionStorage.setItem('session-expired', event.detail?.reason === 'idle' ? 'idle' : '1') } catch { /* ignore */ }
                 setPostAuthRedirect(path)
                 navigate('/login', { replace: true })
             }

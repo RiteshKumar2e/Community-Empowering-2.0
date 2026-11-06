@@ -8,6 +8,8 @@ import ProtectedRoute from './components/ProtectedRoute'
 import SideChatBot from './components/SideChatBot'
 import PageMeta from './components/PageMeta'
 import UserLanguageSync from './components/UserLanguageSync'
+import IdleLogout from './components/IdleLogout'
+import CookieConsent from './components/CookieConsent'
 import { lazyPage } from './utils/lazyPage'
 import './styles/AppPages.css'
 
@@ -33,7 +35,6 @@ const EligibilityChecker = lazyPage(() => import('./pages/EligibilityChecker'))
 const EditorialPolicy = lazyPage(() => import('./pages/EditorialPolicy'))
 const About = lazyPage(() => import('./pages/About'))
 const ForgotPassword = lazyPage(() => import('./pages/ForgotPassword'))
-const CookieConsent = lazyPage(() => import('./components/CookieConsent'))
 
 
 
@@ -53,6 +54,7 @@ function App() {
                     <div className="app">
                         <PageMeta />
                         <UserLanguageSync />
+                        <IdleLogout />
                         <Navbar />
                         <Suspense fallback={<div className="page-loading" aria-busy="true" />}>
                         <Routes>
@@ -117,9 +119,7 @@ function App() {
                         </Routes>
                         </Suspense>
                         <ChatBotCondition />
-                        <Suspense fallback={null}>
-                            <CookieConsent />
-                        </Suspense>
+                        <CookieConsent />
                     </div>
                 </LanguageProvider>
             </AuthProvider>

@@ -53,10 +53,10 @@ const Login = () => {
     // Set by AuthContext when a saved session stopped being valid.
     const [sessionExpired] = useState(() => {
         try {
-            const v = sessionStorage.getItem('session-expired') === '1'
+            const v = sessionStorage.getItem('session-expired')
             sessionStorage.removeItem('session-expired')
             return v
-        } catch { return false }
+        } catch { return null }
     })
     // Google renders its button at a fixed pixel width (200–400), so fit it to
     // the card on small phones instead of letting it overflow.
@@ -135,7 +135,9 @@ const Login = () => {
 
                     {sessionExpired && (
                         <p className="session-note" role="status">
-                            Your session has expired. Please sign in again.
+                            {sessionExpired === 'idle'
+                                ? 'You were signed out after 30 minutes of inactivity. Please sign in again.'
+                                : 'Your session has expired. Please sign in again.'}
                         </p>
                     )}
 
