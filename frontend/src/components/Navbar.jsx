@@ -276,7 +276,6 @@ const Navbar = () => {
                                 <button onClick={() => scrollToSection('about')} className="mobile-link">About</button>
                                 <button onClick={() => scrollToSection('goals')} className="mobile-link">Goals</button>
                                 <button onClick={() => scrollToSection('team')} className="mobile-link">Team</button>
-                                <button onClick={() => scrollToSection('testimonials')} className="mobile-link">Testimonials</button>
                                 <button onClick={() => scrollToSection('contact')} className="mobile-link">Contact</button>
                             </div>
                         )}

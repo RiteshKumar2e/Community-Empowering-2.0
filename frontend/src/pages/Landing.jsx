@@ -219,13 +219,6 @@ const Landing = () => {
     ]
 
 
-    // Example questions (not reviews). Each links to the guide that answers it.
-    const exampleQuestions = [
-        { who: 'Farmer', text: 'How much money does PM-KISAN give, and how do I check my payment status?', to: '/schemes/pm-kisan' },
-        { who: 'Student', text: 'Is there a scholarship for SC students in Class 11 and above if family income is under ₹2.5 lakh?', to: '/schemes/post-matric-scholarship-sc-students' },
-        { who: 'Small business', text: 'How do I get a loan without collateral to start a small shop?', to: '/schemes/pm-mudra-yojana' }
-    ]
-
     return (
         <div className="landing" ref={landingRef}>
             <motion.div className="scroll-progress" style={{ scaleX: progressScale }} aria-hidden="true" />
@@ -443,26 +436,6 @@ const Landing = () => {
                 </div>
             </section>
 
-            {/* Testimonials Section */}
-            <section id="testimonials" className="testimonials-section">
-                <div className="container">
-                    <div className="section-header">
-                        <h2>Questions people bring to Community AI</h2>
-                        <p>Examples of what you can ask, with the guide that answers each one</p>
-                    </div>
-
-                    <div className="testimonials-grid">
-                        {exampleQuestions.map((q) => (
-                            <Link key={q.to} to={q.to} className="testimonial-card example-question">
-                                <span className="example-who">{q.who}</span>
-                                <p className="testimonial-text">“{q.text}”</p>
-                                <span className="example-link">Read the answer <ArrowRight size={14} /></span>
-                            </Link>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
             {/* How It Works */}
             <section id="how-it-works" className="how-it-works">
                 <div className="container">
@@ -476,7 +449,8 @@ const Landing = () => {
                             className="steps-track-fill"
                             initial={false}
                             animate={{ width: `${(activeStep / 2) * 100}%` }}
-                            transition={{ type: 'spring', stiffness: 90, damping: 20 }}
+                            // Same speed as the step cards, so line and card change together.
+                            transition={{ duration: reduceMotion ? 0 : 0.2, ease: 'easeOut' }}
                         />
                     </div>
 

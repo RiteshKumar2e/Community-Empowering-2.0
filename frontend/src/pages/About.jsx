@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { SCHEMES } from '../data/schemes'
+import { HERO_PHOTOS } from '../data/heroPhotos'
 import '../styles/Legal.css'
 
 const CONTACT_EMAIL = 'riteshkumar90359@gmail.com'
@@ -63,6 +64,18 @@ const About = () => {
                     wrong or out of date, use the “Report outdated or incorrect information” link on that page, or
                     email us with the page link and, if possible, the official source.
                 </p>
+
+                <h2>Photo credits</h2>
+                <p>The photos on our homepage come from Wikimedia Commons and are used under their licences:</p>
+                <ul>
+                    {HERO_PHOTOS.map((p) => (
+                        <li key={p.src}>
+                            <a href={p.page} target="_blank" rel="noopener noreferrer">Photo</a> by {p.author},{' '}
+                            <a href={p.licenseUrl} target="_blank" rel="noopener noreferrer license">{p.license}</a>
+                            {' '}(resized and darkened)
+                        </li>
+                    ))}
+                </ul>
 
                 <p>
                     See also our <Link to="/privacy">Privacy Policy</Link> and <Link to="/terms">Terms</Link>.

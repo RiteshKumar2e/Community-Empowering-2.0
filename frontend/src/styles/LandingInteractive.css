@@ -148,167 +148,6 @@ body:not(.light-theme) .landing .hero-highlight {
   color: var(--text-success);
 }
 
-/* --- Live chat demo --- */
-
-.landing .hero-demo {
-  display: flex;
-  flex-direction: column;
-  background-color: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-2xl);
-  box-shadow: var(--shadow-md);
-  overflow: hidden;
-}
-
-.landing .demo-header {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-4) var(--space-5);
-  border-bottom: 1px solid var(--border-color);
-}
-
-.landing .demo-avatar {
-  display: grid;
-  place-items: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  color: #fff;
-  background: var(--primary-600);
-}
-
-.landing .demo-name {
-  font-size: var(--text-base);
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.landing .demo-status {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: var(--text-xs);
-  color: var(--text-tertiary);
-}
-
-.landing .demo-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background-color: var(--success-500);
-  box-shadow: 0 0 0 0 color-mix(in srgb, var(--success-500) 60%, transparent);
-  animation: demo-pulse 2s infinite;
-}
-
-@keyframes demo-pulse {
-  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--success-500) 55%, transparent); }
-  70% { box-shadow: 0 0 0 7px transparent; }
-  100% { box-shadow: 0 0 0 0 transparent; }
-}
-
-.landing .demo-body {
-  min-height: 280px;
-  padding: var(--space-5);
-  background-color: var(--bg-secondary);
-}
-
-.landing .demo-thread {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-}
-
-.landing .demo-bubble {
-  max-width: 88%;
-  padding: var(--space-3) var(--space-4);
-  font-size: var(--text-base);
-  line-height: 1.55;
-  border-radius: 16px;
-}
-
-.landing .demo-user {
-  align-self: flex-end;
-  color: #fff;
-  background-color: var(--primary-600);
-  border-bottom-right-radius: 4px;
-}
-
-.landing .demo-bot {
-  align-self: flex-start;
-  color: var(--text-primary);
-  background-color: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-bottom-left-radius: 4px;
-}
-
-.landing .demo-typing {
-  display: inline-flex;
-  gap: 4px;
-  padding: var(--space-3) var(--space-4);
-}
-
-.landing .demo-typing span {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background-color: var(--text-muted);
-  animation: demo-bounce 1s infinite ease-in-out;
-}
-
-.landing .demo-typing span:nth-child(2) { animation-delay: 0.15s; }
-.landing .demo-typing span:nth-child(3) { animation-delay: 0.3s; }
-
-@keyframes demo-bounce {
-  0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
-  30% { transform: translateY(-5px); opacity: 1; }
-}
-
-.landing .demo-caret {
-  display: inline-block;
-  width: 2px;
-  height: 1em;
-  margin-left: 2px;
-  vertical-align: text-bottom;
-  background-color: var(--primary-500);
-  animation: demo-blink 0.8s steps(1) infinite;
-}
-
-@keyframes demo-blink {
-  50% { opacity: 0; }
-}
-
-.landing .demo-input {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
-  margin: var(--space-4);
-  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
-  font-size: var(--text-base);
-  color: var(--text-muted);
-  text-decoration: none;
-  border: 1px solid var(--border-strong);
-  border-radius: 999px;
-  transition: border-color var(--transition-fast);
-}
-
-.landing .demo-input:hover {
-  border-color: var(--primary-500);
-  color: var(--text-secondary);
-}
-
-.landing .demo-send {
-  display: grid;
-  place-items: center;
-  width: 34px;
-  height: 34px;
-  flex-shrink: 0;
-  border-radius: 50%;
-  color: #fff;
-  background-color: var(--primary-600);
-}
-
 /* --- Stats strip --- */
 
 .landing .stats-strip {
@@ -580,4 +419,108 @@ body:not(.light-theme) .landing .hero-secondary-link {
   font-size: var(--text-sm);
   font-weight: 600;
   color: var(--text-accent);
+}
+
+
+/* --- Hero photo background ---------------------------------------------
+   Real photos behind a solid navy wash, so the text stays readable on every
+   photo, in both themes. The hero copy switches to light colours here. */
+.landing .hero-has-photos {
+  overflow: hidden;
+  background: #0b132b;
+  border-bottom: 0;
+}
+
+.landing .hero-photos {
+  position: absolute;
+  inset: 0;
+}
+
+.landing .hero-photos img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 1.2s ease;
+}
+
+.landing .hero-photos img.active {
+  opacity: 1;
+}
+
+.landing .hero-photos::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(11, 19, 43, 0.78);
+}
+
+.landing .hero-has-photos .hero-grid {
+  z-index: 1;
+}
+
+.landing .hero-has-photos .hero-title,
+.landing .hero-has-photos .hero-subtitle {
+  color: #ffffff;
+}
+
+.landing .hero-has-photos .hero-subtitle {
+  color: #e2e8f0;
+}
+
+.landing .hero-has-photos .hero-highlight,
+body:not(.light-theme) .landing .hero-has-photos .hero-highlight {
+  color: #f4d6b0;
+}
+
+.landing .hero-has-photos .hero-question,
+.landing .hero-has-photos .hero-trust {
+  color: #cbd5e1;
+}
+
+.landing .hero-has-photos .hero-trust svg {
+  color: #6ee7b7;
+}
+
+.landing .hero-has-photos .need-chip {
+  color: #f1f5f9;
+  background-color: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.landing .hero-has-photos .need-chip.active {
+  color: #0b132b;
+  background-color: #ffffff;
+  border-color: #ffffff;
+}
+
+.landing .hero-has-photos .need-chip-timer {
+  background-color: #b45309;
+}
+
+.landing .hero-has-photos .hero-secondary-link,
+body:not(.light-theme) .landing .hero-has-photos .hero-secondary-link {
+  color: #ffffff;
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+  .landing .hero-photos img {
+    transition: none;
+  }
+}
+
+.landing .hero-has-photos .hero-grid {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.landing .hero-has-photos .hero-copy {
+  max-width: 720px;
+  padding: var(--space-6) 0;
+}
+
+.landing .need-chip {
+  text-decoration: none;
 }
