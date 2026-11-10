@@ -2,10 +2,10 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import {
     ExternalLink, CheckCircle2, XCircle, FileText, ListOrdered, CalendarDays, Phone, AlertTriangle, Flag,
-    ListChecks, Bookmark, BookmarkCheck, IndianRupee, HelpCircle, Lightbulb, BookOpen, Info, UserPlus,
+    ListChecks, Bookmark, BookmarkCheck, IndianRupee, HelpCircle, Lightbulb, BookOpen, Info,
 } from 'lucide-react'
 import { getScheme, getCategory, relatedSchemes, localizeScheme, categoryLabel } from '../data/schemes'
-import { SchemeCard, ReviewStatus, Breadcrumbs } from '../components/SchemeBits'
+import { SchemeCard, ReviewStatus, Breadcrumbs, PortalLink } from '../components/SchemeBits'
 import { trackEvent } from '../utils/analytics'
 import { useText } from '../i18n/appText'
 import { useAuth } from '../contexts/AuthContext'
@@ -107,9 +107,9 @@ const SchemeDetail = () => {
                     )}
 
                     <div className="scheme-hero-actions">
-                        <a href={portal.url} target="_blank" rel="noopener noreferrer" className="btn btn-primary" onClick={() => officialClick(portal.url)}>
+                        <PortalLink scheme={scheme} className="btn btn-primary">
                             {t('visit_portal')} <ExternalLink size={16} aria-hidden="true" />
-                        </a>
+                        </PortalLink>
                         <button type="button" className="btn btn-secondary-outline" onClick={toggleSave} disabled={saveBusy} aria-pressed={saved}>
                             {saved ? <BookmarkCheck size={16} aria-hidden="true" /> : <Bookmark size={16} aria-hidden="true" />}
                             {saved ? t('saved_dashboard') : isAuthenticated ? t('save_scheme') : t('save_scheme_free')}
@@ -118,29 +118,7 @@ const SchemeDetail = () => {
                             <ListChecks size={16} aria-hidden="true" /> {t('check_more')}
                         </Link>
                     </div>
-                    <p className="portal-note">{t('portal_note', { host: hostOf(portal.url) })}</p>
-                    {/* Optional: the portal link above never needs an account. */}
-                    {!isAuthenticated && (
-                        <aside className="register-prompt" aria-labelledby="register-prompt-title">
-                            <UserPlus size={20} aria-hidden="true" />
-                            <div>
-                                <p id="register-prompt-title" className="register-prompt-title">{t('reg_prompt_title')}</p>
-                                <p>{t('reg_prompt_text')}</p>
-                                <div className="register-prompt-actions">
-                                    <Link
-                                        to="/register?next=scheme"
-                                        className="btn btn-primary"
-                                        onClick={() => { setPostAuthRedirect(`/schemes/${scheme.slug}`); trackEvent('register_prompt_clicked', { scheme: scheme.slug }) }}
-                                    >
-                                        {t('reg_prompt_btn')}
-                                    </Link>
-                                    <Link to="/login" className="register-prompt-login" onClick={() => setPostAuthRedirect(`/schemes/${scheme.slug}`)}>
-                                        {t('reg_prompt_login')}
-                                    </Link>
-                                </div>
-                            </div>
-                        </aside>
-                    )}
+                    <p className="portal-note">{t(isAuthenticated ? 'portal_note' : 'portal_note_gate', { host: hostOf(portal.url) })}</p>
                     {saveError && <p className="field-error" role="alert">{saveError}</p>}
                 </header>
 
@@ -199,9 +177,9 @@ const SchemeDetail = () => {
                     <p className="deadline"><CalendarDays size={16} aria-hidden="true" /> <span><strong>{t('when_to_apply')}</strong> {scheme.deadlines}</span></p>
                     {scheme.helpline && <p className="deadline"><Phone size={16} aria-hidden="true" /> <span><strong>{t('helpline')}:</strong> {scheme.helpline}</span></p>}
                     <p>
-                        <a href={portal.url} target="_blank" rel="noopener noreferrer" className="portal-link" onClick={() => officialClick(portal.url)}>
+                        <PortalLink scheme={scheme} className="portal-link">
                             {t('visit_portal')} ({hostOf(portal.url)}) <ExternalLink size={14} aria-hidden="true" />
-                        </a>
+                        </PortalLink>
                     </p>
                 </Section>
 

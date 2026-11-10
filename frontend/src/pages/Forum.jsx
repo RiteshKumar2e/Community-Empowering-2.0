@@ -312,7 +312,7 @@ const Forum = () => {
                         <MessageSquare className="hero-icon" />
                         Community Forum
                     </h1>
-                    <p>Connect, ask questions, and share knowledge to empower underserved communities.</p>
+                    <p>Ask questions about schemes, applications and documents, and help others with what you know.</p>
                     <button
                         className="btn-start-discussion"
                         onClick={() => setShowNewDiscussion(true)}

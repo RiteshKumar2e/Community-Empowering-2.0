@@ -136,7 +136,7 @@ export const SCHEMES = [
         sources: [
             { label: 'PM-KISAN portal: eligibility, exclusions and FAQs', url: 'https://pmkisan.gov.in/' },
         ],
-        match: { occupations: ['farmer'], minAge: 18, needsLand: true },
+        match: { occupations: ['farmer'], needsLand: true, excludesTaxPayers: true, checkNote: 'c_kisan_excl' },
         review: { status: 'pending', lastUpdated: '2026-11-10' },
         hi: {
             summary: 'खेती की ज़मीन वाले किसान परिवारों को साल में ₹6,000, जो ₹2,000 की तीन किस्तों में सीधे बैंक खाते में आते हैं।',
@@ -198,6 +198,7 @@ export const SCHEMES = [
         authority: 'Ministry of Agriculture & Farmers Welfare, Government of India',
         categories: ['farmers', 'health-insurance'],
         summary: 'Crop insurance for a small premium: 2% for kharif crops, 1.5% for rabi crops, 5% for commercial and horticulture crops. The government pays the rest.',
+        hiSummary: "कम प्रीमियम पर फ़सल बीमा: खरीफ़ फ़सलों के लिए 2%, रबी फ़सलों के लिए 1.5%, और व्यावसायिक व बागवानी फ़सलों के लिए 5%। बाकी प्रीमियम सरकार भरती है।",
         intro: 'Crop insurance only helps if you join before the season’s cut-off date and report damage on time. Unlike PM-KISAN, tenant farmers and sharecroppers can join, as long as the crop is notified for insurance in their area that season.',
         whoFor: 'Farmers growing a notified crop in a notified area, including owners, tenant farmers and sharecroppers.',
         eligibility: [
@@ -243,7 +244,7 @@ export const SCHEMES = [
         sources: [
             { label: 'PMFBY portal', url: 'https://pmfby.gov.in/' },
         ],
-        match: { occupations: ['farmer'], minAge: 18 },
+        match: { occupations: ['farmer'] },
         review: { status: 'pending', lastUpdated: '2026-11-10' },
     },
     {
@@ -453,6 +454,7 @@ export const SCHEMES = [
         authority: 'Department of Financial Services, Ministry of Finance, Government of India (portal run by SIDBI)',
         categories: ['business', 'women'],
         summary: 'Bank loans of ₹10 lakh to ₹1 crore for women and SC/ST entrepreneurs starting a brand-new enterprise.',
+        hiSummary: "महिलाओं और SC/ST उद्यमियों को बिल्कुल नया उद्यम शुरू करने के लिए ₹10 लाख से ₹1 करोड़ तक का बैंक लोन।",
         intro: 'Stand-Up India is for your first enterprise in a sector, not for expanding a shop you already run. Every scheduled commercial bank branch is expected to finance such entrepreneurs, and you still bring a part of the project cost yourself.',
         whoFor: 'Women entrepreneurs, and Scheduled Caste or Scheduled Tribe entrepreneurs, aged 18 or above.',
         eligibility: [
@@ -498,7 +500,7 @@ export const SCHEMES = [
         sources: [
             { label: 'Stand-Up Mitra portal (SIDBI)', url: 'https://www.standupmitra.in/' },
         ],
-        match: { occupations: ['business', 'worker', 'unemployed', 'homemaker'], minAge: 18, requires: 'woman-or-scst' },
+        match: { occupations: 'any', minAge: 18, requires: 'woman-or-scst' },
         review: { status: 'pending', lastUpdated: '2026-11-10' },
     },
     {
@@ -509,6 +511,7 @@ export const SCHEMES = [
         authority: 'Department of Financial Services; administered by PFRDA',
         categories: ['senior-citizens', 'health-insurance'],
         summary: 'Pay a small amount every month until 60, then receive a fixed pension of ₹1,000 to ₹5,000 a month for life. Open to non-taxpayers aged 18–40.',
+        hiSummary: "60 साल की उम्र तक हर महीने थोड़ी रकम जमा करें, फिर जीवनभर ₹1,000 से ₹5,000 महीने की तय पेंशन पाएँ। 18–40 साल के ऐसे लोगों के लिए जो आयकर नहीं भरते।",
         intro: 'APY suits people without an employer pension: farm workers, drivers, domestic workers, small traders. The earlier you join, the less you pay each month for the same pension, because you contribute for more years.',
         whoFor: 'Indian citizens aged 18 to 40 with a savings account who do not pay income tax.',
         eligibility: [
@@ -565,6 +568,7 @@ export const SCHEMES = [
         authority: 'Department of Financial Services, Ministry of Finance, Government of India',
         categories: ['health-insurance'],
         summary: 'Life cover of ₹2 lakh for ₹436 a year. Your nominee gets the money if you die from any cause.',
+        hiSummary: "₹436 सालाना में ₹2 लाख का जीवन बीमा। किसी भी कारण से मृत्यु होने पर नॉमिनी को राशि मिलती है।",
         intro: 'For ₹436 a year, about ₹36 a month, your family gets ₹2 lakh if you die from any cause, illness included. It is term insurance: if nothing happens, nothing is paid back. Many people already have it through their bank and do not know it, so check your passbook for the yearly debit.',
         whoFor: 'People aged 18 to 50 with a savings account at a bank or post office.',
         eligibility: [
@@ -616,6 +620,7 @@ export const SCHEMES = [
         authority: 'Department of Financial Services, Ministry of Finance, Government of India',
         categories: ['health-insurance'],
         summary: 'Accident cover for ₹20 a year: ₹2 lakh for death or total disability, ₹1 lakh for partial disability.',
+        hiSummary: "₹20 सालाना में दुर्घटना बीमा: मृत्यु या पूर्ण विकलांगता पर ₹2 लाख, आंशिक विकलांगता पर ₹1 लाख।",
         intro: 'At ₹20 a year this is the cheapest cover on this site, and it pays only for accidents. It suits anyone who travels on roads every day or works with machines, from age 18 up to 70.',
         whoFor: 'People aged 18 to 70 with a savings account at a bank or post office.',
         eligibility: [
@@ -667,6 +672,7 @@ export const SCHEMES = [
         authority: 'Ministry of Finance, Government of India; accounts at post offices and authorised banks',
         categories: ['women', 'students'],
         summary: 'A savings account for a daughter under 10. Deposit ₹250 to ₹1.5 lakh a year for 15 years; the account matures when it is 21 years old.',
+        hiSummary: "10 साल से कम उम्र की बेटी के लिए बचत खाता। 15 साल तक हर साल ₹250 से ₹1.5 लाख जमा करें; खाता 21 साल पूरे होने पर परिपक्व होता है।",
         intro: 'This is savings, not a cash benefit: the money in the account is what you deposit plus interest set by the government every quarter. It works best when parents start early and deposit a little every year, so the amount is there for higher education.',
         whoFor: 'Parents or legal guardians of a girl below 10 years of age.',
         eligibility: [
@@ -708,7 +714,7 @@ export const SCHEMES = [
         sources: [
             { label: 'India Post: Sukanya Samriddhi Account', url: 'https://www.indiapost.gov.in/' },
         ],
-        match: { occupations: 'any', minAge: 18, parentOfGirlUnder10: true },
+        match: { occupations: 'any', parentOfGirlUnder10: true },
         review: { status: 'pending', lastUpdated: '2026-11-10' },
     },
     {
@@ -719,6 +725,7 @@ export const SCHEMES = [
         authority: 'Ministry of Social Justice & Empowerment, Government of India (implemented through states)',
         categories: ['students'],
         summary: 'Fees and a yearly allowance for Scheduled Caste students from Class 11 onwards, if family income is up to ₹2.5 lakh a year.',
+        hiSummary: "कक्षा 11 और उससे आगे पढ़ने वाले अनुसूचित जाति (SC) के छात्रों के लिए फ़ीस और सालाना भत्ता, अगर परिवार की आय ₹2.5 लाख सालाना तक है।",
         intro: 'This scholarship pays your compulsory fees directly and adds an allowance, from Class 11 up to PhD. It is applied for every year, and most rejections come from paperwork: an old income certificate, or an institute that never verified the form.',
         whoFor: 'Scheduled Caste students in any recognised course after Class 10: Class 11–12, ITI, diploma, graduation, post-graduation and similar.',
         eligibility: [
@@ -767,7 +774,7 @@ export const SCHEMES = [
             { label: 'National Scholarship Portal (helpdesk details)', url: 'https://scholarships.gov.in/' },
             { label: 'myScheme', url: 'https://www.myscheme.gov.in/' },
         ],
-        match: { occupations: ['student'], minAge: 14, requires: 'sc', excludesHighIncome: true },
+        match: { occupations: ['student'], requires: 'sc', excludesHighIncome: true },
         review: { status: 'pending', lastUpdated: '2026-11-10' },
     },
     {
@@ -778,6 +785,7 @@ export const SCHEMES = [
         authority: 'Ministry of Skill Development & Entrepreneurship, Government of India',
         categories: ['employment', 'students'],
         summary: 'Free job-skill courses with a government certificate, from electrician and tailoring to retail and IT. Short courses are for ages 15–45.',
+        hiSummary: "सरकारी प्रमाणपत्र के साथ मुफ़्त रोज़गार-कौशल कोर्स, इलेक्ट्रीशियन और सिलाई से लेकर रिटेल और IT तक। छोटे कोर्स 15–45 साल की उम्र के लिए हैं।",
         intro: 'PMKVY training is free. If a centre asks you for a course fee, that is a warning sign. You pick a job role, train at an approved centre, pass an assessment and get a certificate that employers recognise. People who already have a skill but no certificate can get it certified through Recognition of Prior Learning (RPL).',
         whoFor: 'Young people who want a job skill or a certificate for skills they already have, including school and college dropouts.',
         eligibility: [
@@ -818,7 +826,7 @@ export const SCHEMES = [
         sources: [
             { label: 'Skill India Digital Hub', url: 'https://www.skillindiadigital.gov.in/' },
         ],
-        match: { occupations: ['student', 'unemployed', 'worker', 'homemaker'], minAge: 15, maxAge: 59 },
+        match: { occupations: 'any', minAge: 15, maxAge: 59 },
         review: { status: 'pending', lastUpdated: '2026-11-10' },
     },
     {
@@ -872,7 +880,7 @@ export const SCHEMES = [
             { label: 'Maiyan Samman Yojana official portal', url: 'https://mmmsy.jharkhand.gov.in/' },
             { label: 'myScheme: JMMSY', url: 'https://www.myscheme.gov.in/schemes/jmmsy' },
         ],
-        match: { occupations: 'any', minAge: 18, maxAge: 50, gender: 'female', state: 'Jharkhand', excludesTaxPayers: true },
+        match: { occupations: 'any', minAge: 18, maxAge: 50, gender: 'female', state: 'Jharkhand', excludesTaxPayers: true, checkNote: 'c_maiyan_excl' },
         review: { status: 'pending', lastUpdated: '2026-11-10' },
         hi: {
             summary: 'झारखंड की 18 से 50 साल की महिलाओं को हर महीने ₹2,500, आधार से जुड़े बैंक खाते में।',
@@ -921,7 +929,9 @@ export const schemesInCategory = (id) => SCHEMES.filter((s) => s.categories.incl
 // A scheme with its Hindi text where a reviewed translation exists. `isHindi`
 // tells the page whether to say that the details are still in English.
 export const localizeScheme = (scheme, language) => {
-    if (language !== 'hi' || !scheme.hi) return { ...scheme, isHindi: false }
+    if (language !== 'hi') return { ...scheme, isHindi: false }
+    // Not fully translated yet: only the one-line card summary is in Hindi.
+    if (!scheme.hi) return { ...scheme, summary: scheme.hiSummary || scheme.summary, isHindi: false }
     return { ...scheme, ...scheme.hi, isHindi: true }
 }
 export const categoryLabel = (category, language) =>

@@ -41,8 +41,8 @@ const About = () => {
                     Community AI is <strong>not a government website</strong> and is not affiliated with any ministry,
                     department or state government. We can’t process applications, approve benefits or speed them up.
                     Final eligibility is always decided by the department that runs a scheme, so please confirm
-                    details on the official portal linked from every guide. We never charge for anything, and the
-                    official links on our pages are open to everyone without signing up.
+                    details on the official portal linked from every guide. We never charge for anything. Every scheme page
+                    names its official portal and lists its sources; opening the portal from our pages needs a free account.
                 </p>
 
                 <h2>Who builds it</h2>

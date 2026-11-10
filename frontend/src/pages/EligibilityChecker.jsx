@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowLeft, ArrowRight, RotateCcw, Lock, Sparkles, X, Check, BookmarkCheck, AlertTriangle, ExternalLink } from 'lucide-react'
 import { SCHEMES } from '../data/schemes'
-import { SchemeCard, Disclaimer, Breadcrumbs } from '../components/SchemeBits'
+import { SchemeCard, Disclaimer, Breadcrumbs, PortalLink } from '../components/SchemeBits'
 import { trackEvent } from '../utils/analytics'
 import { useText } from '../i18n/appText'
 import { useAuth } from '../contexts/AuthContext'
@@ -71,10 +71,12 @@ export const evaluate = (scheme, a) => {
     }
     if (m.requires === 'sc') {
         if (a.category === 'sc') why.push(['r_sc'])
+        else if (a.category === 'skip') check.push(['c_sc'])
         else whyNot.push(['n_sc'])
     }
     if (m.requires === 'woman-or-scst') {
         if (a.gender === 'female' || a.category === 'sc' || a.category === 'st') why.push(['r_woman_scst'])
+        else if (a.category === 'skip') check.push(['c_woman_scst'])
         else whyNot.push(['n_woman_scst'])
     }
     if (m.excludesHighIncome) {
@@ -91,6 +93,8 @@ export const evaluate = (scheme, a) => {
         else if (a.land === 'unsure') check.push(['c_land'])
         else if (a.land === 'yes') why.push(['r_land'])
     }
+    // Official exclusions the checker does not ask about (e.g. government jobs in the family).
+    if (m.checkNote) check.push([m.checkNote])
     return { fits: whyNot.length === 0, why, check, whyNot }
 }
 
@@ -325,9 +329,9 @@ const EligibilityChecker = () => {
                                                                 {ev.check.map((c) => <li key={c[0]}><AlertTriangle size={14} aria-hidden="true" /> {say(c)}</li>)}
                                                             </ul>
                                                         )}
-                                                        <a href={s.officialLinks[0].url} target="_blank" rel="noopener noreferrer" className="result-portal">
+                                                        <PortalLink scheme={s} className="result-portal">
                                                             {t('visit_portal')} <ExternalLink size={14} aria-hidden="true" />
-                                                        </a>
+                                                        </PortalLink>
                                                     </div>
                                                 )
                                             })()}

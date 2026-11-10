@@ -30,7 +30,7 @@ const Schemes = () => {
         return SCHEMES.filter((s) =>
             (category === 'all' || s.categories.includes(category)) &&
             (level === 'all' || s.level === level) &&
-            (!q || [s.name, s.shortName, s.summary, s.whoFor, s.state || '', s.hi?.summary || '', s.hi?.whoFor || ''].join(' ').toLowerCase().includes(q))
+            (!q || [s.name, s.shortName, s.summary, s.whoFor, s.state || '', (s.hi?.summary || s.hiSummary) || '', s.hi?.whoFor || ''].join(' ').toLowerCase().includes(q))
         )
     }, [query, category, level])
 

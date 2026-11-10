@@ -18,6 +18,12 @@ const Navbar = () => {
     const [profileMenuOpen, setProfileMenuOpen] = useState(false)
     const profileMenuRef = useRef(null)
 
+    // Close the menus on any route change, including the browser Back button.
+    useEffect(() => {
+        setMobileMenuOpen(false)
+        setProfileMenuOpen(false)
+    }, [location.pathname])
+
     const isActive = (path) => location.pathname === path
     const isAdmin = user?.email === 'riteshkumar90359@gmail.com'
 
@@ -159,7 +165,7 @@ const Navbar = () => {
                     <button
                         className="mobile-menu-btn hide-desktop"
                         onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                        aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+                        aria-label={mobileMenuOpen ? t('nav_close_menu') : t('nav_open_menu')}
                         aria-expanded={mobileMenuOpen}
                     >
                         {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -177,7 +183,7 @@ const Navbar = () => {
                         </Link>
                         <div className="mobile-menu-controls">
                             <ThemeToggle />
-                            <button className="mobile-menu-btn" onClick={() => setMobileMenuOpen(false)} aria-label="Close menu">
+                            <button className="mobile-menu-btn" onClick={() => setMobileMenuOpen(false)} aria-label={t('nav_close_menu')}>
                                 <X size={24} />
                             </button>
                         </div>

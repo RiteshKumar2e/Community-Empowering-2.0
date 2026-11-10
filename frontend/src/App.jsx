@@ -74,7 +74,7 @@ function App() {
                             <Route path="/eligibility" element={<EligibilityChecker />} />
                             <Route path="/editorial-policy" element={<EditorialPolicy />} />
                             <Route path="/about" element={<About />} />
-                                <Route path="/contact" element={<Contact />} />
+                            <Route path="/contact" element={<Contact />} />
 
                             {/* Protected Routes */}
                             <Route path="/dashboard" element={

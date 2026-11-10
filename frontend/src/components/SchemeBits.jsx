@@ -2,9 +2,34 @@ import { Link } from 'react-router-dom'
 import { ArrowRight, ShieldAlert, Clock, ChevronRight } from 'lucide-react'
 import { localizeScheme } from '../data/schemes'
 import { useText } from '../i18n/appText'
+import { useAuth } from '../contexts/AuthContext'
+import { setPostAuthRedirect } from '../services/myData'
+import { trackEvent } from '../utils/analytics'
 
 export const formatDate = (iso) =>
     new Date(`${iso}T00:00:00`).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })
+
+// "Visit Official Government Portal". Signed-in users go straight to the
+// portal in a new tab. Visitors without an account are sent to free sign-up
+// first and come back to the scheme page, where the button then opens the portal.
+export const PortalLink = ({ scheme, className, children }) => {
+    const { isAuthenticated } = useAuth()
+    const url = scheme.officialLinks[0].url
+    if (isAuthenticated) {
+        return (
+            <a href={url} target="_blank" rel="noopener noreferrer" className={className}
+                onClick={() => trackEvent('official_link_clicked', { scheme: scheme.slug, link_url: url })}>
+                {children}
+            </a>
+        )
+    }
+    return (
+        <Link to={`/register?next=apply&scheme=${scheme.slug}`} className={className}
+            onClick={() => { setPostAuthRedirect(`/schemes/${scheme.slug}`); trackEvent('portal_gate_clicked', { scheme: scheme.slug }) }}>
+            {children}
+        </Link>
+    )
+}
 
 // Shown on every scheme page: Community AI is not a government website.
 export const Disclaimer = () => {
