@@ -29,6 +29,13 @@ const STATIC = {
         changefreq: 'monthly',
         priority: 0.8,
     },
+    '/contact': {
+        title: `Contact Community AI – Questions and Corrections | ${SITE_NAME}`,
+        description: 'Write to Community AI with a question, a correction to a scheme page, a partnership idea or a privacy request. We reply by email.',
+        index: true,
+        changefreq: 'yearly',
+        priority: 0.4,
+    },
     '/about': {
         title: `About Community AI – Independent Government Scheme Information | ${SITE_NAME}`,
         description: 'Who builds Community AI, what it offers, how scheme information is researched and corrected, and how to contact us.',

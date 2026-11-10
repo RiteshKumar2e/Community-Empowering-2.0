@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowLeft, ArrowRight, RotateCcw, Lock, Sparkles, X, Check, BookmarkCheck } from 'lucide-react'
+import { ArrowLeft, ArrowRight, RotateCcw, Lock, Sparkles, X, Check, BookmarkCheck, AlertTriangle, ExternalLink } from 'lucide-react'
 import { SCHEMES } from '../data/schemes'
 import { SchemeCard, Disclaimer, Breadcrumbs } from '../components/SchemeBits'
 import { trackEvent } from '../utils/analytics'
@@ -23,6 +23,8 @@ const QUESTIONS = [
             ['unemployed', 'o_unemployed'], ['homemaker', 'o_homemaker'], ['retired', 'o_retired'],
         ],
     },
+    // Only asked of farmers: PM-KISAN needs land recorded in the family's name.
+    { id: 'land', title: 'q_land', when: (a) => a.occupation === 'farmer', options: [['yes', 'o_yes'], ['no', 'o_no'], ['unsure', 'o_unsure']] },
     { id: 'state', title: 'q_state', options: [['Jharkhand', 'o_jharkhand'], ['other', 'o_other_state']] },
     { id: 'taxPayer', title: 'q_tax', options: [['no', 'o_no'], ['yes', 'o_yes'], ['unsure', 'o_unsure']] },
     {
@@ -34,39 +36,63 @@ const QUESTIONS = [
     { id: 'daughter', title: 'q_daughter', options: [['yes', 'o_yes'], ['no', 'o_no']] },
 ]
 
-const reasonFor = (scheme, a) => {
+// Checks one scheme's `match` rules (data/schemes.js) against the answers.
+// Returns i18n keys: `why` (rules met), `check` (things to confirm) and
+// `whyNot` (rules not met). A scheme fits when `whyNot` is empty.
+export const evaluate = (scheme, a) => {
     const m = scheme.match
-    if (scheme.slug === 'ayushman-bharat-pm-jay') {
-        return a.age >= 70
-            ? 'You are 70 or older, so you are covered regardless of income.'
-            : 'Depends on whether your family is in the PM-JAY list. Check on the official portal.'
-    }
-    const bits = []
-    if (m.state) bits.push(`you live in ${m.state}`)
-    if (m.gender === 'female') bits.push('it is for women')
-    if (m.requires === 'sc') bits.push('it is for SC students')
-    if (m.parentOfGirlUnder10) bits.push('you have a daughter under 10')
-    if (m.minAge || m.maxAge) bits.push(`your age fits (${m.minAge || 0}${m.maxAge ? `–${m.maxAge}` : '+'})`)
-    if (Array.isArray(m.occupations)) bits.push('it suits your work situation')
-    let text = bits.length ? `Shown because ${bits.join(', ')}.` : 'Open to most people.'
-    if (m.excludesTaxPayers && a.taxPayer === 'unsure') text += ' Not open to income-tax payers. Check this first.'
-    return text
-}
+    const why = []
+    const check = []
+    const whyNot = []
+    const range = `${m.minAge || 0}${m.maxAge ? `–${m.maxAge}` : '+'}`
 
-const matchSchemes = (a) => SCHEMES.filter((s) => {
-    const m = s.match
-    if (m.occupations !== 'any' && !m.occupations.includes(a.occupation)) return false
-    if (m.minAge && a.age < m.minAge) return false
-    if (m.maxAge && a.age > m.maxAge) return false
-    if (m.gender && a.gender !== m.gender) return false
-    if (m.state && a.state !== m.state) return false
-    if (m.excludesTaxPayers && a.taxPayer === 'yes') return false
-    if (m.requires === 'sc' && a.category !== 'sc') return false
-    if (m.requires === 'woman-or-scst' && !(a.gender === 'female' || a.category === 'sc' || a.category === 'st')) return false
-    if (m.excludesHighIncome && a.income === 'above') return false
-    if (m.parentOfGirlUnder10 && a.daughter !== 'yes') return false
-    return true
-})
+    if (scheme.slug === 'ayushman-bharat-pm-jay') {
+        if (a.age >= 70) why.push(['r_70'])
+        else check.push(['c_pmjay_list'])
+    }
+    if (Array.isArray(m.occupations)) {
+        if (m.occupations.includes(a.occupation)) why.push(['r_occ', { occ: `o_${a.occupation}` }])
+        else whyNot.push(['n_occ', { list: m.occupations.map((o) => `o_${o}`) }])
+    }
+    if ((m.minAge && a.age < m.minAge) || (m.maxAge && a.age > m.maxAge)) whyNot.push(['n_age', { range }])
+    else if (m.minAge || m.maxAge) why.push(['r_age', { range }])
+    if (m.gender === 'female') {
+        if (a.gender === 'female') why.push(['r_women'])
+        else whyNot.push(['n_women'])
+    }
+    if (m.state) {
+        if (a.state === m.state) why.push(['r_state', { state: m.state }])
+        else whyNot.push(['n_state', { state: m.state }])
+    }
+    if (m.excludesTaxPayers) {
+        if (a.taxPayer === 'yes') whyNot.push(['n_tax'])
+        else if (a.taxPayer === 'unsure') check.push(['c_tax'])
+        else why.push(['r_tax'])
+    }
+    if (m.requires === 'sc') {
+        if (a.category === 'sc') why.push(['r_sc'])
+        else whyNot.push(['n_sc'])
+    }
+    if (m.requires === 'woman-or-scst') {
+        if (a.gender === 'female' || a.category === 'sc' || a.category === 'st') why.push(['r_woman_scst'])
+        else whyNot.push(['n_woman_scst'])
+    }
+    if (m.excludesHighIncome) {
+        if (a.income === 'above') whyNot.push(['n_income'])
+        else if (a.income === 'unsure') check.push(['c_income'])
+        else why.push(['r_income'])
+    }
+    if (m.parentOfGirlUnder10) {
+        if (a.daughter === 'yes') why.push(['r_daughter'])
+        else whyNot.push(['n_daughter'])
+    }
+    if (m.needsLand) {
+        if (a.land === 'no') whyNot.push(['n_land'])
+        else if (a.land === 'unsure') check.push(['c_land'])
+        else if (a.land === 'yes') why.push(['r_land'])
+    }
+    return { fits: whyNot.length === 0, why, check, whyNot }
+}
 
 // Shown once a visitor has useful results. Dismissable, never blocks reading.
 const SignupPrompt = ({ count, onDismiss }) => {
@@ -122,8 +148,21 @@ const EligibilityChecker = () => {
         window.scrollTo(0, 0)
     }, [])
 
-    const done = step >= QUESTIONS.length
-    const results = useMemo(() => (done ? matchSchemes(answers) : []), [done, answers])
+    const questions = QUESTIONS.filter((q) => !q.when || q.when(answers))
+    const done = step >= questions.length
+    const evaluated = useMemo(
+        () => (done ? SCHEMES.map((s) => ({ scheme: s, ...evaluate(s, answers) })) : []),
+        [done, answers],
+    )
+    const results = evaluated.filter((r) => r.fits).map((r) => r.scheme)
+    const notShown = evaluated.filter((r) => !r.fits)
+    // Renders a [key, vars] pair from evaluate(); option keys inside vars are
+    // translated too, so "Meant for: Farmer, Student" reads right in Hindi.
+    const say = ([key, vars = {}]) => t(key, {
+        ...vars,
+        ...(vars.occ ? { occ: t(vars.occ) } : {}),
+        ...(vars.list ? { list: vars.list.map((k) => t(k)).join(', ') } : {}),
+    })
 
     useEffect(() => {
         if (!done) return
@@ -171,7 +210,7 @@ const EligibilityChecker = () => {
         setStep(0)
     }
 
-    const q = QUESTIONS[step]
+    const q = questions[step]
 
     return (
         <main className="schemes-page eligibility-page">
@@ -185,7 +224,7 @@ const EligibilityChecker = () => {
                 <header className="schemes-header">
                     <h1>{t('elig_title')}</h1>
                     <p className="schemes-lead">
-                        {t('elig_lead', { n: QUESTIONS.length })}
+                        {t('elig_lead', { n: questions.length })}
                     </p>
                     <p className="privacy-note"><Lock size={14} /> {t('elig_privacy')}</p>
                 </header>
@@ -195,11 +234,11 @@ const EligibilityChecker = () => {
                         <motion.div
                             className="wizard-progress-fill"
                             initial={false}
-                            animate={{ width: `${(Math.min(step, QUESTIONS.length) / QUESTIONS.length) * 100}%` }}
+                            animate={{ width: `${(Math.min(step, questions.length) / questions.length) * 100}%` }}
                         />
                     </div>
 
-                    <AnimatePresence mode="wait">
+                    <AnimatePresence mode="wait" initial={false}>
                         {!done ? (
                             <motion.div
                                 key={q.id}
@@ -209,7 +248,7 @@ const EligibilityChecker = () => {
                                 transition={{ duration: 0.2 }}
                                 className="eligibility-question"
                             >
-                                <p className="question-count">{t('question_n', { i: step + 1, n: QUESTIONS.length })}</p>
+                                <p className="question-count">{t('question_n', { i: step + 1, n: questions.length })}</p>
                                 <h2>{t(q.title)}</h2>
                                 {q.hint && <p className="muted">{t(q.hint)}</p>}
 
@@ -272,7 +311,26 @@ const EligibilityChecker = () => {
                                     <div key={s.slug}>
                                         <div className="result-item">
                                             <SchemeCard scheme={s} />
-                                            <p className="result-reason">{reasonFor(s, answers)}</p>
+                                            {(() => {
+                                                const ev = evaluate(s, answers)
+                                                return (
+                                                    <div className="result-why">
+                                                        {ev.why.length > 0 && (
+                                                            <ul className="why-list" aria-label={t('why_shown')}>
+                                                                {ev.why.map((w) => <li key={w[0]}><Check size={14} aria-hidden="true" /> {say(w)}</li>)}
+                                                            </ul>
+                                                        )}
+                                                        {ev.check.length > 0 && (
+                                                            <ul className="check-first-list" aria-label={t('check_first')}>
+                                                                {ev.check.map((c) => <li key={c[0]}><AlertTriangle size={14} aria-hidden="true" /> {say(c)}</li>)}
+                                                            </ul>
+                                                        )}
+                                                        <a href={s.officialLinks[0].url} target="_blank" rel="noopener noreferrer" className="result-portal">
+                                                            {t('visit_portal')} <ExternalLink size={14} aria-hidden="true" />
+                                                        </a>
+                                                    </div>
+                                                )
+                                            })()}
                                         </div>
                                         {/* After the first few results, so it is seen without scrolling to the end. */}
                                         {i === Math.min(2, results.length - 1) && !isAuthenticated && !promptDismissed && (
@@ -280,6 +338,19 @@ const EligibilityChecker = () => {
                                         )}
                                     </div>
                                 ))}
+
+                                {notShown.length > 0 && (
+                                    <details className="not-shown">
+                                        <summary>{t('not_shown_title', { n: notShown.length })}</summary>
+                                        <ul>
+                                            {notShown.map((r) => (
+                                                <li key={r.scheme.slug}>
+                                                    <Link to={`/schemes/${r.scheme.slug}`}>{r.scheme.shortName}</Link>: {r.whyNot.map((w) => say(w)).join(' ')}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </details>
+                                )}
 
                                 {results.length === 0 && (
                                     <p>

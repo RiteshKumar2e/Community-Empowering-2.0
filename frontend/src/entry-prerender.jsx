@@ -11,6 +11,7 @@ import SchemeDetail from './pages/SchemeDetail'
 import EligibilityChecker from './pages/EligibilityChecker'
 import EditorialPolicy from './pages/EditorialPolicy'
 import About from './pages/About'
+import Contact from './pages/Contact'
 import PrivacyPolicy from './pages/PrivacyPolicy'
 import Terms from './pages/Terms'
 
@@ -22,6 +23,7 @@ export const PAGE_SOURCES = {
     '/eligibility': 'src/pages/EligibilityChecker.jsx',
     '/editorial-policy': 'src/pages/EditorialPolicy.jsx',
     '/about': 'src/pages/About.jsx',
+    '/contact': 'src/pages/Contact.jsx',
     '/privacy': 'src/pages/PrivacyPolicy.jsx',
     '/terms': 'src/pages/Terms.jsx',
 }
@@ -38,6 +40,7 @@ export const render = (url) =>
                 <Route path="/eligibility" element={<EligibilityChecker />} />
                 <Route path="/editorial-policy" element={<EditorialPolicy />} />
                 <Route path="/about" element={<About />} />
+                <Route path="/contact" element={<Contact />} />
                 <Route path="/privacy" element={<PrivacyPolicy />} />
                 <Route path="/terms" element={<Terms />} />
             </Routes>

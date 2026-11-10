@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from 'react'
+import { createContext, useContext, useState, useEffect } from 'react'
 
 export const LanguageContext = createContext()
 
@@ -124,8 +124,12 @@ export const LanguageProvider = ({ children }) => {
     const changeLanguage = (lang) => {
         setLanguage(lang)
         localStorage.setItem('language', lang)
-        document.documentElement.lang = lang === 'hi' ? 'hi-IN' : 'en-IN'
     }
+
+    // Keep <html lang> in step with the chosen language, including after a reload.
+    useEffect(() => {
+        document.documentElement.lang = language === 'hi' ? 'hi-IN' : 'en-IN'
+    }, [language])
 
     const t = (key) => {
         return translations[language]?.[key] || translations['en']?.[key] || key

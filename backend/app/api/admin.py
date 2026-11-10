@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from typing import List, Optional
 from app.core.database import get_db
-from app.models.models import User, Query, Enrollment, Course, Resource, LearningPlatform, Feedback, ForumDiscussion, ForumReply, ForumCategory, UserActivity, ForumLike, ForumView, ForumReplyLike, ForumReplyView, SavedScheme, EligibilityResult
+from app.models.models import ContactMessage, User, Query, Enrollment, Course, Resource, LearningPlatform, Feedback, ForumDiscussion, ForumReply, ForumCategory, UserActivity, ForumLike, ForumView, ForumReplyLike, ForumReplyView, SavedScheme, EligibilityResult
 from app.services.market_scanner import market_scanner
 from app.api.users import get_current_user
 from datetime import datetime, timezone, timedelta
@@ -645,6 +645,7 @@ async def get_admin_overview(
         "discussions": await get_all_discussions(admin=admin, db=db),
         "activities": await get_user_activities(admin=admin, db=db),
         "categories": await get_categories(db=db),
+        "contact": jsonable_encoder(db.query(ContactMessage).order_by(ContactMessage.created_at.desc()).limit(200).all()),
     })
     _overview_cache.update(data=data, at=now)
     return data

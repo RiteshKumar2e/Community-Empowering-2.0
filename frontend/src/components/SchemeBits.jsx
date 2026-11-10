@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { ArrowRight, ShieldAlert, Clock, ChevronRight } from 'lucide-react'
-import { getCategory } from '../data/schemes'
+import { localizeScheme } from '../data/schemes'
 import { useText } from '../i18n/appText'
 
 export const formatDate = (iso) =>
@@ -11,10 +11,9 @@ export const Disclaimer = () => {
     const t = useText()
     return (
         <aside className="scheme-disclaimer" role="note">
-            <ShieldAlert size={18} />
+            <ShieldAlert size={18} aria-hidden="true" />
             <p>
                 <strong>{t('disclaimer_strong')}</strong>{' '}{t('disclaimer_rest')}
-                {t.language === 'hi' && <><br />{t('english_only_note')}</>}
             </p>
         </aside>
     )
@@ -24,10 +23,11 @@ export const ReviewStatus = ({ review }) => {
     const t = useText()
     return (
         <p className="scheme-review">
-            <Clock size={14} />
+            <Clock size={14} aria-hidden="true" />
             {t('last_updated', { date: formatDate(review.lastUpdated) })}
-            {review.status === 'verified' && review.verifiedOn ? (
-                <span className="review-pill verified">{t('verified_on', { date: formatDate(review.verifiedOn) })}</span>
+            {/* "Verified" only when a named person checked the page; see data/schemes.js. */}
+            {review.status === 'verified' && review.verifiedOn && review.reviewer ? (
+                <span className="review-pill verified">{t('verified_by', { date: formatDate(review.verifiedOn), name: review.reviewer })}</span>
             ) : (
                 <span className="review-pill pending">{t('not_verified')}</span>
             )}
@@ -48,21 +48,19 @@ export const Breadcrumbs = ({ items }) => (
     </nav>
 )
 
-export const SchemeCard = ({ scheme }) => {
+export const SchemeCard = ({ scheme: base }) => {
     const t = useText()
+    const scheme = localizeScheme(base, t.language)
     return (
-    <Link to={`/schemes/${scheme.slug}`} className="scheme-card">
-        <div className="scheme-card-top">
-            <span className={`level-tag ${scheme.level}`}>{scheme.level === 'state' ? scheme.state : t('central')}</span>
-            {scheme.categories.slice(0, 2).map((c) => (
-                <span key={c} className="cat-tag">{getCategory(c)?.emoji} {getCategory(c)?.label}</span>
-            ))}
-        </div>
-        <h3>{scheme.shortName}</h3>
-        <p>{scheme.summary}</p>
-        <span className="scheme-card-link">
-            {t('card_link')} <ArrowRight size={16} />
-        </span>
-    </Link>
+        <Link to={`/schemes/${scheme.slug}`} className="scheme-card">
+            <div className="scheme-card-top">
+                <span className={`level-tag ${scheme.level}`}>{scheme.level === 'state' ? scheme.state : t('central')}</span>
+            </div>
+            <h3>{scheme.shortName}</h3>
+            <p>{scheme.summary}</p>
+            <span className="scheme-card-link">
+                {t('card_link')} <ArrowRight size={16} aria-hidden="true" />
+            </span>
+        </Link>
     )
 }

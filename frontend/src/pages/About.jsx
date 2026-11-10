@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom'
 import { SCHEMES } from '../data/schemes'
 import { HERO_PHOTOS } from '../data/heroPhotos'
 import '../styles/Legal.css'
+import { CONTACT_EMAIL } from '../config/contact'
 
-const CONTACT_EMAIL = 'riteshkumar90359@gmail.com'
 
 // Public "who we are" page: purpose, team, what the platform does and does not
 // do, how to contact us and how corrections work.
@@ -33,6 +33,7 @@ const About = () => {
                     <li><strong>An eligibility checker</strong> that suggests schemes worth checking from a few non-sensitive answers. It never asks for Aadhaar, bank details or OTPs.</li>
                     <li><strong>A directory of 200+ government resources</strong> and <strong>300+ free learning platforms</strong> for signed-in users.</li>
                     <li><strong>An AI assistant</strong> that answers in 11 Indian languages, plus a community forum.</li>
+                    <li><strong>Hindi versions</strong> of the main pages and the most-used scheme guides. Use the EN / हिंदी switch at the top of the page.</li>
                 </ul>
 
                 <h2>What we are not</h2>
@@ -40,7 +41,8 @@ const About = () => {
                     Community AI is <strong>not a government website</strong> and is not affiliated with any ministry,
                     department or state government. We can’t process applications, approve benefits or speed them up.
                     Final eligibility is always decided by the department that runs a scheme, so please confirm
-                    details on the official portal linked from every guide.
+                    details on the official portal linked from every guide. We never charge for anything, and the
+                    official links on our pages are open to everyone without signing up.
                 </p>
 
                 <h2>Who builds it</h2>
@@ -60,22 +62,25 @@ const About = () => {
 
                 <h2>Contact and corrections</h2>
                 <p>
-                    Email <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>. If something on a scheme page is
+                    Use our <Link to="/contact">contact form</Link> or email{' '}
+                    <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>. If something on a scheme page is
                     wrong or out of date, use the “Report outdated or incorrect information” link on that page, or
-                    email us with the page link and, if possible, the official source.
+                    write to us with the page link and, if possible, the official source.
                 </p>
 
-                <h2>Photo credits</h2>
-                <p>The photos on our homepage come from Wikimedia Commons and are used under their licences:</p>
-                <ul>
-                    {HERO_PHOTOS.map((p) => (
-                        <li key={p.src}>
-                            <a href={p.page} target="_blank" rel="noopener noreferrer">Photo</a> by {p.author},{' '}
-                            <a href={p.licenseUrl} target="_blank" rel="noopener noreferrer license">{p.license}</a>
-                            {' '}(resized and darkened)
-                        </li>
-                    ))}
-                </ul>
+                {/* CC BY / CC BY-SA licences require credit, so keep this; collapsed to stay out of the way. */}
+                <details className="photo-credits">
+                    <summary>Homepage photo credits ({HERO_PHOTOS.length} photos, Wikimedia Commons)</summary>
+                    <ul>
+                        {HERO_PHOTOS.map((p) => (
+                            <li key={p.src}>
+                                <a href={p.page} target="_blank" rel="noopener noreferrer">Photo</a> by {p.author},{' '}
+                                <a href={p.licenseUrl} target="_blank" rel="noopener noreferrer license">{p.license}</a>
+                                {' '}(resized and darkened)
+                            </li>
+                        ))}
+                    </ul>
+                </details>
 
                 <p>
                     See also our <Link to="/privacy">Privacy Policy</Link> and <Link to="/terms">Terms</Link>.

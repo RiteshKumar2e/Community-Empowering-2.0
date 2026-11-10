@@ -67,3 +67,13 @@ body:not(.light-theme) .legal-page a {
     padding: var(--space-5);
   }
 }
+
+.photo-credits {
+  margin-top: var(--space-6);
+  font-size: var(--text-sm);
+  color: var(--text-tertiary);
+}
+
+.photo-credits summary {
+  cursor: pointer;
+}

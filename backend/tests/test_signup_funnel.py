@@ -438,7 +438,7 @@ def test_admin_overview_is_one_request_cached_and_cleared_by_writes():
 
     admin_api._overview_cache["data"] = None
     body, first = statements_for("/api/admin/overview")
-    assert set(body) == {"stats", "users", "queries", "feedback", "resources", "platforms", "discussions", "activities", "categories"}
+    assert set(body) == {"stats", "users", "queries", "feedback", "resources", "platforms", "discussions", "activities", "categories", "contact"}
     assert body["stats"]["totalUsers"] >= 1 and len(body["users"]) >= 1
     assert first <= 16, f"{first} queries"
     _, cached = statements_for("/api/admin/overview")
@@ -475,3 +475,29 @@ def test_forum_posting_is_rate_limited():
     body = {"title": "Same post", "content": "Again and again", "category_id": cid}
     codes = [client.post("/api/forum/discussions", json=body, headers=auth(token)).status_code for _ in range(21)]
     assert codes[0] in (200, 201) and codes[-1] == 429
+
+
+def test_contact_form_saves_validates_and_blocks_bots(monkeypatch):
+    from app.core import rate_limit as rl
+    from app.models.models import ContactMessage
+    rl.contact_limiter._hits.clear()
+    sent = []
+    monkeypatch.setattr(email_service, "send_contact_to_admin", lambda **k: sent.append(k) or True)
+    good = {"name": "Asha Devi", "email": "asha.contact@example.com", "topic": "correction",
+            "message": "The helpline number on this page looks old.", "page": "/schemes/pm-kisan"}
+    assert client.post("/api/contact", json=good).status_code == 200
+    assert sent and sent[0]["page"] == "/schemes/pm-kisan"
+    assert client.post("/api/contact", json={**good, "message": "short"}).status_code == 422
+    assert client.post("/api/contact", json={**good, "email": "not-an-email"}).status_code == 422
+    assert client.post("/api/contact", json={**good, "topic": "spam"}).status_code == 422
+    bot = client.post("/api/contact", json={**good, "website": "http://spam.example", "message": "Buy cheap things now please"})
+    assert bot.status_code == 200
+    db = database.SessionLocal()
+    try:
+        rows = db.query(ContactMessage).filter(ContactMessage.email == "asha.contact@example.com").all()
+        assert len(rows) == 1 and rows[0].topic == "correction"
+    finally:
+        db.close()
+    assert len(sent) == 1  # the bot message was not emailed
+    codes = [client.post("/api/contact", json=good).status_code for _ in range(6)]
+    assert codes[-1] == 429

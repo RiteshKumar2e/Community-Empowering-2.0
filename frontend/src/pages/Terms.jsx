@@ -1,8 +1,8 @@
 import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import '../styles/Legal.css'
+import { CONTACT_EMAIL } from '../config/contact'
 
-const CONTACT_EMAIL = 'riteshkumar90359@gmail.com'
 
 const Terms = () => {
     useEffect(() => {

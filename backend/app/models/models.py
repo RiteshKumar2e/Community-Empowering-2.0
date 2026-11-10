@@ -115,6 +115,18 @@ class Feedback(Base):
     category = Column(String)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
+class ContactMessage(Base):
+    """Messages from the public contact form (api/contact.py)."""
+    __tablename__ = "contact_messages"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False)
+    email = Column(String, nullable=False)
+    topic = Column(String, nullable=False, default="general")
+    message = Column(Text, nullable=False)
+    page = Column(String)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), index=True)
+
 class UserActivity(Base):
     __tablename__ = "user_activities"
     

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { Search, ListChecks, X } from 'lucide-react'
-import { SCHEMES, CATEGORIES, getCategory, publishedCategories } from '../data/schemes'
+import { SCHEMES, CATEGORIES, getCategory, publishedCategories, categoryLabel } from '../data/schemes'
 import { SchemeCard, Disclaimer, Breadcrumbs } from '../components/SchemeBits'
 import { trackEvent } from '../utils/analytics'
 import { useText } from '../i18n/appText'
@@ -30,7 +30,7 @@ const Schemes = () => {
         return SCHEMES.filter((s) =>
             (category === 'all' || s.categories.includes(category)) &&
             (level === 'all' || s.level === level) &&
-            (!q || [s.name, s.shortName, s.summary, s.whoFor, s.state || ''].join(' ').toLowerCase().includes(q))
+            (!q || [s.name, s.shortName, s.summary, s.whoFor, s.state || '', s.hi?.summary || '', s.hi?.whoFor || ''].join(' ').toLowerCase().includes(q))
         )
     }, [query, category, level])
 
@@ -55,14 +55,14 @@ const Schemes = () => {
                 <Breadcrumbs items={[
                     { label: t('home'), to: '/' },
                     { label: t('gov_schemes'), to: '/schemes' },
-                    ...(hub ? [{ label: hub.label }] : []),
+                    ...(hub ? [{ label: categoryLabel(hub, t.language) }] : []),
                 ]} />
 
                 <header className="schemes-header">
-                    <h1>{hub ? t('schemes_for', { label: hub.label }) : t('schemes_title')}</h1>
+                    <h1>{hub ? t('schemes_for', { label: categoryLabel(hub, t.language) }) : t('schemes_title')}</h1>
                     <p className="schemes-lead">
                         {hub
-                            ? hub.intro
+                            ? ((t.language === 'hi' && hub.introHi) || hub.intro)
                             : t('schemes_lead')}
                     </p>
                     <Link to="/eligibility" className="btn btn-primary eligibility-cta">
@@ -106,7 +106,7 @@ const Schemes = () => {
                                     onClick={() => onFilter('category', c.id, setCategory)}
                                     aria-pressed={category === c.id}
                                 >
-                                    {c.emoji} {c.label}
+                                    {categoryLabel(c, t.language)}
                                 </button>
                             ))}
                         </div>
@@ -152,7 +152,7 @@ const Schemes = () => {
                     <ul>
                         {publishedCategories().filter((c) => c.id !== hub?.id).map((c) => (
                             <li key={c.id}>
-                                <Link to={`/schemes/category/${c.id}`}>{c.emoji} {t('schemes_for_short', { label: c.label })}</Link>
+                                <Link to={`/schemes/category/${c.id}`}>{t('schemes_for_short', { label: categoryLabel(c, t.language) })}</Link>
                             </li>
                         ))}
                     </ul>

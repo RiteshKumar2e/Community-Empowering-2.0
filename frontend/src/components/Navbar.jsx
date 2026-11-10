@@ -1,4 +1,4 @@
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { Menu, X, User, LogOut, Shield, ChevronDown, LayoutDashboard, FileText, MessageSquare, Star } from 'lucide-react'
 import { useState, useRef, useEffect } from 'react'
@@ -8,11 +8,12 @@ import LanguageToggle from './LanguageToggle'
 import '../styles/Navbar.css'
 import { warmUpGoogleSignIn } from '../utils/googleSignIn'
 import BrandMark from './BrandMark'
+import { useText } from '../i18n/appText'
 
 const Navbar = () => {
+    const t = useText()
     const { isAuthenticated, user, logout } = useAuth()
     const location = useLocation()
-    const navigate = useNavigate()
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
     const [profileMenuOpen, setProfileMenuOpen] = useState(false)
     const profileMenuRef = useRef(null)
@@ -52,24 +53,6 @@ const Navbar = () => {
         )
     }
 
-    const scrollToSection = (sectionId) => {
-        if (location.pathname !== '/') {
-            navigate('/')
-            setTimeout(() => {
-                const element = document.getElementById(sectionId)
-                if (element) {
-                    element.scrollIntoView({ behavior: 'smooth' })
-                }
-            }, 100)
-        } else {
-            const element = document.getElementById(sectionId)
-            if (element) {
-                element.scrollIntoView({ behavior: 'smooth' })
-            }
-        }
-        setMobileMenuOpen(false)
-    }
-
     return (
         <nav className="navbar">
             <div className="container navbar-container">
@@ -82,12 +65,12 @@ const Navbar = () => {
                 <div className="navbar-links hide-mobile">
                     {isAuthenticated && location.pathname !== '/' ? (
                         <>
-                            <Link to="/dashboard" className={`nav-link ${isActive('/dashboard') ? 'active' : ''}`}>Dashboard</Link>
-                            <Link to="/schemes" className={`nav-link ${location.pathname.startsWith('/schemes') ? 'active' : ''}`}>Schemes</Link>
-                            <Link to="/assistant" className={`nav-link ${isActive('/assistant') ? 'active' : ''}`}>AI Assistant</Link>
-                            <Link to="/resources" className={`nav-link ${isActive('/resources') ? 'active' : ''}`}>Resources</Link>
-                            <Link to="/learning" className={`nav-link ${isActive('/learning') ? 'active' : ''}`}>Learning Hub</Link>
-                            <Link to="/forum" className={`nav-link ${isActive('/forum') ? 'active' : ''}`}>Forum</Link>
+                            <Link to="/dashboard" className={`nav-link ${isActive('/dashboard') ? 'active' : ''}`}>{t('nav_dashboard')}</Link>
+                            <Link to="/schemes" className={`nav-link ${location.pathname.startsWith('/schemes') ? 'active' : ''}`}>{t('nav_schemes')}</Link>
+                            <Link to="/assistant" className={`nav-link ${isActive('/assistant') ? 'active' : ''}`}>{t('nav_assistant')}</Link>
+                            <Link to="/resources" className={`nav-link ${isActive('/resources') ? 'active' : ''}`}>{t('nav_resources')}</Link>
+                            <Link to="/learning" className={`nav-link ${isActive('/learning') ? 'active' : ''}`}>{t('nav_learning')}</Link>
+                            <Link to="/forum" className={`nav-link ${isActive('/forum') ? 'active' : ''}`}>{t('nav_forum')}</Link>
                             {isAdmin && (
                                 <Link to="/admin" className={`nav-link admin-link ${isActive('/admin') ? 'active' : ''}`}>
                                     <Shield size={16} /> Admin
@@ -96,13 +79,11 @@ const Navbar = () => {
                         </>
                     ) : (
                         <>
-                            <button onClick={() => scrollToSection('home')} className="nav-link">Home</button>
-                            <Link to="/schemes" className={`nav-link ${location.pathname.startsWith('/schemes') ? 'active' : ''}`}>Schemes</Link>
-                            <Link to="/eligibility" className={`nav-link ${isActive('/eligibility') ? 'active' : ''}`}>Check Eligibility</Link>
-                            <button onClick={() => scrollToSection('about')} className="nav-link">About</button>
-                            <button onClick={() => scrollToSection('goals')} className="nav-link">Goals</button>
-                            <button onClick={() => scrollToSection('team')} className="nav-link">Team</button>
-                            <button onClick={() => scrollToSection('contact')} className="nav-link">Contact</button>
+                            <Link to="/" className={`nav-link ${isActive('/') ? 'active' : ''}`}>{t('nav_home')}</Link>
+                            <Link to="/schemes" className={`nav-link ${location.pathname.startsWith('/schemes') ? 'active' : ''}`}>{t('nav_schemes')}</Link>
+                            <Link to="/eligibility" className={`nav-link ${isActive('/eligibility') ? 'active' : ''}`}>{t('nav_eligibility')}</Link>
+                            <Link to="/about" className={`nav-link ${isActive('/about') ? 'active' : ''}`}>{t('nav_about')}</Link>
+                            <Link to="/contact" className={`nav-link ${isActive('/contact') ? 'active' : ''}`}>{t('nav_contact')}</Link>
                         </>
                     )}
                 </div>
@@ -269,14 +250,11 @@ const Navbar = () => {
                                     </Link>
                                 </div>
                                 <div className="menu-divider"></div>
-                                <button onClick={() => scrollToSection('home')} className="mobile-link">Home</button>
-                                <Link to="/schemes" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>Government Schemes</Link>
-                                <Link to="/eligibility" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>Check Eligibility</Link>
-                                <button onClick={() => scrollToSection('mission')} className="mobile-link">Mission</button>
-                                <button onClick={() => scrollToSection('about')} className="mobile-link">About</button>
-                                <button onClick={() => scrollToSection('goals')} className="mobile-link">Goals</button>
-                                <button onClick={() => scrollToSection('team')} className="mobile-link">Team</button>
-                                <button onClick={() => scrollToSection('contact')} className="mobile-link">Contact</button>
+                                <Link to="/" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>{t('nav_home')}</Link>
+                                <Link to="/schemes" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>{t('nav_schemes')}</Link>
+                                <Link to="/eligibility" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>{t('nav_eligibility')}</Link>
+                                <Link to="/about" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>{t('nav_about')}</Link>
+                                <Link to="/contact" className="mobile-link" onClick={() => setMobileMenuOpen(false)}>{t('nav_contact')}</Link>
                             </div>
                         )}
                     </div>

@@ -92,7 +92,7 @@ const crawlNav = `<nav aria-label="Site" style="padding:12px 16px;border-bottom:
 </nav>`
 const crawlFooter = `<footer style="padding:24px 16px;border-top:1px solid #e6e8eb;font-family:Inter,system-ui,sans-serif;font-size:14px">
   <p>${publishedCategories().map((c) => `<a href="/schemes/category/${c.id}">Schemes for ${esc(c.label)}</a>`).join(' · ')}</p>
-  <p><a href="/about">About Community AI</a> · <a href="/editorial-policy">Editorial Policy</a> · <a href="/privacy">Privacy Policy</a> · <a href="/terms">Terms</a></p>
+  <p><a href="/about">About Community AI</a> · <a href="/editorial-policy">Editorial Policy</a> · <a href="/contact">Contact</a> · <a href="/privacy">Privacy Policy</a> · <a href="/terms">Terms</a></p>
   <p>${SITE_NAME} is an independent information platform and is not affiliated with the Government of India or any state government.</p>
 </footer>`
 
@@ -140,7 +140,18 @@ const structuredDataFor = (path, meta) => {
                 dateModified: scheme.review.lastUpdated,
                 isPartOf: { '@type': 'WebSite', name: SITE_NAME, url: `${SITE_URL}/` },
                 publisher: ORGANIZATION,
+                citation: (scheme.sources || []).map((src) => src.url),
             },
+            // The same questions and answers are visible on the page.
+            ...(scheme.faqs.length ? [{
+                '@context': 'https://schema.org',
+                '@type': 'FAQPage',
+                mainEntity: scheme.faqs.map((f) => ({
+                    '@type': 'Question',
+                    name: f.q,
+                    acceptedAnswer: { '@type': 'Answer', text: f.a },
+                })),
+            }] : []),
         ]
     }
     const categoryId = path.startsWith('/schemes/category/') && path.split('/')[3]
@@ -216,6 +227,7 @@ const llms = `# ${SITE_NAME}
 - [Eligibility checker](${SITE_URL}/eligibility): 8 questions, no sign-up, suggests schemes worth checking
 - [About](${SITE_URL}/about): who runs the site and how to contact us
 - [Editorial policy](${SITE_URL}/editorial-policy): sources, review process and corrections
+- [Contact](${SITE_URL}/contact): contact form for questions and corrections
 
 ## Scheme guides
 ${SCHEMES.map((s) => `- [${s.name}](${SITE_URL}/schemes/${s.slug}): ${s.summary}`).join('\n')}

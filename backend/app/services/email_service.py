@@ -92,6 +92,23 @@ class EmailService:
         thread.start()
         return True
 
+    def send_contact_to_admin(self, name: str, email: str, topic: str, message: str, page: str = None) -> bool:
+        """Forward a public contact-form message to the admin inbox."""
+        try:
+            subject = f"Contact form ({topic}): {name}"
+            rows = [("Name", name), ("Email", email), ("Topic", topic)]
+            if page:
+                rows.append(("Page", f"{self.app_url}{page}"))
+            table = "".join(f"<tr><td style='padding:4px 12px 4px 0;color:#5b6475'>{escape(k)}</td><td>{escape(v)}</td></tr>" for k, v in rows)
+            html_body = f"<div style='font-family:Arial,sans-serif;font-size:14px'><table>{table}</table><p style='white-space:pre-wrap'>{escape(message)}</p></div>"
+            text_body = "\n".join(f"{k}: {v}" for k, v in rows) + "\n\n" + message
+            self._dispatch_api(self.admin_email, subject, html_body, text_body=text_body)
+            print(f"✅ Contact message forwarded from {mask_email(email)}")
+            return True
+        except Exception as e:
+            print(f"❌ Contact email failed for {mask_email(email)}: {str(e)}")
+            return False
+
     def send_market_update_notification(self, new_items: list) -> bool:
         """Notify admin about automatically discovered market opportunities"""
         thread = threading.Thread(

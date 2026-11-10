@@ -34,6 +34,7 @@ const SchemeDetail = lazyPage(() => import('./pages/SchemeDetail'))
 const EligibilityChecker = lazyPage(() => import('./pages/EligibilityChecker'))
 const EditorialPolicy = lazyPage(() => import('./pages/EditorialPolicy'))
 const About = lazyPage(() => import('./pages/About'))
+const Contact = lazyPage(() => import('./pages/Contact'))
 const ForgotPassword = lazyPage(() => import('./pages/ForgotPassword'))
 
 
@@ -73,6 +74,7 @@ function App() {
                             <Route path="/eligibility" element={<EligibilityChecker />} />
                             <Route path="/editorial-policy" element={<EditorialPolicy />} />
                             <Route path="/about" element={<About />} />
+                                <Route path="/contact" element={<Contact />} />
 
                             {/* Protected Routes */}
                             <Route path="/dashboard" element={

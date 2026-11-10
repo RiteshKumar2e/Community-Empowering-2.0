@@ -1,0 +1,97 @@
+.contact-page .contact-email {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+}
+
+.contact-page .contact-email a {
+  word-break: break-all;
+}
+
+.contact-form {
+  display: grid;
+  gap: var(--space-4);
+  margin-top: var(--space-6);
+}
+
+.contact-form .form-row {
+  display: grid;
+  gap: 6px;
+}
+
+.contact-form label {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.contact-form input,
+.contact-form select,
+.contact-form textarea {
+  width: 100%;
+  padding: 10px 12px;
+  font: inherit;
+  color: var(--text-primary);
+  background: var(--bg-input);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+}
+
+.contact-form textarea {
+  resize: vertical;
+}
+
+.contact-form [aria-invalid='true'] {
+  border-color: var(--text-danger);
+}
+
+.contact-form .field-hint {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--text-tertiary);
+}
+
+.contact-form .field-error,
+.contact-form .form-error {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--text-danger);
+}
+
+.contact-form .btn {
+  justify-self: start;
+}
+
+/* Honeypot: invisible to people, still in the form for bots. */
+.contact-hp {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.contact-success {
+  display: flex;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+  padding: var(--space-5);
+  border: 1px solid var(--border-color);
+  border-left: 4px solid var(--success-600);
+  border-radius: var(--radius-lg);
+  background: var(--bg-secondary);
+}
+
+.contact-success svg {
+  flex-shrink: 0;
+  color: var(--text-success);
+}
+
+.contact-success h2 {
+  margin: 0 0 var(--space-1);
+  font-size: var(--text-lg);
+}
